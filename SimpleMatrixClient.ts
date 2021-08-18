@@ -1,8 +1,8 @@
-import Observer, { ObserverCallback, ObserverDestructor } from "./nor/ts/Observer";
-import RequestClient from "./nor/ts/RequestClient";
-import LogService from "./nor/ts/LogService";
-import { forEach, keys } from "./nor/ts/modules/lodash";
-import JsonAny from "./nor/ts/Json";
+import { forEach, keys } from "../ts/modules/lodash";
+import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
+import RequestClient from "../ts/RequestClient";
+import LogService from "../ts/LogService";
+import JsonAny from "../ts/Json";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
