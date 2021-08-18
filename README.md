@@ -4,7 +4,10 @@ Our lightweight Matrix.org library written in TypeScript.
 
 ### Why?
 
-The official SDK was too complex and bloat for OpenWRT devices.
+The official SDK was too complex and bloat for OpenWRT devices and did not easily rollup as a full 
+minified single file. 
+
+Our version takes space about 50k including all dependencies except standard library.
 
 ### It's MIT licenced
 
