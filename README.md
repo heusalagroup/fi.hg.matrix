@@ -7,7 +7,8 @@ Our lightweight Matrix.org library written in TypeScript.
 The official SDK was too complex and bloat for OpenWRT devices and did not easily rollup as a full 
 minified single file. 
 
-Our version takes space about 50k including all dependencies except standard library.
+Our compiled version takes space about 50kB. That's *including* all dependencies except standard 
+library. It runs on the browser as well as on the NodeJS LTS v8 and up.
 
 ### It's MIT licenced
 
@@ -37,8 +38,8 @@ mkdir -p src/nor
 git submodule add git@github.com:sendanor/typescript.git src/nor/ts
 git config -f .gitmodules submodule.src/nor/ts.branch main
 
-git submodule add git@github.com:sendanor/matrix.git src/nor/pipeline
-git config -f .gitmodules submodule.src/nor/pipeline.branch main
+git submodule add git@github.com:sendanor/matrix.git src/nor/matrix
+git config -f .gitmodules submodule.src/nor/matrix.branch main
 ```
 
 Only required dependency is to [the Lodash library](https://lodash.com/):
