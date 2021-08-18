@@ -126,6 +126,55 @@ export class SimpleMatrixClient {
     }
 
 
+    private _sendMatrixEventList (events : MatrixEventDTO[], room_id : string | undefined) {
+        forEach(events, (event) => {
+            this._sendMatrixEvent(event, room_id);
+        });
+    }
+
+    private _sendMatrixEvent (event : MatrixEventDTO, room_id : string | undefined) {
+        this._observer.triggerEvent(SimpleMatrixClientEvent.EVENT, room_id ? {...event, room_id} : event);
+    }
+
+    private _onTimeout () {
+
+        if (this._syncing) {
+            LOG.warn( `Warning! Already syncing...`);
+            return;
+        }
+
+        // LOG.info('On timeout...');
+
+        this._syncing = true;
+        this._syncSince(this._nextBatch).then(() => {
+
+            this._syncing = false;
+
+            if (this._timer !== undefined) {
+                clearTimeout(this._timer);
+                this._timer = undefined;
+            }
+
+            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
+            // LOG.info('Timer started again...');
+
+        }, (err) => {
+
+            this._syncing = false;
+            LOG.error(`ERROR: `, err);
+
+            if (this._timer !== undefined) {
+                clearTimeout(this._timer);
+                this._timer = undefined;
+            }
+
+            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
+            // LOG.info('Timer started again...');
+
+        });
+
+    }
+
 
     private async _initSync () {
 
@@ -188,8 +237,8 @@ export class SimpleMatrixClient {
                         const events : MatrixEventDTO[] | undefined = roomValue?.events;
                         if ( events ) {
                             this._sendMatrixEventList(events, roomId);
-                        // } else {
-                        //     LOG.debug('Room join: ', roomId, roomValue);
+                            // } else {
+                            //     LOG.debug('Room join: ', roomId, roomValue);
                         }
                     });
 
@@ -198,55 +247,6 @@ export class SimpleMatrixClient {
 
         })
 
-
-    }
-
-    private _sendMatrixEventList (events : MatrixEventDTO[], room_id : string | undefined) {
-        forEach(events, (event) => {
-            this._sendMatrixEvent(event, room_id);
-        });
-    }
-
-    private _sendMatrixEvent (event : MatrixEventDTO, room_id : string | undefined) {
-        this._observer.triggerEvent(SimpleMatrixClientEvent.EVENT, room_id ? {...event, room_id} : event);
-    }
-
-    private _onTimeout () {
-
-        if (this._syncing) {
-            LOG.warn( `Warning! Already syncing...`);
-            return;
-        }
-
-        // LOG.info('On timeout...');
-
-        this._syncing = true;
-        this._syncSince(this._nextBatch).then(() => {
-
-            this._syncing = false;
-
-            if (this._timer !== undefined) {
-                clearTimeout(this._timer);
-                this._timer = undefined;
-            }
-
-            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
-            // LOG.info('Timer started again...');
-
-        }, (err) => {
-
-            this._syncing = false;
-            LOG.error(`ERROR: `, err);
-
-            if (this._timer !== undefined) {
-                clearTimeout(this._timer);
-                this._timer = undefined;
-            }
-
-            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
-            // LOG.info('Timer started again...');
-
-        });
 
     }
 
