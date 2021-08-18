@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Sendanor. All rights reserved.
+
 import { forEach, keys } from "../ts/modules/lodash";
 import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
 import RequestClient from "../ts/RequestClient";
