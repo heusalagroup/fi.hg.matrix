@@ -7,6 +7,12 @@ export interface MatrixSyncResponseEphemeralDTO {
     readonly events : MatrixSyncResponseEventDTO[];
 }
 
+export function getEventsFromMatrixSyncResponseEphemeralDTO (
+    value: MatrixSyncResponseEphemeralDTO
+) : MatrixSyncResponseEventDTO[] {
+    return value?.events ?? [];
+}
+
 export function isMatrixSyncResponseEphemeralDTO (value: any): value is MatrixSyncResponseEphemeralDTO {
     return (
         isRegularObject(value)

@@ -1,10 +1,16 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixStateEvent, { isMatrixStateEvent } from "../../../core/MatrixStateEvent";
 import { hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import MatrixSyncResponseStateEventDTO, { isMatrixSyncResponseStateEventDTO } from "./MatrixSyncResponseStateEventDTO";
 
 export interface MatrixSyncResponseStateDTO {
-    readonly events : MatrixStateEvent[];
+    readonly events : MatrixSyncResponseStateEventDTO[];
+}
+
+export function getEventsFromMatrixSyncResponseStateDTO (
+    value: MatrixSyncResponseStateDTO
+) : MatrixSyncResponseStateEventDTO[] {
+    return value?.events ?? [];
 }
 
 export function isMatrixSyncResponseStateDTO (value: any): value is MatrixSyncResponseStateDTO {
@@ -14,7 +20,7 @@ export function isMatrixSyncResponseStateDTO (value: any): value is MatrixSyncRe
         && hasNoOtherKeys(value, [
             'events'
         ])
-        && isMatrixStateEvent(value?.events)
+        && isMatrixSyncResponseStateEventDTO(value?.events)
     );
 }
 

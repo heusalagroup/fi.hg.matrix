@@ -7,6 +7,12 @@ export interface MatrixSyncResponseInviteStateDTO {
     readonly events: MatrixSyncResponseStrippedStateDTO[];
 }
 
+export function getEventsFromMatrixSyncResponseInviteStateDTO (
+    value: MatrixSyncResponseInviteStateDTO
+) : MatrixSyncResponseStrippedStateDTO[] {
+    return value?.events ?? [];
+}
+
 export function isMatrixSyncResponseInviteStateDTO (value: any): value is MatrixSyncResponseInviteStateDTO {
     return (
         isRegularObject(value)

@@ -1,6 +1,12 @@
 // Copyright (c) 2021 Sendanor. All rights reserved.
 
-import { forEach, isString, keys, map } from "../ts/modules/lodash";
+import {
+    concat,
+    forEach,
+    isString,
+    keys,
+    map
+} from "../ts/modules/lodash";
 import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
 import RequestClient from "../ts/RequestClient";
 import LogService from "../ts/LogService";
@@ -11,15 +17,31 @@ import { MatrixEventDTO } from "./types/core/MatrixEventDTO";
 import { MatrixType } from "./types/core/MatrixType";
 import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResponseDTO";
 import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
-import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixCreateRoomResponseDTO, { isMatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
-import GetDirectoryRoomAliasResponseDTO
-    , { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRoomAlias/GetDirectoryRoomAliasResponseDTO";
+import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRoomAlias/GetDirectoryRoomAliasResponseDTO";
 import RequestError from "../ts/request/types/RequestError";
 import RequestStatus from "../ts/request/types/RequestStatus";
 import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
 import { join } from "lodash";
-import MatrixSyncResponseDTO, { isMatrixSyncResponseDTO } from "./types/response/sync/MatrixSyncResponseDTO";
+import MatrixSyncResponseDTO, {
+    getEventsFromMatrixSyncResponseDTO,
+    isMatrixSyncResponseDTO
+} from "./types/response/sync/MatrixSyncResponseDTO";
+import MatrixSyncResponseUtils from "./types/response/sync/MatrixSyncResponseUtils";
+import MatrixSyncResponseEventDTO from "./types/response/sync/types/MatrixSyncResponseEventDTO";
+import MatrixSyncResponseAnyEventDTO
+    from "./types/response/sync/types/MatrixSyncResponseAnyEventDTO";
+import { getEventsFromMatrixSyncResponseRoomsDTO } from "./types/response/sync/types/MatrixSyncResponseRoomsDTO";
+import { getEventsFromMatrixSyncResponsePresenceDTO } from "./types/response/sync/types/MatrixSyncResponsePresenceDTO";
+import { getEventsFromMatrixSyncResponseAccountDataDTO } from "./types/response/sync/types/MatrixSyncResponseAccountDataDTO";
+import { getEventsFromMatrixSyncResponseToDeviceDTO } from "./types/response/sync/types/MatrixSyncResponseToDeviceDTO";
+import MatrixRoomId from "./types/core/MatrixRoomId";
+import MatrixSyncResponseJoinedRoomDTO
+    , { getEventsFromMatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
+import MatrixSyncResponseInvitedRoomDTO
+    , { getEventsFromMatrixSyncResponseInvitedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseInvitedRoomDTO";
+import MatrixSyncResponseLeftRoomDTO
+    , { getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -287,79 +309,7 @@ export class SimpleMatrixClient {
 
     }
 
-
-    private _sendMatrixEventList (events : MatrixEventDTO[], room_id : string | undefined) {
-        forEach(events, (event) => {
-            this._sendMatrixEvent(event, room_id);
-        });
-    }
-
-    private _sendMatrixEvent (event : MatrixEventDTO, room_id : string | undefined) {
-        this._observer.triggerEvent(SimpleMatrixClientEvent.EVENT, room_id ? {...event, room_id} : event);
-    }
-
-    private _onTimeout () {
-
-        if (this._syncing) {
-            LOG.warn( `Warning! Already syncing...`);
-            return;
-        }
-
-        // LOG.info('On timeout...');
-
-        const nextBatch = this._nextBatch;
-
-        if (!nextBatch) throw new TypeError(`_onTimeout: No nextBatch defined`);
-
-        this._syncing = true;
-        this._syncSince(nextBatch).then(() => {
-
-            this._syncing = false;
-
-            if (this._timer !== undefined) {
-                clearTimeout(this._timer);
-                this._timer = undefined;
-            }
-
-            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
-            // LOG.info('Timer started again...');
-
-        }, (err) => {
-
-            this._syncing = false;
-            LOG.error(`ERROR: `, err);
-
-            if (this._timer !== undefined) {
-                clearTimeout(this._timer);
-                this._timer = undefined;
-            }
-
-            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
-            // LOG.info('Timer started again...');
-
-        });
-
-    }
-
-    private _normalizeRoomName (name : string) {
-
-        if ( !name || !isString(name) ) {
-            throw new TypeError(`_normalizeRoomName: name is invalid: ${name}`);
-        }
-
-        if (name[0] !== '#') {
-            name = `#${name}`;
-        }
-
-        if ( name.indexOf(':') < 0 ) {
-            name = `${name}:${this.getHomeServerName()}`;
-        }
-
-        return name;
-
-    }
-
-    private async _sync (options : {
+    public async sync (options : {
         filter       ?: string | JsonObject,
         since        ?: string,
         full_state   ?: boolean,
@@ -444,6 +394,78 @@ export class SimpleMatrixClient {
 
     }
 
+
+    private _sendMatrixEventList (events : MatrixSyncResponseAnyEventDTO[], room_id : string | undefined) {
+        forEach(events, (event) => {
+            this._sendMatrixEvent(event, room_id);
+        });
+    }
+
+    private _sendMatrixEvent (event : MatrixSyncResponseAnyEventDTO, room_id : string | undefined) {
+        this._observer.triggerEvent(SimpleMatrixClientEvent.EVENT, room_id ? {...event, room_id} : event);
+    }
+
+    private _onTimeout () {
+
+        if (this._syncing) {
+            LOG.warn( `Warning! Already syncing...`);
+            return;
+        }
+
+        // LOG.info('On timeout...');
+
+        const nextBatch = this._nextBatch;
+
+        if (!nextBatch) throw new TypeError(`_onTimeout: No nextBatch defined`);
+
+        this._syncing = true;
+        this._syncSince(nextBatch).then(() => {
+
+            this._syncing = false;
+
+            if (this._timer !== undefined) {
+                clearTimeout(this._timer);
+                this._timer = undefined;
+            }
+
+            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
+            // LOG.info('Timer started again...');
+
+        }, (err) => {
+
+            this._syncing = false;
+            LOG.error(`ERROR: `, err);
+
+            if (this._timer !== undefined) {
+                clearTimeout(this._timer);
+                this._timer = undefined;
+            }
+
+            this._timer = setTimeout(this._timeoutCallback, this._pollWaitTime);
+            // LOG.info('Timer started again...');
+
+        });
+
+    }
+
+    private _normalizeRoomName (name : string) {
+
+        if ( !name || !isString(name) ) {
+            throw new TypeError(`_normalizeRoomName: name is invalid: ${name}`);
+        }
+
+        if (name[0] !== '#') {
+            name = `#${name}`;
+        }
+
+        if ( name.indexOf(':') < 0 ) {
+            name = `${name}:${this.getHomeServerName()}`;
+        }
+
+        return name;
+
+    }
+
     private async _initSync () {
 
         LOG.info(`Initial sync request started`);
@@ -459,14 +481,20 @@ export class SimpleMatrixClient {
 
         this._state = SimpleMatrixClientState.AUTHENTICATED_AND_STARTING;
 
-        const response = await RequestClient.getJson(
-            this._resolveHomeServerUrl(`/sync?filter={"room":{"timeline":{"limit":1}}}&access_token=${q(accessToken)}`)
-        );
+        const response = this.sync({
+            filter: {
+                room:{
+                    timeline:{
+                        limit:1
+                    }
+                }
+            }
+        });
 
         LOG.info(`Initial sync response received`);
 
         // @ts-ignore
-        const next_batch : string | undefined = response?.next_batch;
+        const next_batch : string | undefined = response.next_batch;
 
         if (next_batch) {
             this._nextBatch = next_batch;
@@ -488,12 +516,13 @@ export class SimpleMatrixClient {
             throw new TypeError(`_syncSince: Client did not have access token`);
         }
 
-        const response : any = await RequestClient.getJson(
-            this._resolveHomeServerUrl(`/sync?since=${q(next)}&timeout=${this._pollTimeout}&access_token=${q(accessToken)}`)
-        );
+        const response : MatrixSyncResponseDTO = await this.sync({
+            since: next,
+            timeout: this._pollTimeout
+        });
 
         // @ts-ignore
-        const next_batch : string | undefined = response?.next_batch;
+        const next_batch : string | undefined = response.next_batch;
         if (next_batch) {
             this._nextBatch = next_batch;
         } else {
@@ -502,41 +531,37 @@ export class SimpleMatrixClient {
 
         // LOG.debug('Response: ', response);
 
-        forEach(keys(response), (property : any) => {
+        const nonRoomEvents : MatrixSyncResponseEventDTO[] = concat(
+            response?.presence     ? getEventsFromMatrixSyncResponsePresenceDTO(response?.presence)        : [],
+            response?.account_data ? getEventsFromMatrixSyncResponseAccountDataDTO(response?.account_data) : [],
+            response?.to_device    ? getEventsFromMatrixSyncResponseToDeviceDTO(response?.to_device)       : [],
+        );
 
-            const value : any = response[property];
+        this._sendMatrixEventList(nonRoomEvents, undefined);
 
-            // LOG.debug('value = ', value);
+        const joinObject = response?.rooms?.join ?? {};
+        const joinRoomIds = keys(joinObject);
+        forEach(joinRoomIds, (roomId : MatrixRoomId) => {
+            const roomObject : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
+            const events = getEventsFromMatrixSyncResponseJoinedRoomDTO(roomObject);
+            this._sendMatrixEventList(events, roomId);
+        });
 
-            // @ts-ignore
-            const events : MatrixEventDTO[] = value?.events ?? [];
+        const inviteObject = response?.rooms?.invite ?? {};
+        const inviteRoomIds = keys(inviteObject);
+        forEach(inviteRoomIds, (roomId : MatrixRoomId) => {
+            const roomObject : MatrixSyncResponseInvitedRoomDTO = inviteObject[roomId];
+            const events = getEventsFromMatrixSyncResponseInvitedRoomDTO(roomObject);
+            this._sendMatrixEventList(events, roomId);
+        });
 
-            if (events) {
-                this._sendMatrixEventList(events, undefined);
-            }
-
-            const join = value?.join;
-            if (property === 'rooms' && join ) {
-                forEach(keys(join), (roomId : any ) => {
-                    const obj : any = join[roomId];
-                    // LOG.debug('obj = ', obj);
-
-                    forEach(keys(obj), (property : any) => {
-                        const roomValue = obj[property];
-
-                        const events : MatrixEventDTO[] | undefined = roomValue?.events;
-                        if ( events ) {
-                            this._sendMatrixEventList(events, roomId);
-                            // } else {
-                            //     LOG.debug('Room join: ', roomId, roomValue);
-                        }
-                    });
-
-                })
-            }
-
-        })
-
+        const leaveObject = response?.rooms?.leave ?? {};
+        const leaveRoomIds = keys(leaveObject);
+        forEach(leaveRoomIds, (roomId : MatrixRoomId) => {
+            const roomObject : MatrixSyncResponseLeftRoomDTO = leaveObject[roomId];
+            const events = getEventsFromMatrixSyncResponseLeftRoomDTO(roomObject);
+            this._sendMatrixEventList(events, roomId);
+        });
 
     }
 

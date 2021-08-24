@@ -15,6 +15,12 @@ export interface MatrixSyncResponseTimelineDTO {
     readonly prev_batch : string;
 }
 
+export function getEventsFromMatrixSyncResponseTimelineDTO (
+    value: MatrixSyncResponseTimelineDTO
+) : MatrixSyncResponseRoomEventDTO[] {
+    return value?.events ?? [];
+}
+
 export function isMatrixSyncResponseTimelineDTO (value: any): value is MatrixSyncResponseTimelineDTO {
     return (
         isRegularObject(value)

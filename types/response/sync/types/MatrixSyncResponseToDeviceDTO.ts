@@ -9,6 +9,12 @@ export interface MatrixSyncResponseToDeviceDTO {
 
 }
 
+export function getEventsFromMatrixSyncResponseToDeviceDTO (
+    value: MatrixSyncResponseToDeviceDTO
+) : MatrixSyncResponseEventDTO[] {
+    return value?.events ?? [];
+}
+
 export function isMatrixSyncResponseToDeviceDTO (value: any): value is MatrixSyncResponseToDeviceDTO {
     return (
         isRegularObject(value)

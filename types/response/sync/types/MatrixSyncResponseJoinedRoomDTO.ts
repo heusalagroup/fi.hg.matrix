@@ -1,13 +1,32 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import MatrixSyncResponseRoomSummaryDTO, { isMatrixSyncResponseRoomSummaryDTO } from "./MatrixSyncResponseRoomSummaryDTO";
-import MatrixSyncResponseStateDTO, { isMatrixSyncResponseStateDTO } from "./MatrixSyncResponseStateDTO";
-import MatrixSyncResponseTimelineDTO, { isMatrixSyncResponseTimelineDTO } from "./MatrixSyncResponseTimelineDTO";
-import MatrixSyncResponseEphemeralDTO, { isMatrixSyncResponseEphemeralDTO } from "./MatrixSyncResponseEphemeralDTO";
-import MatrixSyncResponseAccountDataDTO, { isMatrixSyncResponseAccountDataDTO } from "./MatrixSyncResponseAccountDataDTO";
+import MatrixSyncResponseStateDTO, {
+    getEventsFromMatrixSyncResponseStateDTO,
+    isMatrixSyncResponseStateDTO
+} from "./MatrixSyncResponseStateDTO";
+import MatrixSyncResponseTimelineDTO, {
+    getEventsFromMatrixSyncResponseTimelineDTO,
+    isMatrixSyncResponseTimelineDTO
+} from "./MatrixSyncResponseTimelineDTO";
+import MatrixSyncResponseEphemeralDTO, {
+    getEventsFromMatrixSyncResponseEphemeralDTO,
+    isMatrixSyncResponseEphemeralDTO
+} from "./MatrixSyncResponseEphemeralDTO";
+import MatrixSyncResponseAccountDataDTO, {
+    getEventsFromMatrixSyncResponseAccountDataDTO,
+    isMatrixSyncResponseAccountDataDTO
+} from "./MatrixSyncResponseAccountDataDTO";
 import MatrixSyncResponseUnreadNotificationCountsDTO
     , { isMatrixSyncResponseUnreadNotificationCountsDTO } from "./MatrixSyncResponseUnreadNotificationCountsDTO";
-import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../ts/modules/lodash";
+import {
+    concat,
+    hasNoOtherKeys,
+    isRegularObject,
+    isUndefined
+} from "../../../../../ts/modules/lodash";
+import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
+import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
 
 export interface MatrixSyncResponseJoinedRoomDTO {
     readonly summary              ?: MatrixSyncResponseRoomSummaryDTO;
@@ -16,6 +35,19 @@ export interface MatrixSyncResponseJoinedRoomDTO {
     readonly ephemeral            ?: MatrixSyncResponseEphemeralDTO;
     readonly account_data         ?: MatrixSyncResponseAccountDataDTO;
     readonly unread_notifications ?: MatrixSyncResponseUnreadNotificationCountsDTO;
+}
+
+export function getEventsFromMatrixSyncResponseJoinedRoomDTO (
+    value: MatrixSyncResponseJoinedRoomDTO
+) : (MatrixSyncResponseEventDTO|MatrixSyncResponseRoomEventDTO)[] {
+
+    return concat(
+        value?.state        ? getEventsFromMatrixSyncResponseStateDTO(value?.state)              : [],
+        value?.timeline     ? getEventsFromMatrixSyncResponseTimelineDTO(value?.timeline)        : [],
+        value?.ephemeral    ? getEventsFromMatrixSyncResponseEphemeralDTO(value?.ephemeral)      : [],
+        value?.account_data ? getEventsFromMatrixSyncResponseAccountDataDTO(value?.account_data) : []
+    );
+
 }
 
 export function isMatrixSyncResponseJoinedRoomDTO (value: any): value is MatrixSyncResponseJoinedRoomDTO {

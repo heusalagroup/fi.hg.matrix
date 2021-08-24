@@ -1,20 +1,33 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
+    concat,
     hasNoOtherKeys,
     isRegularObject,
     isString,
     isUndefined
 } from "../../../../ts/modules/lodash";
-import MatrixSyncResponseRoomsDTO, { isMatrixSyncResponseRoomsDTO } from "./types/MatrixSyncResponseRoomsDTO";
+import MatrixSyncResponseRoomsDTO, {
+    getEventsFromMatrixSyncResponseRoomsDTO,
+    isMatrixSyncResponseRoomsDTO
+} from "./types/MatrixSyncResponseRoomsDTO";
 import MatrixSyncResponseAccountDataDTO, {
+    getEventsFromMatrixSyncResponseAccountDataDTO,
     isMatrixSyncResponseAccountDataDTO
 } from "./types/MatrixSyncResponseAccountDataDTO";
-import MatrixSyncResponsePresenceDTO, { isMatrixSyncResponsePresenceDTO } from "./types/MatrixSyncResponsePresenceDTO";
-import MatrixSyncResponseToDeviceDTO, { isMatrixSyncResponseToDeviceDTO } from "./types/MatrixSyncResponseToDeviceDTO";
+import MatrixSyncResponsePresenceDTO, {
+    getEventsFromMatrixSyncResponsePresenceDTO,
+    isMatrixSyncResponsePresenceDTO
+} from "./types/MatrixSyncResponsePresenceDTO";
+import MatrixSyncResponseToDeviceDTO, {
+    getEventsFromMatrixSyncResponseToDeviceDTO,
+    isMatrixSyncResponseToDeviceDTO
+} from "./types/MatrixSyncResponseToDeviceDTO";
 import MatrixSyncResponseDeviceListsDTO, { isMatrixSyncResponseDeviceListsDTO } from "./types/MatrixSyncResponseDeviceListsDTO";
 import MatrixSyncResponseDeviceOneTimeKeysCountDTO
     , { isMatrixSyncResponseDeviceOneTimeKeysCountDTO } from "./types/MatrixSyncResponseDeviceOneTimeKeysCountDTO";
+import MatrixSyncResponseEventDTO from "./types/MatrixSyncResponseEventDTO";
+import MatrixSyncResponseAnyEventDTO from "./types/MatrixSyncResponseAnyEventDTO";
 
 export interface MatrixSyncResponseDTO {
     readonly next_batch                    : string;
@@ -24,6 +37,15 @@ export interface MatrixSyncResponseDTO {
     readonly to_device                    ?: MatrixSyncResponseToDeviceDTO;
     readonly device_lists                 ?: MatrixSyncResponseDeviceListsDTO;
     readonly device_one_time_keys_count   ?: MatrixSyncResponseDeviceOneTimeKeysCountDTO;
+}
+
+export function getEventsFromMatrixSyncResponseDTO (value : MatrixSyncResponseDTO) : MatrixSyncResponseAnyEventDTO[] {
+    return concat(
+        value?.rooms        ? getEventsFromMatrixSyncResponseRoomsDTO(value?.rooms)                          : [],
+        value?.presence     ? getEventsFromMatrixSyncResponsePresenceDTO(value?.presence)                    : [],
+        value?.account_data ? getEventsFromMatrixSyncResponseAccountDataDTO(value?.account_data)                : [],
+        value?.to_device    ? getEventsFromMatrixSyncResponseToDeviceDTO(value?.to_device)                   : [],
+    );
 }
 
 export function isMatrixSyncResponseDTO (value: any): value is MatrixSyncResponseDTO {

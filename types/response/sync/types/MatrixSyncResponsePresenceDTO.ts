@@ -7,6 +7,12 @@ export interface MatrixSyncResponsePresenceDTO {
     readonly events: MatrixSyncResponseEventDTO[];
 }
 
+export function getEventsFromMatrixSyncResponsePresenceDTO (
+    value: MatrixSyncResponsePresenceDTO
+) : MatrixSyncResponseEventDTO[] {
+    return value?.events ?? [];
+}
+
 export function isMatrixSyncResponsePresenceDTO (value: any): value is MatrixSyncResponsePresenceDTO {
     return (
         isRegularObject(value)

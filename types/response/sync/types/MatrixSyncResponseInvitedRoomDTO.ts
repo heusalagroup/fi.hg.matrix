@@ -1,10 +1,20 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseInviteStateDTO, { isMatrixSyncResponseInviteStateDTO } from "./MatrixSyncResponseInviteStateDTO";
+import MatrixSyncResponseInviteStateDTO, {
+    getEventsFromMatrixSyncResponseInviteStateDTO,
+    isMatrixSyncResponseInviteStateDTO
+} from "./MatrixSyncResponseInviteStateDTO";
 import { hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import MatrixSyncResponseStrippedStateDTO from "./MatrixSyncResponseStrippedStateDTO";
 
 export interface MatrixSyncResponseInvitedRoomDTO {
     readonly invite_state : MatrixSyncResponseInviteStateDTO;
+}
+
+export function getEventsFromMatrixSyncResponseInvitedRoomDTO (
+    value: MatrixSyncResponseInvitedRoomDTO
+) : MatrixSyncResponseStrippedStateDTO[] {
+    return getEventsFromMatrixSyncResponseInviteStateDTO(value.invite_state);
 }
 
 export function isMatrixSyncResponseInvitedRoomDTO (value: any): value is MatrixSyncResponseInvitedRoomDTO {

@@ -1,14 +1,36 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseStateDTO, { isMatrixSyncResponseStateDTO } from "./MatrixSyncResponseStateDTO";
-import MatrixSyncResponseTimelineDTO, { isMatrixSyncResponseTimelineDTO } from "./MatrixSyncResponseTimelineDTO";
-import MatrixSyncResponseAccountDataDTO, { isMatrixSyncResponseAccountDataDTO } from "./MatrixSyncResponseAccountDataDTO";
-import { hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import MatrixSyncResponseStateDTO, {
+    getEventsFromMatrixSyncResponseStateDTO,
+    isMatrixSyncResponseStateDTO
+} from "./MatrixSyncResponseStateDTO";
+import MatrixSyncResponseTimelineDTO, {
+    getEventsFromMatrixSyncResponseTimelineDTO,
+    isMatrixSyncResponseTimelineDTO
+} from "./MatrixSyncResponseTimelineDTO";
+import MatrixSyncResponseAccountDataDTO, {
+    getEventsFromMatrixSyncResponseAccountDataDTO,
+    isMatrixSyncResponseAccountDataDTO
+} from "./MatrixSyncResponseAccountDataDTO";
+import { concat, hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
+import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
+import MatrixSyncResponseStateEventDTO from "./MatrixSyncResponseStateEventDTO";
 
 export interface MatrixSyncResponseLeftRoomDTO {
     readonly state        : MatrixSyncResponseStateDTO;
     readonly timeline     : MatrixSyncResponseTimelineDTO;
     readonly account_data : MatrixSyncResponseAccountDataDTO;
+}
+
+export function getEventsFromMatrixSyncResponseLeftRoomDTO (
+    value: MatrixSyncResponseLeftRoomDTO
+) : (MatrixSyncResponseStateEventDTO|MatrixSyncResponseRoomEventDTO|MatrixSyncResponseEventDTO)[] {
+    return concat(
+        getEventsFromMatrixSyncResponseStateDTO(value?.state),
+        getEventsFromMatrixSyncResponseTimelineDTO(value?.timeline),
+        getEventsFromMatrixSyncResponseAccountDataDTO(value?.account_data)
+    );
 }
 
 export function isMatrixSyncResponseLeftRoomDTO (value: any): value is MatrixSyncResponseLeftRoomDTO {

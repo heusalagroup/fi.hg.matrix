@@ -7,6 +7,12 @@ export interface MatrixSyncResponseAccountDataDTO {
     readonly events: MatrixSyncResponseEventDTO[];
 }
 
+export function getEventsFromMatrixSyncResponseAccountDataDTO (
+    value: MatrixSyncResponseAccountDataDTO
+) : MatrixSyncResponseEventDTO[] {
+    return value?.events ?? [];
+}
+
 export function isMatrixSyncResponseAccountDataDTO (value: any): value is MatrixSyncResponseAccountDataDTO {
     return (
         isRegularObject(value)
