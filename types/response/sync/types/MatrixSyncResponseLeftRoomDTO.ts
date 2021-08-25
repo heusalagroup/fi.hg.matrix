@@ -25,8 +25,9 @@ export interface MatrixSyncResponseLeftRoomDTO {
 
 export function getEventsFromMatrixSyncResponseLeftRoomDTO (
     value: MatrixSyncResponseLeftRoomDTO
-) : (MatrixSyncResponseStateEventDTO|MatrixSyncResponseRoomEventDTO|MatrixSyncResponseEventDTO)[] {
+) : readonly (MatrixSyncResponseStateEventDTO|MatrixSyncResponseRoomEventDTO|MatrixSyncResponseEventDTO)[] {
     return concat(
+        [] as (MatrixSyncResponseStateEventDTO|MatrixSyncResponseRoomEventDTO|MatrixSyncResponseEventDTO)[],
         getEventsFromMatrixSyncResponseStateDTO(value?.state),
         getEventsFromMatrixSyncResponseTimelineDTO(value?.timeline),
         getEventsFromMatrixSyncResponseAccountDataDTO(value?.account_data)

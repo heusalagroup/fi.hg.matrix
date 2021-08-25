@@ -13,7 +13,7 @@ export interface MatrixSyncResponseInvitedRoomDTO {
 
 export function getEventsFromMatrixSyncResponseInvitedRoomDTO (
     value: MatrixSyncResponseInvitedRoomDTO
-) : MatrixSyncResponseStrippedStateDTO[] {
+) : readonly MatrixSyncResponseStrippedStateDTO[] {
     return getEventsFromMatrixSyncResponseInviteStateDTO(value.invite_state);
 }
 

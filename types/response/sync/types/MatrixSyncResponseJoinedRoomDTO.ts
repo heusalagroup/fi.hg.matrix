@@ -6,6 +6,7 @@ import MatrixSyncResponseStateDTO, {
     isMatrixSyncResponseStateDTO
 } from "./MatrixSyncResponseStateDTO";
 import MatrixSyncResponseTimelineDTO, {
+    explainMatrixSyncResponseTimelineDTO,
     getEventsFromMatrixSyncResponseTimelineDTO,
     isMatrixSyncResponseTimelineDTO
 } from "./MatrixSyncResponseTimelineDTO";
@@ -21,7 +22,7 @@ import MatrixSyncResponseUnreadNotificationCountsDTO
     , { isMatrixSyncResponseUnreadNotificationCountsDTO } from "./MatrixSyncResponseUnreadNotificationCountsDTO";
 import {
     concat,
-    hasNoOtherKeys,
+    hasNoOtherKeys, isNumberOrUndefined,
     isRegularObject,
     isUndefined
 } from "../../../../../ts/modules/lodash";
@@ -29,19 +30,21 @@ import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
 import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
 
 export interface MatrixSyncResponseJoinedRoomDTO {
-    readonly summary              ?: MatrixSyncResponseRoomSummaryDTO;
-    readonly state                ?: MatrixSyncResponseStateDTO;
-    readonly timeline             ?: MatrixSyncResponseTimelineDTO;
-    readonly ephemeral            ?: MatrixSyncResponseEphemeralDTO;
-    readonly account_data         ?: MatrixSyncResponseAccountDataDTO;
-    readonly unread_notifications ?: MatrixSyncResponseUnreadNotificationCountsDTO;
+    readonly summary                            ?: MatrixSyncResponseRoomSummaryDTO;
+    readonly state                              ?: MatrixSyncResponseStateDTO;
+    readonly timeline                           ?: MatrixSyncResponseTimelineDTO;
+    readonly ephemeral                          ?: MatrixSyncResponseEphemeralDTO;
+    readonly account_data                       ?: MatrixSyncResponseAccountDataDTO;
+    readonly unread_notifications               ?: MatrixSyncResponseUnreadNotificationCountsDTO;
+    readonly "org.matrix.msc2654.unread_count"  ?: number;
 }
 
 export function getEventsFromMatrixSyncResponseJoinedRoomDTO (
     value: MatrixSyncResponseJoinedRoomDTO
-) : (MatrixSyncResponseEventDTO|MatrixSyncResponseRoomEventDTO)[] {
+) : readonly ( MatrixSyncResponseRoomEventDTO | MatrixSyncResponseEventDTO )[] {
 
     return concat(
+        [] as readonly ( MatrixSyncResponseRoomEventDTO | MatrixSyncResponseEventDTO )[],
         value?.state        ? getEventsFromMatrixSyncResponseStateDTO(value?.state)              : [],
         value?.timeline     ? getEventsFromMatrixSyncResponseTimelineDTO(value?.timeline)        : [],
         value?.ephemeral    ? getEventsFromMatrixSyncResponseEphemeralDTO(value?.ephemeral)      : [],
@@ -59,15 +62,74 @@ export function isMatrixSyncResponseJoinedRoomDTO (value: any): value is MatrixS
             'timeline',
             'ephemeral',
             'account_data',
-            'unread_notifications'
+            'unread_notifications',
+            'org.matrix.msc2654.unread_count'
         ])
-        && (isUndefined(value?.summary) || isMatrixSyncResponseRoomSummaryDTO(value?.summary))
-        && (isUndefined(value?.state) || isMatrixSyncResponseStateDTO(value?.state))
-        && (isUndefined(value?.timeline) || isMatrixSyncResponseTimelineDTO(value?.timeline))
-        && (isUndefined(value?.ephemeral) || isMatrixSyncResponseEphemeralDTO(value?.ephemeral))
-        && (isUndefined(value?.account_data) || isMatrixSyncResponseAccountDataDTO(value?.account_data))
+        && (isUndefined(value?.summary)              || isMatrixSyncResponseRoomSummaryDTO(value?.summary))
+        && (isUndefined(value?.state)                || isMatrixSyncResponseStateDTO(value?.state))
+        && (isUndefined(value?.timeline)             || isMatrixSyncResponseTimelineDTO(value?.timeline))
+        && (isUndefined(value?.ephemeral)            || isMatrixSyncResponseEphemeralDTO(value?.ephemeral))
+        && (isUndefined(value?.account_data)         || isMatrixSyncResponseAccountDataDTO(value?.account_data))
         && (isUndefined(value?.unread_notifications) || isMatrixSyncResponseUnreadNotificationCountsDTO(value?.unread_notifications))
+        && (isNumberOrUndefined(value['org.matrix.msc2654.unread_count']))
     );
+}
+
+export function assertMatrixSyncResponseJoinedRoomDTO (value: any): void {
+
+    if (!( isRegularObject(value) )) {
+        throw new TypeError(`value was not object: ${value}`);
+    }
+
+    if (!( hasNoOtherKeys(value, [
+        'summary',
+        'state',
+        'timeline',
+        'ephemeral',
+        'account_data',
+        'unread_notifications',
+        'org.matrix.msc2654.unread_count'
+    ]) )) {
+        throw new TypeError(`value had extra keys: ${value}`);
+    }
+
+    if (!( (isUndefined(value?.summary)              || isMatrixSyncResponseRoomSummaryDTO(value?.summary)))) {
+        throw new TypeError(`Property "summary" was invalid: ${value}`);
+    }
+
+    if (!( (isUndefined(value?.state)                || isMatrixSyncResponseStateDTO(value?.state)))) {
+        throw new TypeError(`Property "state" was invalid: ${value}`);
+    }
+
+    if (!( (isUndefined(value?.timeline)             || isMatrixSyncResponseTimelineDTO(value?.timeline)))) {
+        throw new TypeError(`Property "timeline" was invalid: ${explainMatrixSyncResponseTimelineDTO(value?.timeline)}`);
+    }
+
+    if (!( (isUndefined(value?.ephemeral)            || isMatrixSyncResponseEphemeralDTO(value?.ephemeral)))) {
+        throw new TypeError(`Property "ephemeral" was invalid: ${value}`);
+    }
+
+    if (!( (isUndefined(value?.account_data)         || isMatrixSyncResponseAccountDataDTO(value?.account_data)))) {
+        throw new TypeError(`Property "account_data" was invalid: ${value}`);
+    }
+
+    if (!( (isUndefined(value?.unread_notifications) || isMatrixSyncResponseUnreadNotificationCountsDTO(value?.unread_notifications)))) {
+        throw new TypeError(`Property "unread_notifications" was invalid: ${value}`);
+    }
+
+    if (!( (isNumberOrUndefined(value['org.matrix.msc2654.unread_count'])))) {
+        throw new TypeError(`Property "org.matrix.msc2654.unread_count" was invalid: ${value}`);
+    }
+
+}
+
+export function explainMatrixSyncResponseJoinedRoomDTO (value : any) : string {
+    try {
+        assertMatrixSyncResponseJoinedRoomDTO(value);
+        return 'No errors detected';
+    } catch (err) {
+        return err.message;
+    }
 }
 
 export function stringifyMatrixSyncResponseJoinedRoomDTO (value: MatrixSyncResponseJoinedRoomDTO): string {

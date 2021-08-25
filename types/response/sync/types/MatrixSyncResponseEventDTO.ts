@@ -1,12 +1,14 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { isJsonObject, JsonObject } from "../../../../../ts/Json";
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../ts/modules/lodash";
+import MatrixType, { isMatrixType } from "../../../core/MatrixType";
+import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
 
 export interface MatrixSyncResponseEventDTO {
-    readonly content : JsonObject;
-    readonly type    : string;
-    readonly sender  : string;
+    readonly content  : JsonObject;
+    readonly type     : MatrixType;
+    readonly sender  ?: MatrixUserId;
 }
 
 export function isMatrixSyncResponseEventDTO (value: any): value is MatrixSyncResponseEventDTO {
@@ -14,11 +16,12 @@ export function isMatrixSyncResponseEventDTO (value: any): value is MatrixSyncRe
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'content',
-            'type'
+            'type',
+            'sender'
         ])
         && isJsonObject(value?.content)
-        && isString(value?.type)
-        && isString(value?.sender)
+        && isMatrixType(value?.type)
+        && (isUndefined(value?.sender) || isMatrixUserId(value?.sender))
     );
 }
 

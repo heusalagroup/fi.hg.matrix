@@ -1,12 +1,12 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject } from "../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../ts/modules/lodash";
 import MatrixRoomId, { isMatrixRoomId } from "../../core/MatrixRoomId";
 import MatrixRoomAlias, { isMatrixRoomAlias } from "../../core/MatrixRoomAlias";
 
 export interface MatrixCreateRoomResponseDTO {
-    readonly room_id : MatrixRoomId;
-    readonly room_alias : MatrixRoomAlias;
+    readonly room_id     : MatrixRoomId;
+    readonly room_alias ?: MatrixRoomAlias;
 }
 
 export function isMatrixCreateRoomResponseDTO (value: any): value is MatrixCreateRoomResponseDTO {
@@ -17,7 +17,7 @@ export function isMatrixCreateRoomResponseDTO (value: any): value is MatrixCreat
             'room_alias'
         ])
         && isMatrixRoomId(value?.room_id)
-        && isMatrixRoomAlias(value?.room_alias)
+        && (isUndefined(value?.room_alias) || isMatrixRoomAlias(value?.room_alias))
     );
 }
 

@@ -4,7 +4,7 @@ import {
     hasNoOtherKeys,
     isInteger,
     isRegularObject,
-    isString,
+    isStringOrUndefined,
     isUndefined
 } from "../../../../../ts/modules/lodash";
 import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
@@ -12,7 +12,7 @@ import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./Matr
 export interface MatrixSyncResponseUnsignedDataDTO {
     readonly age               : number;
     readonly redacted_because ?: MatrixSyncResponseEventDTO;
-    readonly transaction_id    : string;
+    readonly transaction_id   ?: string;
 }
 
 export function isMatrixSyncResponseUnsignedDataDTO (value: any): value is MatrixSyncResponseUnsignedDataDTO {
@@ -25,7 +25,7 @@ export function isMatrixSyncResponseUnsignedDataDTO (value: any): value is Matri
         ])
         && isInteger(value?.age)
         && ( isUndefined(value?.redacted_because) || isMatrixSyncResponseEventDTO(value?.redacted_because) )
-        && isString(value?.transaction_id)
+        && isStringOrUndefined(value?.transaction_id)
     );
 }
 

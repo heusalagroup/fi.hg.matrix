@@ -1,7 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixRoomId, { isMatrixRoomId } from "../../../core/MatrixRoomId";
+import MatrixRoomId, { explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO, {
+    explainMatrixSyncResponseJoinedRoomDTO,
     getEventsFromMatrixSyncResponseJoinedRoomDTO,
     isMatrixSyncResponseJoinedRoomDTO
 } from "./MatrixSyncResponseJoinedRoomDTO";
@@ -14,31 +15,29 @@ import MatrixSyncResponseLeftRoomDTO, {
     isMatrixSyncResponseLeftRoomDTO
 } from "./MatrixSyncResponseLeftRoomDTO";
 import {
-    concat,
+    concat, explainRegularObjectOf,
     hasNoOtherKeys,
     isRegularObject,
-    isRegularObjectOf, keys, map, reduce
+    isRegularObjectOf, isUndefined,
+    keys,
+    reduce
 } from "../../../../../ts/modules/lodash";
-import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
 import MatrixSyncResponseAnyEventDTO from "./MatrixSyncResponseAnyEventDTO";
-import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
-import MatrixSyncResponseStrippedStateDTO from "./MatrixSyncResponseStrippedStateDTO";
-import MatrixSyncResponseStateEventDTO from "./MatrixSyncResponseStateEventDTO";
 
 export interface MatrixSyncResponseRoomsDTO {
-    readonly join   : {[K in MatrixRoomId]: MatrixSyncResponseJoinedRoomDTO};
-    readonly invite : {[K in MatrixRoomId]: MatrixSyncResponseInvitedRoomDTO};
-    readonly leave  : {[K in MatrixRoomId]: MatrixSyncResponseLeftRoomDTO};
+    readonly join   ?: {[K in MatrixRoomId]: MatrixSyncResponseJoinedRoomDTO};
+    readonly invite ?: {[K in MatrixRoomId]: MatrixSyncResponseInvitedRoomDTO};
+    readonly leave  ?: {[K in MatrixRoomId]: MatrixSyncResponseLeftRoomDTO};
 }
 
 interface getEventsCallback<T> {
-    (value: T) : MatrixSyncResponseAnyEventDTO[];
+    (value: T) : readonly MatrixSyncResponseAnyEventDTO[];
 }
 
 function getEventsFromObject<T> (
     value    : {[K in MatrixRoomId]: T},
     callback : getEventsCallback<T>
-) : MatrixSyncResponseAnyEventDTO[] {
+) : readonly MatrixSyncResponseAnyEventDTO[] {
 
     const propertyKeys : string[] = keys(value);
 
@@ -54,9 +53,10 @@ function getEventsFromObject<T> (
 
 export function getEventsFromMatrixSyncResponseRoomsDTO (
     value: MatrixSyncResponseRoomsDTO
-) : (MatrixSyncResponseEventDTO|MatrixSyncResponseRoomEventDTO|MatrixSyncResponseStrippedStateDTO|MatrixSyncResponseStateEventDTO)[] {
+) : readonly MatrixSyncResponseAnyEventDTO[] {
 
     return concat(
+        [] as readonly MatrixSyncResponseAnyEventDTO[],
         getEventsFromObject(value?.join   ?? {}, getEventsFromMatrixSyncResponseJoinedRoomDTO),
         getEventsFromObject(value?.invite ?? {}, getEventsFromMatrixSyncResponseInvitedRoomDTO),
         getEventsFromObject(value?.leave  ?? {}, getEventsFromMatrixSyncResponseLeftRoomDTO),
@@ -72,10 +72,41 @@ export function isMatrixSyncResponseRoomsDTO (value: any): value is MatrixSyncRe
             'invite',
             'leave'
         ])
-        && isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>( value?.join,   isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO)
-        && isRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO)
-        && isRegularObjectOf<MatrixRoomId, MatrixSyncResponseLeftRoomDTO>(   value?.leave,  isMatrixRoomId, isMatrixSyncResponseLeftRoomDTO)
+        && ( isUndefined(value?.join)   || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>( value?.join,   isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO) )
+        && ( isUndefined(value?.invite) || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO) )
+        && ( isUndefined(value?.leave)  || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseLeftRoomDTO>(   value?.leave,  isMatrixRoomId, isMatrixSyncResponseLeftRoomDTO) )
     );
+}
+
+export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
+    if(!( isRegularObject(value) )) {
+        throw new TypeError(`value was not regular object`);
+    }
+    if(!( hasNoOtherKeys(value, [
+        'join',
+        'invite',
+        'leave'
+    ]) )) {
+        throw new TypeError(`value had extra properties`);
+    }
+    if(!( ( isUndefined(value?.join)   || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>( value?.join,   isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO) ) )) {
+        throw new TypeError(`Property "join" was invalid: ${explainRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>(value?.join, isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO, explainMatrixRoomId, explainMatrixSyncResponseJoinedRoomDTO)}`);
+    }
+    if(!( ( isUndefined(value?.invite) || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO) ) )) {
+        throw new TypeError(`Property "invite" was invalid`);
+    }
+    if(!( ( isUndefined(value?.leave)  || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseLeftRoomDTO>(   value?.leave,  isMatrixRoomId, isMatrixSyncResponseLeftRoomDTO) ) )) {
+        throw new TypeError(`Property "leave" was invalid`);
+    }
+}
+
+export function explainMatrixSyncResponseRoomsDTO (value : any) : string {
+    try {
+        assertMatrixSyncResponseRoomsDTO(value);
+        return 'No errors detected';
+    } catch (err) {
+        return err.message;
+    }
 }
 
 export function stringifyMatrixSyncResponseRoomsDTO (value: MatrixSyncResponseRoomsDTO): string {

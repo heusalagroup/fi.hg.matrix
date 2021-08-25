@@ -1,13 +1,18 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseRoomEventDTO, { isMatrixSyncResponseRoomEventDTO } from "./MatrixSyncResponseRoomEventDTO";
+import MatrixSyncResponseRoomEventDTO, {
+    explainMatrixSyncResponseRoomEventDTO,
+    isMatrixSyncResponseRoomEventDTO
+} from "./MatrixSyncResponseRoomEventDTO";
 import {
+    concat, find,
     hasNoOtherKeys,
     isArrayOf,
     isBoolean,
     isRegularObject,
-    isString
+    isString, keys
 } from "../../../../../ts/modules/lodash";
+import { assertMatrixSyncResponseStateDTO } from "./MatrixSyncResponseStateDTO";
 
 export interface MatrixSyncResponseTimelineDTO {
     readonly events     : MatrixSyncResponseRoomEventDTO[];
@@ -17,8 +22,8 @@ export interface MatrixSyncResponseTimelineDTO {
 
 export function getEventsFromMatrixSyncResponseTimelineDTO (
     value: MatrixSyncResponseTimelineDTO
-) : MatrixSyncResponseRoomEventDTO[] {
-    return value?.events ?? [];
+) : readonly MatrixSyncResponseRoomEventDTO[] {
+    return concat([], value?.events ?? []);
 }
 
 export function isMatrixSyncResponseTimelineDTO (value: any): value is MatrixSyncResponseTimelineDTO {
@@ -33,6 +38,44 @@ export function isMatrixSyncResponseTimelineDTO (value: any): value is MatrixSyn
         && isBoolean(value?.limited)
         && isString(value?.prev_batch)
     );
+}
+
+export function assertMatrixSyncResponseTimelineDTO (value: any): void {
+
+    if(!( isRegularObject(value) )) {
+        throw new TypeError(`value not object: ${value}`);
+    }
+
+    if(!( hasNoOtherKeys(value, [
+        'events',
+        'limited',
+        'prev_batch'
+    ]))) {
+        throw new TypeError(`One extra property in value: all keys: ${keys(value)}`);
+    }
+
+    if(!( isArrayOf(value?.events, isMatrixSyncResponseRoomEventDTO))) {
+        const event = find(value?.events, item => !isMatrixSyncResponseRoomEventDTO(item));
+        throw new TypeError(`One in property events was not correct: ${explainMatrixSyncResponseRoomEventDTO(event)}`);
+    }
+
+    if(!( isBoolean(value?.limited))) {
+        throw new TypeError(`Property "limited" was not boolean: ${value?.limited}`);
+    }
+
+    if(!( isString(value?.prev_batch))) {
+        throw new TypeError(`Property "prev_batch" was not string: ${value?.prev_batch}`);
+    }
+
+}
+
+export function explainMatrixSyncResponseTimelineDTO (value : any) : string {
+    try {
+        assertMatrixSyncResponseTimelineDTO(value);
+        return 'No errors detected';
+    } catch (err) {
+        return err.message;
+    }
 }
 
 export function stringifyMatrixSyncResponseTimelineDTO (value: MatrixSyncResponseTimelineDTO): string {

@@ -1,19 +1,12 @@
 // Copyright (c) 2021 Sendanor. All rights reserved.
 
-import {
-    concat,
-    forEach,
-    isString,
-    keys,
-    map
-} from "../ts/modules/lodash";
+import { concat, forEach, isString, keys, map } from "../ts/modules/lodash";
 import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
 import RequestClient from "../ts/RequestClient";
 import LogService from "../ts/LogService";
 import JsonAny, { isJsonObject, JsonObject } from "../ts/Json";
 import { MatrixPasswordLoginDTO } from "./types/request/passwordLogin/MatrixPasswordLoginDTO";
 import { MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
-import { MatrixEventDTO } from "./types/core/MatrixEventDTO";
 import { MatrixType } from "./types/core/MatrixType";
 import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResponseDTO";
 import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
@@ -24,24 +17,26 @@ import RequestStatus from "../ts/request/types/RequestStatus";
 import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
 import { join } from "lodash";
 import MatrixSyncResponseDTO, {
-    getEventsFromMatrixSyncResponseDTO,
+    explainMatrixSyncResponseDTO,
     isMatrixSyncResponseDTO
 } from "./types/response/sync/MatrixSyncResponseDTO";
-import MatrixSyncResponseUtils from "./types/response/sync/MatrixSyncResponseUtils";
 import MatrixSyncResponseEventDTO from "./types/response/sync/types/MatrixSyncResponseEventDTO";
 import MatrixSyncResponseAnyEventDTO
     from "./types/response/sync/types/MatrixSyncResponseAnyEventDTO";
-import { getEventsFromMatrixSyncResponseRoomsDTO } from "./types/response/sync/types/MatrixSyncResponseRoomsDTO";
 import { getEventsFromMatrixSyncResponsePresenceDTO } from "./types/response/sync/types/MatrixSyncResponsePresenceDTO";
 import { getEventsFromMatrixSyncResponseAccountDataDTO } from "./types/response/sync/types/MatrixSyncResponseAccountDataDTO";
 import { getEventsFromMatrixSyncResponseToDeviceDTO } from "./types/response/sync/types/MatrixSyncResponseToDeviceDTO";
 import MatrixRoomId from "./types/core/MatrixRoomId";
-import MatrixSyncResponseJoinedRoomDTO
-    , { getEventsFromMatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
-import MatrixSyncResponseInvitedRoomDTO
-    , { getEventsFromMatrixSyncResponseInvitedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseInvitedRoomDTO";
-import MatrixSyncResponseLeftRoomDTO
-    , { getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
+import MatrixSyncResponseJoinedRoomDTO, { getEventsFromMatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
+import MatrixSyncResponseInvitedRoomDTO, { getEventsFromMatrixSyncResponseInvitedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseInvitedRoomDTO";
+import MatrixSyncResponseLeftRoomDTO, { getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
+import MatrixUserId from "./types/core/MatrixUserId";
+import MatrixJoinRoomRequestDTO from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
+import MatrixJoinRoomResponseDTO, { isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
+import {
+    SimpleMatrixClientState,
+    stringifySimpleMatrixClientState
+} from "./types/SimpleMatrixClientState";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -52,16 +47,6 @@ export enum SimpleMatrixClientEvent {
 }
 
 export type SimpleMatrixClientDestructor = ObserverDestructor;
-
-export enum SimpleMatrixClientState {
-
-    UNAUTHENTICATED,
-    AUTHENTICATING,
-    AUTHENTICATED,
-    AUTHENTICATED_AND_STARTING,
-    AUTHENTICATED_AND_STARTED
-
-}
 
 /**
  * Super simple matrix event listener.
@@ -86,17 +71,19 @@ export class SimpleMatrixClient {
     private _syncing           : boolean;
 
     public constructor (
-        url           : string,
-        accessToken   : string | undefined = undefined,
-        userId        : string | undefined = undefined,
-        pollTimeout   : number = 30000,
-        pollWaitTime  : number = 1000
+        url                : string,
+        homeServerUrl      : string | undefined = undefined,
+        identityServerUrl  : string | undefined = undefined,
+        accessToken        : string | undefined = undefined,
+        userId             : string | undefined = undefined,
+        pollTimeout        : number = 30000,
+        pollWaitTime       : number = 1000
     ) {
 
         this._state              = accessToken ? SimpleMatrixClientState.AUTHENTICATED : SimpleMatrixClientState.UNAUTHENTICATED;
         this._originalUrl        = url;
-        this._homeServerUrl      = url;
-        this._identityServerUrl  = url;
+        this._homeServerUrl      = homeServerUrl ?? url;
+        this._identityServerUrl  = identityServerUrl ?? url;
         this._nextBatch          = undefined;
         this._accessToken        = accessToken;
         this._userId             = userId;
@@ -151,7 +138,7 @@ export class SimpleMatrixClient {
         return this._accessToken;
     }
 
-    public getUserId () : string | undefined {
+    public getUserId () : MatrixUserId | undefined {
         return this._userId;
     }
 
@@ -160,62 +147,94 @@ export class SimpleMatrixClient {
         return u.hostname;
     }
 
-    public async login (userId: string, password: string) : Promise<SimpleMatrixClient> {
+    /**
+     *
+     * @param userId
+     * @param password
+     * @returns New instance of SimpleMatrixClient which is in authenticated state
+     */
+    public async login (
+        userId: string,
+        password: string
+    ) : Promise<SimpleMatrixClient> {
 
-        if (this._state !== SimpleMatrixClientState.UNAUTHENTICATED) {
-            throw new TypeError(`login: Client was not in unauthenticated state`);
-        }
+        try {
 
-        this._state = SimpleMatrixClientState.AUTHENTICATING;
-        this._accessToken       = undefined;
-        this._userId            = undefined;
-        this._homeServerUrl     = this._originalUrl;
-        this._identityServerUrl = this._originalUrl;
+            const requestBody : MatrixPasswordLoginDTO = {
+                type: MatrixType.M_LOGIN_PASSWORD,
+                identifier: {
+                    type: MatrixType.M_ID_USER,
+                    user: userId
+                },
+                password: password
+            };
 
-        const requestBody : MatrixPasswordLoginDTO = {
-            type: MatrixType.M_LOGIN_PASSWORD,
-            identifier: {
-                type: MatrixType.M_ID_USER,
-                user: userId
-            },
-            password: password
-        };
+            LOG.debug(`Sending login with userId:`, userId);
 
-        LOG.debug(`Sending login with userId:`, userId);
+            const response : any = await RequestClient.postJson(
+                this._resolveHomeServerUrl(`/login`),
+                requestBody as unknown as JsonAny
+            );
 
-        const response : any = await RequestClient.postJson(this._resolveHomeServerUrl(`/login`), requestBody as unknown as JsonAny);
-
-        if (!isMatrixLoginResponseDTO(response)) {
-            LOG.debug(`Invalid response received: `, response);
-            throw new TypeError(`login: Response was invalid`);
-        }
-
-        LOG.debug(`Message sending response received: `, response);
-
-        this._accessToken = response.access_token;
-
-        if (response?.well_known) {
-
-            const homeServerUrl = response.well_known['m.homeserver']?.base_url;
-            if (homeServerUrl) {
-                this._homeServerUrl = homeServerUrl;
-            } else {
-                this._homeServerUrl = this._originalUrl;
+            if (!isMatrixLoginResponseDTO(response)) {
+                LOG.debug(`Invalid response received: `, response);
+                throw new TypeError(`login: Response was invalid`);
             }
 
-            const identityServerUrl = response.well_known['m.identity_server']?.base_url;
-            if (identityServerUrl) {
-                this._identityServerUrl = identityServerUrl;
+            LOG.debug(`Login response received: `, response);
+
+            let originalUrl = this._originalUrl;
+            let homeServerUrl = this._homeServerUrl;
+            let identityServerUrl = this._identityServerUrl;
+
+            if (response?.well_known) {
+
+                const responseHomeServerUrl = response.well_known['m.homeserver']?.base_url;
+                if (responseHomeServerUrl) {
+                    homeServerUrl = responseHomeServerUrl;
+                } else {
+                    homeServerUrl = originalUrl;
+                }
+
+                const responseIdentityServerUrl = response.well_known['m.identity_server']?.base_url;
+                if (responseIdentityServerUrl) {
+                    identityServerUrl = responseIdentityServerUrl;
+                } else {
+                    identityServerUrl = homeServerUrl;
+                }
+
             } else {
-                this._identityServerUrl = this._homeServerUrl;
+                homeServerUrl     = originalUrl;
+                identityServerUrl = originalUrl;
             }
 
-        } else {
-            this._homeServerUrl     = this._originalUrl;
-            this._identityServerUrl = this._originalUrl;
-        }
+            const access_token = response?.access_token;
+            if (!access_token) {
+                throw new TypeError(`Response did not have access_token`);
+            }
 
-        return this;
+            const user_id = response?.user_id;
+            if (!user_id) {
+                throw new TypeError(`Response did not have user_id`);
+            }
+
+            return new SimpleMatrixClient(
+                originalUrl,
+                homeServerUrl,
+                identityServerUrl,
+                access_token,
+                user_id,
+                this._pollTimeout,
+                this._pollWaitTime
+            );
+
+        } catch (err) {
+
+            LOG.debug(`Could not login: `, err);
+
+            throw new RequestError(RequestStatus.Forbidden, `Access denied`);
+
+        }
 
     }
 
@@ -225,11 +244,6 @@ export class SimpleMatrixClient {
      * @param name
      */
     public async resolveRoomId (name: string) : Promise<string | undefined> {
-
-        // const accessToken : string | undefined = this._accessToken;
-        // if (!accessToken) {
-        //     throw new TypeError(`resolveRoomId: Client did not have access token`);
-        // }
 
         try {
 
@@ -258,6 +272,52 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     *
+     * @param roomId
+     * @param eventType
+     * @param stateKey
+     */
+    public async getRoomStateByType (
+        roomId    : string,
+        eventType : string,
+        stateKey  : string
+    ) : Promise<JsonObject | undefined> {
+
+        try {
+
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`getRoomStateByType: Client did not have access token`);
+            }
+
+            const response : any = await RequestClient.getJson(
+                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/state/${q(eventType)}/${q(stateKey)}`),
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+
+            if (!isJsonObject(response)) {
+                LOG.debug(`resolveRoomId: response was not JsonObject: `, response);
+                throw new TypeError(`Response was not JsonObject: ${JSON.stringify(response)}`);
+            }
+
+            LOG.debug(`resolveRoomId: received: `, response);
+
+            // @ts-ignore
+            return response;
+
+        } catch (err) {
+            if (err instanceof RequestError && err.getStatusCode() === RequestStatus.NotFound) {
+                return undefined;
+            } else {
+                throw err;
+            }
+        }
+
+    }
+
 
     public async sendTextMessage (roomId: string, body: string) : Promise<void> {
 
@@ -274,11 +334,14 @@ export class SimpleMatrixClient {
         LOG.debug(`Sending message with body:`, requestBody);
 
         const response = await RequestClient.postJson(
-            this._resolveHomeServerUrl(`/rooms/${q(roomId)}/send/m.room.message?access_token=${q(accessToken)}`),
-            requestBody as unknown as JsonAny
+            this._resolveHomeServerUrl(`/rooms/${q(roomId)}/send/m.room.message`),
+            requestBody as unknown as JsonAny,
+            {
+                'Authorization': `Bearer ${accessToken}`
+            }
         );
 
-        LOG.debug(`Message sending response received: `, response);
+        LOG.debug(`sendTextMessage response received: `, response);
 
     }
 
@@ -294,8 +357,11 @@ export class SimpleMatrixClient {
         LOG.debug(`Creating room with body:`, body);
 
         const response : MatrixCreateRoomResponseDTO | any = await RequestClient.postJson(
-            this._resolveHomeServerUrl( `/createRoom?access_token=${q(accessToken)}` ),
-            body as unknown as JsonAny
+            this._resolveHomeServerUrl( `/createRoom` ),
+            body as unknown as JsonAny,
+            {
+                'Authorization': `Bearer ${accessToken}`
+            }
         );
 
         if (!isMatrixCreateRoomResponseDTO(response)) {
@@ -303,7 +369,38 @@ export class SimpleMatrixClient {
             throw new TypeError(`Response was not MatrixCreateRoomResponseDTO: ` + response);
         }
 
-        LOG.debug(`Message sending response received: `, response);
+        LOG.debug(`Create room response received: `, response);
+
+        return response;
+
+    }
+
+    public async joinRoom (
+        roomId : MatrixRoomId,
+        body   : MatrixJoinRoomRequestDTO | undefined = undefined
+    ) : Promise<MatrixJoinRoomResponseDTO> {
+
+        const accessToken : string | undefined = this._accessToken;
+        if (!accessToken) {
+            throw new TypeError(`createRoom: Client did not have access token`);
+        }
+
+        LOG.debug(`Joining to room ${roomId} with body:`, body);
+
+        const response : MatrixCreateRoomResponseDTO | any = await RequestClient.postJson(
+            this._resolveHomeServerUrl( `/rooms/${q(roomId)}/join` ),
+            (body ?? {}) as unknown as JsonAny,
+            {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        );
+
+        if (!isMatrixJoinRoomResponseDTO(response)) {
+            LOG.debug(`response = `, response);
+            throw new TypeError(`Could not join to ${roomId}: Response was not MatrixJoinRoomResponseDTO: ` + response);
+        }
+
+        LOG.debug(`Joined to room ${roomId}: `, response);
 
         return response;
 
@@ -386,8 +483,8 @@ export class SimpleMatrixClient {
         );
 
         if (!isMatrixSyncResponseDTO(response)) {
-            LOG.debug(`_sync: response not MatrixSyncResponseDTO: `, response);
-            throw new TypeError(`Response was not MatrixSyncResponseDTO: ${response}`);
+            LOG.debug(`_sync: response not MatrixSyncResponseDTO: `, JSON.stringify(response, null ,2));
+            throw new TypeError(`Response was not MatrixSyncResponseDTO: ${explainMatrixSyncResponseDTO(response)}`);
         }
 
         return response;
@@ -395,7 +492,7 @@ export class SimpleMatrixClient {
     }
 
 
-    private _sendMatrixEventList (events : MatrixSyncResponseAnyEventDTO[], room_id : string | undefined) {
+    private _sendMatrixEventList (events : readonly MatrixSyncResponseAnyEventDTO[], room_id : string | undefined) {
         forEach(events, (event) => {
             this._sendMatrixEvent(event, room_id);
         });
@@ -482,6 +579,8 @@ export class SimpleMatrixClient {
         this._state = SimpleMatrixClientState.AUTHENTICATED_AND_STARTING;
 
         const response = this.sync({
+
+            // FIXME: Create reusable filter on the server
             filter: {
                 room:{
                     timeline:{
@@ -531,7 +630,7 @@ export class SimpleMatrixClient {
 
         // LOG.debug('Response: ', response);
 
-        const nonRoomEvents : MatrixSyncResponseEventDTO[] = concat(
+        const nonRoomEvents : readonly MatrixSyncResponseEventDTO[] = concat(
             response?.presence     ? getEventsFromMatrixSyncResponsePresenceDTO(response?.presence)        : [],
             response?.account_data ? getEventsFromMatrixSyncResponseAccountDataDTO(response?.account_data) : [],
             response?.to_device    ? getEventsFromMatrixSyncResponseToDeviceDTO(response?.to_device)       : [],
@@ -579,3 +678,4 @@ function q (value: string) : string {
 }
 
 export default SimpleMatrixClient;
+

@@ -8,6 +8,7 @@ import {
     isUndefined
 } from "../../../../ts/modules/lodash";
 import MatrixSyncResponseRoomsDTO, {
+    explainMatrixSyncResponseRoomsDTO,
     getEventsFromMatrixSyncResponseRoomsDTO,
     isMatrixSyncResponseRoomsDTO
 } from "./types/MatrixSyncResponseRoomsDTO";
@@ -26,7 +27,6 @@ import MatrixSyncResponseToDeviceDTO, {
 import MatrixSyncResponseDeviceListsDTO, { isMatrixSyncResponseDeviceListsDTO } from "./types/MatrixSyncResponseDeviceListsDTO";
 import MatrixSyncResponseDeviceOneTimeKeysCountDTO
     , { isMatrixSyncResponseDeviceOneTimeKeysCountDTO } from "./types/MatrixSyncResponseDeviceOneTimeKeysCountDTO";
-import MatrixSyncResponseEventDTO from "./types/MatrixSyncResponseEventDTO";
 import MatrixSyncResponseAnyEventDTO from "./types/MatrixSyncResponseAnyEventDTO";
 
 export interface MatrixSyncResponseDTO {
@@ -39,7 +39,9 @@ export interface MatrixSyncResponseDTO {
     readonly device_one_time_keys_count   ?: MatrixSyncResponseDeviceOneTimeKeysCountDTO;
 }
 
-export function getEventsFromMatrixSyncResponseDTO (value : MatrixSyncResponseDTO) : MatrixSyncResponseAnyEventDTO[] {
+export function getEventsFromMatrixSyncResponseDTO (
+    value : MatrixSyncResponseDTO
+) : MatrixSyncResponseAnyEventDTO[] {
     return concat(
         value?.rooms        ? getEventsFromMatrixSyncResponseRoomsDTO(value?.rooms)                          : [],
         value?.presence     ? getEventsFromMatrixSyncResponsePresenceDTO(value?.presence)                    : [],
@@ -50,7 +52,6 @@ export function getEventsFromMatrixSyncResponseDTO (value : MatrixSyncResponseDT
 
 export function isMatrixSyncResponseDTO (value: any): value is MatrixSyncResponseDTO {
     return (
-        // FIXME: TODO
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'next_batch',
@@ -69,6 +70,63 @@ export function isMatrixSyncResponseDTO (value: any): value is MatrixSyncRespons
         && ( isUndefined(value?.device_lists)                || isMatrixSyncResponseDeviceListsDTO(value?.device_lists) )
         && ( isUndefined(value?.device_one_time_keys_count)  || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(value?.device_one_time_keys_count) )
     );
+}
+
+export function assertMatrixSyncResponseDTO (value: any) : void {
+
+    if (!isRegularObject(value)) {
+        throw new TypeError(`value not RegularObject`);
+    }
+
+    if (!hasNoOtherKeys(value, [
+            'next_batch',
+            'rooms',
+            'presence',
+            'account_data',
+            'to_device',
+            'device_lists',
+            'device_one_time_keys_count'
+        ]) ) {
+        throw new TypeError(`value has additional keys`);
+    }
+
+    if (!isString(value?.next_batch)) {
+        throw new TypeError('Property "next_batch" was not string');
+    }
+
+    if (!( isUndefined(value?.rooms)                       || isMatrixSyncResponseRoomsDTO(value?.rooms) )) {
+        throw new TypeError(`Property "rooms" was invalid: ${explainMatrixSyncResponseRoomsDTO(value?.rooms)}`);
+    }
+
+    if (!( isUndefined(value?.presence)                    || isMatrixSyncResponsePresenceDTO(value?.presence) )) {
+        throw new TypeError('Property "presence" was invalid');
+    }
+
+    if (!( isUndefined(value?.account_data)                || isMatrixSyncResponseAccountDataDTO(value?.account_data) )) {
+        throw new TypeError('Property "account_data" was invalid');
+    }
+
+    if (!( isUndefined(value?.to_device)                   || isMatrixSyncResponseToDeviceDTO(value?.to_device) )) {
+        throw new TypeError('Property "to_device" was invalid');
+    }
+
+    if (!( isUndefined(value?.device_lists)                || isMatrixSyncResponseDeviceListsDTO(value?.device_lists) )) {
+        throw new TypeError('Property "device_lists" was invalid');
+    }
+
+    if (!( isUndefined(value?.device_one_time_keys_count)  || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(value?.device_one_time_keys_count) )) {
+        throw new TypeError('Property "device_one_time_keys_count" was invalid');
+    }
+
+}
+
+export function explainMatrixSyncResponseDTO (value : any) : string {
+    try {
+        assertMatrixSyncResponseDTO(value);
+        return 'No errors detected';
+    } catch (err) {
+        return err.message;
+    }
 }
 
 export function stringifyMatrixSyncResponseDTO (value: MatrixSyncResponseDTO): string {

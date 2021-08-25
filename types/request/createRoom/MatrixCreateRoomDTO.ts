@@ -16,6 +16,7 @@ import MatrixStateEvent, { isMatrixStateEvent } from "../../core/MatrixStateEven
 import MatrixCreateRoomPreset, { isMatrixCreateRoomPreset } from "./types/MatrixCreateRoomPreset";
 import MatrixRoomPowerLevelsEventDTO, { isMatrixPowerLevelEventContentDTO } from "./types/MatrixRoomPowerLevelsEventDTO";
 import MatrixInvite3PidDTO from "./types/MatrixInvite3PidDTO";
+import MatrixUserId, { isMatrixUserId } from "../../core/MatrixUserId";
 
 export interface MatrixCreateRoomDTO {
 
@@ -23,7 +24,7 @@ export interface MatrixCreateRoomDTO {
     readonly room_alias_name              ?: string;
     readonly name                         ?: string;
     readonly topic                        ?: string;
-    readonly invite                       ?: string[];
+    readonly invite                       ?: MatrixUserId[];
     readonly invite_3pid                  ?: MatrixInvite3PidDTO[];
     readonly room_version                 ?: string;
     readonly creation_content             ?: Partial<MatrixRoomCreateEventDTO>;
@@ -55,7 +56,7 @@ export function isMatrixCreateRoomDTO (value: any): value is MatrixCreateRoomDTO
         && isStringOrUndefined(value?.room_alias_name)
         && isStringOrUndefined(value?.name)
         && isStringOrUndefined(value?.topic)
-        && (isUndefined(value?.invite) || isArrayOf<string>(value?.invite, isString))
+        && (isUndefined(value?.invite) || isArrayOf<MatrixUserId>(value?.invite, isMatrixUserId))
         && (isUndefined(value?.invite_3pid) || isArrayOf<MatrixInvite3PidDTO>(value?.invite_3pid, isMatrixInvite3PidDTO))
         && isStringOrUndefined(value?.room_version)
         && (isUndefined(value?.creation_content) || isPartialMatrixCreationContentDTO(value?.creation_content))

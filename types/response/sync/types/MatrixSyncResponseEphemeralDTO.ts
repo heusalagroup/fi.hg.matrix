@@ -1,6 +1,11 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isArrayOf, isRegularObject } from "../../../../../ts/modules/lodash";
+import {
+    concat,
+    hasNoOtherKeys,
+    isArrayOf,
+    isRegularObject
+} from "../../../../../ts/modules/lodash";
 import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponseEphemeralDTO {
@@ -9,8 +14,8 @@ export interface MatrixSyncResponseEphemeralDTO {
 
 export function getEventsFromMatrixSyncResponseEphemeralDTO (
     value: MatrixSyncResponseEphemeralDTO
-) : MatrixSyncResponseEventDTO[] {
-    return value?.events ?? [];
+) : readonly MatrixSyncResponseEventDTO[] {
+    return concat([], value?.events ?? []);
 }
 
 export function isMatrixSyncResponseEphemeralDTO (value: any): value is MatrixSyncResponseEphemeralDTO {
