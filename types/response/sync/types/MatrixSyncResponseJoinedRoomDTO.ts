@@ -2,6 +2,7 @@
 
 import MatrixSyncResponseRoomSummaryDTO, { isMatrixSyncResponseRoomSummaryDTO } from "./MatrixSyncResponseRoomSummaryDTO";
 import MatrixSyncResponseStateDTO, {
+    explainMatrixSyncResponseStateDTO,
     getEventsFromMatrixSyncResponseStateDTO,
     isMatrixSyncResponseStateDTO
 } from "./MatrixSyncResponseStateDTO";
@@ -98,7 +99,7 @@ export function assertMatrixSyncResponseJoinedRoomDTO (value: any): void {
     }
 
     if (!( (isUndefined(value?.state)                || isMatrixSyncResponseStateDTO(value?.state)))) {
-        throw new TypeError(`Property "state" was invalid: ${value}`);
+        throw new TypeError(`Property "state" was invalid: ${explainMatrixSyncResponseStateDTO(value)}`);
     }
 
     if (!( (isUndefined(value?.timeline)             || isMatrixSyncResponseTimelineDTO(value?.timeline)))) {

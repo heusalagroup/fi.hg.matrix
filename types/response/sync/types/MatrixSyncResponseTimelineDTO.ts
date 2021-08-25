@@ -51,12 +51,12 @@ export function assertMatrixSyncResponseTimelineDTO (value: any): void {
         'limited',
         'prev_batch'
     ]))) {
-        throw new TypeError(`One extra property in value: all keys: ${keys(value)}`);
+        throw new TypeError(`Extra properties in value: all keys: ${keys(value)}`);
     }
 
     if(!( isArrayOf(value?.events, isMatrixSyncResponseRoomEventDTO))) {
         const event = find(value?.events, item => !isMatrixSyncResponseRoomEventDTO(item));
-        throw new TypeError(`One in property events was not correct: ${explainMatrixSyncResponseRoomEventDTO(event)}`);
+        throw new TypeError(`Property "events" item was not correct: ${explainMatrixSyncResponseRoomEventDTO(event)}`);
     }
 
     if(!( isBoolean(value?.limited))) {

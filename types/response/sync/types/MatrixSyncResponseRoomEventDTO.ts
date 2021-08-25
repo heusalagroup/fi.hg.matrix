@@ -1,7 +1,10 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { isJsonObject, JsonObject } from "../../../../../ts/Json";
-import MatrixSyncResponseUnsignedDataDTO, { isMatrixSyncResponseUnsignedDataDTO } from "./MatrixSyncResponseUnsignedDataDTO";
+import MatrixSyncResponseUnsignedDataDTO, {
+    explainMatrixSyncResponseUnsignedDataDTO,
+    isMatrixSyncResponseUnsignedDataDTO
+} from "./MatrixSyncResponseUnsignedDataDTO";
 import {
     hasNoOtherKeys,
     isInteger,
@@ -9,7 +12,6 @@ import {
     isString, isStringOrUndefined, isUndefined, keys
 } from "../../../../../ts/modules/lodash";
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
-import { assertMatrixSyncResponseTimelineDTO } from "./MatrixSyncResponseTimelineDTO";
 
 export interface MatrixSyncResponseRoomEventDTO {
     readonly content           : JsonObject;
@@ -44,9 +46,11 @@ export function isMatrixSyncResponseRoomEventDTO (value: any): value is MatrixSy
 }
 
 export function assertMatrixSyncResponseRoomEventDTO (value: any): void {
+
     if (!( isRegularObject(value) )) {
         throw new TypeError(`value was not regular object`);
     }
+
     if (!( hasNoOtherKeys(value, [
         'content',
         'type',
@@ -56,29 +60,37 @@ export function assertMatrixSyncResponseRoomEventDTO (value: any): void {
         'unsigned',
         'state_key'
     ]))) {
-        throw new TypeError(`value had extra property: all keys: ${keys(value)}`);
+        throw new TypeError(`Had extra properties: All keys: ${keys(value)}`);
     }
+
     if (!( isJsonObject(value?.content) )) {
         throw new TypeError(`Property "content" was not correct: ${value?.content}`);
     }
+
     if (!( isString(value?.type))) {
         throw new TypeError(`Property "type" was not correct: ${value?.type}`);
     }
+
     if (!( isString(value?.event_id))) {
         throw new TypeError(`Property "event_id" was not correct: ${value?.event_id}`);
     }
+
     if (!( isMatrixUserId(value?.sender))) {
         throw new TypeError(`Property "sender" was not correct: ${value?.sender}`);
     }
+
     if (!( isInteger(value?.origin_server_ts))) {
         throw new TypeError(`Property "origin_server_ts" was not correct: ${value?.origin_server_ts}`);
     }
+
     if (!( (isUndefined(value?.unsigned) || isMatrixSyncResponseUnsignedDataDTO(value?.unsigned)))) {
-        throw new TypeError(`Property "unsigned" was not correct: ${value?.unsigned}`);
+        throw new TypeError(`Property "unsigned" was not correct: ${explainMatrixSyncResponseUnsignedDataDTO(value?.unsigned)}`);
     }
+
     if (!( isStringOrUndefined(value?.state_key) )) {
         throw new TypeError(`Property "state_key" was not correct: ${value?.state_key}`);
     }
+
 }
 
 export function explainMatrixSyncResponseRoomEventDTO (value : any) : string {

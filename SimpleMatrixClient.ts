@@ -37,6 +37,8 @@ import {
     SimpleMatrixClientState,
     stringifySimpleMatrixClientState
 } from "./types/SimpleMatrixClientState";
+import PutRoomStateWithEventTypeDTO
+    , { isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -314,6 +316,52 @@ export class SimpleMatrixClient {
             } else {
                 throw err;
             }
+        }
+
+    }
+
+    /**
+     *
+     * @param roomId
+     * @param eventType
+     * @param stateKey
+     * @param body
+     */
+    public async setRoomStateByType (
+        roomId    : string,
+        eventType : string,
+        stateKey  : string,
+        body      : JsonObject,
+    ) : Promise<PutRoomStateWithEventTypeDTO> {
+
+        try {
+
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`setRoomStateByType: Client did not have access token`);
+            }
+
+            const response : JsonAny | undefined = await RequestClient.putJson(
+                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/state/${q(eventType)}/${q(stateKey)}`),
+                body,
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+
+            if (!isPutRoomStateWithEventTypeDTO(response)) {
+                LOG.debug(`setRoomStateByType: response was not PutRoomStateWithEventTypeDTO: `, response);
+                throw new TypeError(`Response was not PutRoomStateWithEventTypeDTO: ${JSON.stringify(response)}`);
+            }
+
+            LOG.debug(`setRoomStateByType: received: `, response);
+
+            // @ts-ignore
+            return response;
+
+        } catch (err) {
+            LOG.error(`setRoomStateByType: Passing on error: `, err);
+            throw err;
         }
 
     }

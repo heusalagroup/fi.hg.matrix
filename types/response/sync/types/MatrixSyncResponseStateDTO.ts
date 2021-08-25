@@ -1,12 +1,15 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    concat,
+    concat, find,
     hasNoOtherKeys,
     isArrayOf,
     isRegularObject
 } from "../../../../../ts/modules/lodash";
-import MatrixSyncResponseStateEventDTO, { isMatrixSyncResponseStateEventDTO } from "./MatrixSyncResponseStateEventDTO";
+import MatrixSyncResponseStateEventDTO, {
+    explainMatrixSyncResponseStateEventDTO,
+    isMatrixSyncResponseStateEventDTO
+} from "./MatrixSyncResponseStateEventDTO";
 import { assertMatrixSyncResponseRoomsDTO } from "./MatrixSyncResponseRoomsDTO";
 
 export interface MatrixSyncResponseStateDTO {
@@ -42,7 +45,8 @@ export function assertMatrixSyncResponseStateDTO (value: any): void {
     }
 
     if(!( isArrayOf<MatrixSyncResponseStateEventDTO>(value?.events, isMatrixSyncResponseStateEventDTO) )) {
-        throw new TypeError(`Not array of MatrixSyncResponseStateEventDTO: ${value?.events}`);
+        const item = find(value?.events, item => !isMatrixSyncResponseStateEventDTO(item));
+        throw new TypeError(`Not array of MatrixSyncResponseStateEventDTO: ${explainMatrixSyncResponseStateEventDTO(item)}`);
     }
 
 }
