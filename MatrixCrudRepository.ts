@@ -1,3 +1,5 @@
+// Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
+
 import { RepositoryEntry } from "../ui/types/RepositoryEntry";
 import Repository from "../ui/types/Repository";
 import SimpleMatrixClient from "./SimpleMatrixClient";
