@@ -267,49 +267,68 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     public async deleteById (id: string) : Promise<RepositoryEntry<T>> {
 
-        const record = await this.findById(id);
+        let record;
 
-        if (record === undefined) {
+        try {
+
+            record = await this.findById(id);
+
+            if (record === undefined) {
+                // FIXME: Create our own errors. HTTP error is wrong here.
+                throw new RequestError(404);
+            }
+
+            const newVersion : number = record.version + 1;
+            if (!isInteger(newVersion)) {
+                throw new TypeError(`newVersion was not integer: ${newVersion}`);
+            }
+
+            const content : JsonObject = {
+                // @ts-ignore
+                data    : record.data,
+                version : newVersion,
+                deleted : true
+            };
+
+            const response : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+                id,
+                this._stateType,
+                this._stateKey,
+                content
+            );
+
+            const deletedResponse : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+                id,
+                this._deletedType,
+                this._deletedKey,
+                {}
+            );
+
+            await this._client.leaveRoom(id);
+
+            await this._client.forgetRoom(id);
+
+            LOG.debug(`response = `, JSON.stringify(response, null, 2));
+
+            return {
+                data: record.data,
+                id: id,
+                version: newVersion,
+                deleted: true
+            };
+
+        } catch (err) {
+
+            if ( err instanceof RequestError && [401, 403, 404].includes(err.getStatusCode()) ) {
+                throw err;
+            }
+
+            LOG.error(`Error in deleteById(${id}): `, err);
+
             // FIXME: Create our own errors. HTTP error is wrong here.
-            throw new RequestError(404);
+            throw new RequestError(500);
+
         }
-
-        const newVersion : number = record.version + 1;
-        if (!isInteger(newVersion)) {
-            throw new TypeError(`newVersion was not integer: ${newVersion}`);
-        }
-
-        const content : JsonObject = {
-            // @ts-ignore
-            data    : jsonData,
-            version : newVersion,
-            deleted : true
-        };
-
-        const response : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
-            id,
-            this._stateType,
-            this._stateKey,
-            content
-        );
-
-        const deletedResponse : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
-            id,
-            this._deletedType,
-            this._deletedKey,
-            {}
-        );
-
-        await this._client.forgetRoom(id);
-
-        LOG.debug(`response = `, JSON.stringify(response, null, 2));
-
-        return {
-            data: record.data,
-            id: id,
-            version: newVersion,
-            deleted: true
-        };
 
     }
 

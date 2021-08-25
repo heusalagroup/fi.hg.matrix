@@ -385,6 +385,7 @@ export class SimpleMatrixClient {
 
             const response : JsonAny | undefined = await RequestClient.postJson(
                 this._resolveHomeServerUrl(`/rooms/${q(roomId)}/forget`),
+                {},
                 {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -394,6 +395,39 @@ export class SimpleMatrixClient {
 
         } catch (err) {
             LOG.error(`forgetRoom: Passing on error: `, err);
+            throw err;
+        }
+
+    }
+
+    /**
+     * Leave from a room.
+     *
+     * @param roomId
+     */
+    public async leaveRoom (
+        roomId    : string
+    ) : Promise<void> {
+
+        try {
+
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`leaveRoom: Client did not have access token`);
+            }
+
+            const response : JsonAny | undefined = await RequestClient.postJson(
+                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/leave`),
+                {},
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+
+            LOG.debug(`leaveRoom: received: `, response);
+
+        } catch (err) {
+            LOG.error(`leaveRoom: Passing on error: `, err);
             throw err;
         }
 
