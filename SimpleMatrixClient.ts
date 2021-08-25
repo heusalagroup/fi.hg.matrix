@@ -34,8 +34,7 @@ import MatrixUserId from "./types/core/MatrixUserId";
 import MatrixJoinRoomRequestDTO from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
 import MatrixJoinRoomResponseDTO, { isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
 import {
-    SimpleMatrixClientState,
-    stringifySimpleMatrixClientState
+    SimpleMatrixClientState
 } from "./types/SimpleMatrixClientState";
 import PutRoomStateWithEventTypeDTO
     , { isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
@@ -366,6 +365,39 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Forgets a room.
+     *
+     * Once every member has forgot it, the room will be marked for deletion.
+     *
+     * @param roomId
+     */
+    public async forgetRoom (
+        roomId    : string
+    ) : Promise<void> {
+
+        try {
+
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`forgetRoom: Client did not have access token`);
+            }
+
+            const response : JsonAny | undefined = await RequestClient.postJson(
+                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/forget`),
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+
+            LOG.debug(`forgetRoom: received: `, response);
+
+        } catch (err) {
+            LOG.error(`forgetRoom: Passing on error: `, err);
+            throw err;
+        }
+
+    }
 
     public async sendTextMessage (roomId: string, body: string) : Promise<void> {
 

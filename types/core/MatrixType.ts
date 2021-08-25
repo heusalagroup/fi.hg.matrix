@@ -17,6 +17,7 @@ export enum MatrixType {
     M_LOGIN_TOKEN               = "m.login.token",
     M_ID_USER                   = "m.id.user",
 
+    FI_NOR_DELETED              = "fi.nor.deleted",
     FI_NOR_FORM_DTO             = "fi.nor.form_dto",
     FI_NOR_FORM_VALUE_DTO       = "fi.nor.form_value_dto"
 

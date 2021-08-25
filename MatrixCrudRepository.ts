@@ -11,7 +11,8 @@ import MatrixSyncResponseDTO from "./types/response/sync/MatrixSyncResponseDTO";
 import LogService from "../ts/LogService";
 import {
     concat,
-    filter, has,
+    filter,
+    has,
     isInteger,
     isNumber,
     keys,
@@ -36,18 +37,33 @@ const LOG = LogService.createLogger('MatrixCrudRepository');
  */
 export class MatrixCrudRepository<T> implements Repository<T> {
 
-    private readonly _client    : SimpleMatrixClient;
-    private readonly _stateType : string;
-    private readonly _stateKey  : string;
+    private readonly _client      : SimpleMatrixClient;
+    private readonly _stateType   : string;
+    private readonly _stateKey    : string;
+    private readonly _deletedType : string;
+    private readonly _deletedKey  : string;
 
+    /**
+     *
+     * @param client Use `SimpleMatrixClient.login(user, pw) : Promise<SimpleMatrixClient>` to get
+     *               a client instance which has authenticated
+     * @param stateType
+     * @param stateKey
+     * @param deletedType
+     * @param deletedKey
+     */
     public constructor (
-        client    : SimpleMatrixClient,
-        stateType : string,
-        stateKey  : string = ''
+        client      : SimpleMatrixClient,
+        stateType   : string,
+        stateKey    : string = '',
+        deletedType : string = MatrixType.FI_NOR_DELETED,
+        deletedKey  : string = ''
     ) {
-        this._client    = client;
-        this._stateType = stateType;
-        this._stateKey  = stateKey;
+        this._client      = client;
+        this._stateType   = stateType;
+        this._stateKey    = stateKey;
+        this._deletedType = deletedType;
+        this._deletedKey  = deletedKey;
     }
 
     public async getAll () : Promise<RepositoryEntry<T>[]> {
@@ -74,7 +90,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                     state: {
                         limit: 1,
                         include_redundant_members: true,
-                        types: [ this._stateType ]
+                        types: [ this._stateType ],
+                        not_types: [ this._deletedType ]
                     }
                 }
             },
@@ -109,16 +126,19 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 // @ts-ignore
                 const version : number = item?.content?.version;
 
+                // @ts-ignore
+                const deleted : boolean = !!(item?.content?.deleted);
+
                 return {
                     data: data,
                     id: roomId,
-                    version: version
+                    version: version,
+                    deleted: deleted
                 };
 
             }));
 
             return entries;
-            // return MatrixCrudRepository._filterLatest<T>(entries);
 
         }, []);
 
@@ -169,7 +189,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         return {
             id      : room_id,
             version : version,
-            data    : data
+            data    : data,
+            deleted : false
         };
 
     }
@@ -178,7 +199,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
         const response : JsonObject | undefined = await this._client.getRoomStateByType(
             id,
-            MatrixType.FI_NOR_FORM_DTO,
+            this._stateType,
             this._stateKey
         );
 
@@ -205,24 +226,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     public async update (id: string, jsonData: T) : Promise<RepositoryEntry<T>> {
 
+        if (!isJsonObject(jsonData)) {
+            throw new TypeError(`jsonData was not JsonObject: ${jsonData}`);
+        }
+
         const record = await this.findById(id);
 
         if (record === undefined) {
             throw new RequestError(404);
-        }
-
-        // const item = find(this._items, item => item.id === id);
-        // if (item === undefined) throw new TypeError(`No item found: #${id}`);
-        // item.version += 1;
-        // item.data = data;
-        // return {
-        //     id      : item.id,
-        //     version : item.version,
-        //     data    : item.data
-        // };
-
-        if (!isJsonObject(jsonData)) {
-            throw new TypeError(`jsonData was not JsonObject: ${jsonData}`);
         }
 
         const newVersion : number = record.version + 1;
@@ -238,7 +249,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
         const response : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
             id,
-            MatrixType.FI_NOR_FORM_DTO,
+            this._stateType,
             this._stateKey,
             content
         );
@@ -248,16 +259,58 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         return {
             data: jsonData,
             id: id,
-            version: newVersion
+            version: newVersion,
+            deleted: false
         };
 
     }
 
-    public async deleteById (id: string) : Promise<void> {
+    public async deleteById (id: string) : Promise<RepositoryEntry<T>> {
 
-        throw new Error(`Not implemented yet`);
+        const record = await this.findById(id);
 
-        // remove(this._items, item => item.id === id);
+        if (record === undefined) {
+            // FIXME: Create our own errors. HTTP error is wrong here.
+            throw new RequestError(404);
+        }
+
+        const newVersion : number = record.version + 1;
+        if (!isInteger(newVersion)) {
+            throw new TypeError(`newVersion was not integer: ${newVersion}`);
+        }
+
+        const content : JsonObject = {
+            // @ts-ignore
+            data    : jsonData,
+            version : newVersion,
+            deleted : true
+        };
+
+        const response : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+            id,
+            this._stateType,
+            this._stateKey,
+            content
+        );
+
+        const deletedResponse : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+            id,
+            this._deletedType,
+            this._deletedKey,
+            {}
+        );
+
+        await this._client.forgetRoom(id);
+
+        LOG.debug(`response = `, JSON.stringify(response, null, 2));
+
+        return {
+            data: record.data,
+            id: id,
+            version: newVersion,
+            deleted: true
+        };
+
     }
 
     private static _filterLatest<T> (list : RepositoryEntry<T>[]) : RepositoryEntry<T>[] {
