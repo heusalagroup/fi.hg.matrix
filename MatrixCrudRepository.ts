@@ -31,6 +31,9 @@ import { values } from "lodash";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
+/**
+ * Saves objects of type T as special matrix rooms identified by `stateType` and `stateKey`.
+ */
 export class MatrixCrudRepository<T> implements Repository<T> {
 
     private readonly _client    : SimpleMatrixClient;
