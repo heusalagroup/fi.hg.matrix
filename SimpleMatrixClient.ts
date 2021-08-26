@@ -1,6 +1,14 @@
 // Copyright (c) 2021 Sendanor. All rights reserved.
 
-import { concat, forEach, isString, keys, map } from "../ts/modules/lodash";
+import {
+    concat,
+    forEach,
+    isString,
+    keys,
+    join,
+    map
+} from "../ts/modules/lodash";
+
 import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
 import RequestClient from "../ts/RequestClient";
 import LogService from "../ts/LogService";
@@ -15,7 +23,6 @@ import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRo
 import RequestError from "../ts/request/types/RequestError";
 import RequestStatus from "../ts/request/types/RequestStatus";
 import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
-import { join } from "lodash";
 import MatrixSyncResponseDTO, {
     explainMatrixSyncResponseDTO,
     isMatrixSyncResponseDTO

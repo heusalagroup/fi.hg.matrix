@@ -6,9 +6,11 @@ export enum MatrixType {
 
     M_ROOM_POWER_LEVELS         = "m.room.power_levels",
     M_ROOM_JOIN_RULES           = "m.room.join_rules",
+    M_ROOM_MEMBERSHIP           = "m.room.membership",
     M_ROOM_HISTORY_VISIBILITY   = "m.room.history_visibility",
     M_ROOM_GUEST_ACCESS         = "m.room.guest_access",
     M_ROOM_CREATE               = "m.room.create",
+    M_FEDERATE                  = "m.federate",
     M_ROOM_MEMBER               = "m.room.member",
     M_PUSH_RULES                = "m.push_rules",
     M_PRESENCE                  = "m.presence",
