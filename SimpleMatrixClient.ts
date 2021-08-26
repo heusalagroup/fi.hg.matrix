@@ -73,12 +73,30 @@ export class SimpleMatrixClient {
     private _timer             : any;
     private _syncing           : boolean;
 
+    /**
+     * Create an instance of SimpleMatrixClient.
+     *
+     * @param url                 The URL of the Matrix server to login
+     *
+     * @param homeServerUrl       Optional. The Matrix server URL for a logged in session.
+     *
+     * @param identityServerUrl   Optional. The Matrix identity server URL for a logged in session.
+     *
+     * @param accessToken         Optional. The access key for a logged in session.
+     *
+     * @param userId              Optional. The Matrix user ID for a logged in session.
+     *
+     * @param pollTimeout         Optional. The default poll time in milliseconds to poll changes
+     *                            from upstream Matrix server.
+     *
+     * @param pollWaitTime        Optional. The default wait time between polls, in milliseconds.
+     */
     public constructor (
         url                : string,
-        homeServerUrl      : string | undefined = undefined,
-        identityServerUrl  : string | undefined = undefined,
-        accessToken        : string | undefined = undefined,
-        userId             : string | undefined = undefined,
+        homeServerUrl      : string       | undefined = undefined,
+        identityServerUrl  : string       | undefined = undefined,
+        accessToken        : string       | undefined = undefined,
+        userId             : MatrixUserId | undefined = undefined,
         pollTimeout        : number = 30000,
         pollWaitTime       : number = 1000
     ) {
@@ -102,21 +120,32 @@ export class SimpleMatrixClient {
 
     public static Event = SimpleMatrixClientEvent;
 
+    /**
+     * Returns the current state of the client instance.
+     */
     public getState () : SimpleMatrixClientState {
         return this._state;
     }
 
+    /**
+     * Destroys the current client instance, including all observers.
+     *
+     * You should not use this instance anymore after you call this method.
+     */
     public destroy (): void {
 
         this._observer.destroy();
 
-        if (this._timer !== undefined) {
-            clearTimeout(this._timer);
-            this._timer = undefined;
-        }
+        this.stop();
 
     }
 
+    /**
+     * Start listening some events.
+     *
+     * @param name
+     * @param callback
+     */
     public on (
         name: SimpleMatrixClientEvent,
         callback: ObserverCallback<SimpleMatrixClientEvent>
@@ -124,6 +153,12 @@ export class SimpleMatrixClient {
         return this._observer.listenEvent(name, callback);
     }
 
+    /**
+     * Start the long polling event listener from Matrix server.
+     *
+     * @FIXME: This could be started automatically from listeners in our own observer. If so, this
+     *         method could be changed to private later.
+     */
     public start () {
 
         if (this._timer !== undefined) {
@@ -137,28 +172,55 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Stop the long polling event listener from Matrix server.
+     *
+     * It will not remove any listeners.
+     *
+     * @FIXME: This could be stopped automatically when listeners are removed from our own observer.
+     *         If so, this method could be changed to private later.
+     */
+    public stop () {
+
+        if (this._timer !== undefined) {
+            clearTimeout(this._timer);
+            this._timer = undefined;
+        }
+
+    }
+
+    /**
+     * Returns the current access token
+     */
     public getAccessToken () : string | undefined {
         return this._accessToken;
     }
 
+    /**
+     * Returns the current logged in Matrix user ID
+     */
     public getUserId () : MatrixUserId | undefined {
         return this._userId;
     }
 
+    /**
+     * Returns the hostname of the current Matrix home server
+     */
     public getHomeServerName () : string {
         const u = new URL(this._homeServerUrl);
         return u.hostname;
     }
 
     /**
+     * Log in to the matrix server
      *
-     * @param userId
-     * @param password
-     * @returns New instance of SimpleMatrixClient which is in authenticated state
+     * @param userId    The Matrix user ID to log into
+     * @param password  The Matrix user password
+     * @returns New instance of SimpleMatrixClient which is initialized in to the authenticated state
      */
     public async login (
-        userId: string,
-        password: string
+        userId   : MatrixUserId,
+        password : string
     ) : Promise<SimpleMatrixClient> {
 
         try {
@@ -244,6 +306,8 @@ export class SimpleMatrixClient {
     /**
      * Resolve room name (eg. alias) into room ID.
      *
+     * Eg. if you say `'foo'` here, it will be converted to `'#foo:homeServerHostname'`.
+     *
      * @param name
      */
     public async resolveRoomId (name: string) : Promise<string | undefined> {
@@ -276,7 +340,7 @@ export class SimpleMatrixClient {
     }
 
     /**
-     * Resolve room name (eg. alias) into room ID.
+     * Returns joined members from the homeserver
      *
      * @param roomId
      */
@@ -306,6 +370,7 @@ export class SimpleMatrixClient {
     }
 
     /**
+     * Returns a room state value of tuple `roomId,eventType,StateKey`.
      *
      * @param roomId
      * @param eventType
@@ -352,6 +417,7 @@ export class SimpleMatrixClient {
     }
 
     /**
+     * Sets room state value of tuple `roomId,eventType,StateKey`
      *
      * @param roomId
      * @param eventType
@@ -400,7 +466,7 @@ export class SimpleMatrixClient {
     /**
      * Forgets a room.
      *
-     * Once every member has forgot it, the room will be marked for deletion.
+     * Once every member has forgot it, the room will be marked for deletion in homeserver.
      *
      * @param roomId
      */
@@ -512,6 +578,12 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Send text message to the room.
+     *
+     * @param roomId The room ID
+     * @param body   The message string
+     */
     public async sendTextMessage (roomId: string, body: string) : Promise<void> {
 
         const accessToken : string | undefined = this._accessToken;
@@ -538,6 +610,11 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Create a room.
+     *
+     * @param body
+     */
     public async createRoom (
         body: MatrixCreateRoomDTO
     ) : Promise<MatrixCreateRoomResponseDTO> {
@@ -568,6 +645,12 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Join to a room.
+     *
+     * @param roomId
+     * @param body
+     */
     public async joinRoom (
         roomId : MatrixRoomId,
         body   : MatrixJoinRoomRequestDTO | undefined = undefined
@@ -599,6 +682,11 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Create a sync request.
+     *
+     * @param options
+     */
     public async sync (options : {
         filter       ?: string | JsonObject,
         since        ?: string,

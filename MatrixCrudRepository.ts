@@ -54,21 +54,21 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     /**
      * Creates an instance of MatrixCrudRepository.
      *
-     * @param client Use `SimpleMatrixClient.login(user, pw) : Promise<SimpleMatrixClient>` to get
-     *               a client instance which has authenticated.
+     * @param client         Use `SimpleMatrixClient.login(user, pw) : Promise<SimpleMatrixClient>`
+     *                       to get a client instance which has been authenticated.
      *
-     * @param stateType The MatrixType for this type of resource. Use matrix-style namespace syntax,
-     *                  eg. `com.example.foo.dto`.
+     * @param stateType      The MatrixType for this type of resource. Use matrix-style namespace
+     *                       syntax, eg. `com.example.foo.dto`.
      *
-     * @param stateKey Optional. The state key, defaults to ''.
+     * @param stateKey       Optional. The state key, defaults to ''.
      *
-     * @param serviceAccount Optional. If defined, this user will be joined to any created rooms
-     *                       and removed from them when resoure-room is destroyed.
+     * @param serviceAccount Optional. If defined, this service account user will be joined to any
+     *                       created rooms and removed from them when resoure-room is destroyed.
      *
-     * @param deletedType Optional. The state event type to add to any resource which is deleted.
-     *                    Defaults to `MatrixType.FI_NOR_DELETED`.
+     * @param deletedType    Optional. The state event type to add to any resource which is deleted.
+     *                       Defaults to `MatrixType.FI_NOR_DELETED`.
      *
-     * @param deletedKey Optional. The state key for deletedType, defaults to ''.
+     * @param deletedKey     Optional. The state key for deletedType, defaults to ''.
      */
     public constructor (
         client          : SimpleMatrixClient,
@@ -86,6 +86,11 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         this._deletedKey     = deletedKey                        ?? '';
     }
 
+    /**
+     * Returns all resources (eg. Matrix rooms) from the repository which are of this type.
+     *
+     * @returns Array of resources
+     */
     public async getAll () : Promise<RepositoryEntry<T>[]> {
 
         const response : MatrixSyncResponseDTO = await this._client.sync({
@@ -169,10 +174,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     }
 
     /**
+     * Returns all resources (eg. Matrix rooms) which have this property defined in their state.
      *
      * @param propertyName This may also be a path to value inside the model,
      *                     eg. `user.id` to match `{user: {id: 123}}`.
-     * @param propertyValue
+     *
+     * @param propertyValue The value to find
+     *
+     * @returns Array of resources
      */
     public async getAllByProperty (
         propertyName  : string,
@@ -195,6 +204,13 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     * Creates a resource in the repository for `data`, eg. a room in Matrix for this resource.
+     *
+     * @param data The data of the resource.
+     *
+     * @returns The new resource
+     */
     public async createItem (data: T) : Promise<RepositoryEntry<T>> {
 
         const jsonData : JsonAny = data as unknown as JsonAny;
@@ -237,6 +253,13 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     * Search a resource from the repository with this ID.
+     *
+     * @param id The ID of the resource. It's also a Matrix Room ID.
+     *
+     * @returns Promise of the latest resource with this ID, if it's defined, otherwise `undefined`.
+     */
     public async findById (id: string) : Promise<RepositoryEntry<T> | undefined> {
 
         const response : JsonObject | undefined = await this._client.getRoomStateByType(
@@ -266,6 +289,15 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     * Update the state of a resource located by this ID.
+     *
+     * It will set the state of the Matrix room to `jsonData` with a newer version number.
+     *
+     * @param id The ID of the resource. It's a Matrix Room ID.
+     *
+     * @param jsonData New data
+     */
     public async update (id: string, jsonData: T) : Promise<RepositoryEntry<T>> {
 
         if (!isJsonObject(jsonData)) {
@@ -307,6 +339,20 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     * Removes a resource by `id` from repository.
+     *
+     * This will make the client leave & forget the Matrix room for this resource.
+     *
+     * If the service account is defined, it will also make the service account to leave & forget the room.
+     *
+     * @FIXME Make the client and/or service account kick every other user out of the room also.
+     *
+     * @param id The ID of the resource to delete. This is a Matrix room ID.
+     *
+     * @returns The resource with `deleted` property as `false`
+     *
+     */
     public async deleteById (id: string) : Promise<RepositoryEntry<T>> {
 
         let record;
@@ -379,26 +425,6 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             throw new RequestError(500);
 
         }
-
-    }
-
-    private static _filterLatest<T> (list : RepositoryEntry<T>[]) : RepositoryEntry<T>[] {
-
-        return values(reduce(
-            list,
-            (cache: {[key: string]: RepositoryEntry<T>}, item: RepositoryEntry<T>) : {[key: string]: RepositoryEntry<T>} => {
-
-                if (!has(cache, item.id)) {
-                    cache[item.id] = item;
-                } else if (item.version > cache[item.id].version) {
-                    cache[item.id] = item;
-                }
-
-                return cache;
-
-            },
-            {} as {[key: string]: RepositoryEntry<T>}
-        ));
 
     }
 
