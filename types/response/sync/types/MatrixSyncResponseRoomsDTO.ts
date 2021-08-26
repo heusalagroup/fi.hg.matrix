@@ -7,6 +7,7 @@ import MatrixSyncResponseJoinedRoomDTO, {
     isMatrixSyncResponseJoinedRoomDTO
 } from "./MatrixSyncResponseJoinedRoomDTO";
 import MatrixSyncResponseInvitedRoomDTO, {
+    explainMatrixSyncResponseInvitedRoomDTO,
     getEventsFromMatrixSyncResponseInvitedRoomDTO,
     isMatrixSyncResponseInvitedRoomDTO
 } from "./MatrixSyncResponseInvitedRoomDTO";
@@ -93,7 +94,7 @@ export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
         throw new TypeError(`Property "join" was invalid: ${explainRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>(value?.join, isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO, explainMatrixRoomId, explainMatrixSyncResponseJoinedRoomDTO)}`);
     }
     if(!( ( isUndefined(value?.invite) || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO) ) )) {
-        throw new TypeError(`Property "invite" was invalid`);
+        throw new TypeError(`Property "invite" was invalid: ${explainRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO, explainMatrixRoomId, explainMatrixSyncResponseInvitedRoomDTO)}`);
     }
     if(!( ( isUndefined(value?.leave)  || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseLeftRoomDTO>(   value?.leave,  isMatrixRoomId, isMatrixSyncResponseLeftRoomDTO) ) )) {
         throw new TypeError(`Property "leave" was invalid`);

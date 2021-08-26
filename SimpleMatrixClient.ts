@@ -26,11 +26,11 @@ import MatrixSyncResponseAnyEventDTO
 import { getEventsFromMatrixSyncResponsePresenceDTO } from "./types/response/sync/types/MatrixSyncResponsePresenceDTO";
 import { getEventsFromMatrixSyncResponseAccountDataDTO } from "./types/response/sync/types/MatrixSyncResponseAccountDataDTO";
 import { getEventsFromMatrixSyncResponseToDeviceDTO } from "./types/response/sync/types/MatrixSyncResponseToDeviceDTO";
-import MatrixRoomId from "./types/core/MatrixRoomId";
+import MatrixRoomId, { isMatrixRoomId } from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO, { getEventsFromMatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
 import MatrixSyncResponseInvitedRoomDTO, { getEventsFromMatrixSyncResponseInvitedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseInvitedRoomDTO";
 import MatrixSyncResponseLeftRoomDTO, { getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
-import MatrixUserId from "./types/core/MatrixUserId";
+import MatrixUserId, { isMatrixUserId } from "./types/core/MatrixUserId";
 import MatrixJoinRoomRequestDTO from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
 import MatrixJoinRoomResponseDTO, { isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
 import {
@@ -38,6 +38,8 @@ import {
 } from "./types/SimpleMatrixClientState";
 import PutRoomStateWithEventTypeDTO
     , { isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
+import MatrixRoomJoinedMembersDTO
+    , { isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -274,6 +276,36 @@ export class SimpleMatrixClient {
     }
 
     /**
+     * Resolve room name (eg. alias) into room ID.
+     *
+     * @param roomId
+     */
+    public async getJoinedMembers (roomId: MatrixRoomId) : Promise<MatrixRoomJoinedMembersDTO> {
+
+        const accessToken : string | undefined = this._accessToken;
+        if (!accessToken) {
+            throw new TypeError(`getRoomStateByType: Client did not have access token`);
+        }
+
+        const response : any = await RequestClient.getJson(
+            this._resolveHomeServerUrl(`/rooms/${q(roomId)}/joined_members`),
+            {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        );
+
+        if (!isMatrixRoomJoinedMembersDTO(response)) {
+            LOG.debug(`getJoinedMembers: response was not MatrixRoomJoinedMembersDTO: `, response);
+            throw new TypeError(`Response was not MatrixRoomJoinedMembersDTO: ${response}`);
+        }
+
+        LOG.debug(`getJoinedMembers: received: `, response);
+
+        return response;
+
+    }
+
+    /**
      *
      * @param roomId
      * @param eventType
@@ -433,6 +465,53 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     * Invite user to a room.
+     *
+     * @param roomId
+     * @param userId
+     */
+    public async inviteToRoom (
+        roomId : MatrixRoomId,
+        userId : MatrixUserId
+    ) : Promise<void> {
+
+        try {
+
+            if (!isMatrixRoomId(roomId)) {
+                throw new TypeError(`roomId invalid: ${roomId}`);
+            }
+
+            if (!isMatrixUserId(userId)) {
+                throw new TypeError(`userId invalid: ${userId}`);
+            }
+
+            LOG.info(`Inviting user ${userId} to ${roomId}`);
+
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`inviteToRoom: Client did not have access token`);
+            }
+
+            const response : JsonAny | undefined = await RequestClient.postJson(
+                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/invite`),
+                {
+                    user_id: userId
+                },
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+
+            LOG.debug(`inviteToRoom: received: `, response);
+
+        } catch (err) {
+            LOG.error(`inviteToRoom: Passing on error: `, err);
+            throw err;
+        }
+
+    }
+
     public async sendTextMessage (roomId: string, body: string) : Promise<void> {
 
         const accessToken : string | undefined = this._accessToken;
@@ -528,11 +607,11 @@ export class SimpleMatrixClient {
         timeout      ?: number
     }) : Promise<MatrixSyncResponseDTO> {
 
-        LOG.info(`_sync with `, options);
+        LOG.info(`sync with `, options);
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`_initSync: Client did not have access token`);
+            throw new TypeError(`sync: Client ${this._userId} did not have access token`);
         }
 
         const {

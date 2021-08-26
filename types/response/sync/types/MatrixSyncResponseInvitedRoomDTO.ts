@@ -1,10 +1,11 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import MatrixSyncResponseInviteStateDTO, {
+    explainMatrixSyncResponseInviteStateDTO,
     getEventsFromMatrixSyncResponseInviteStateDTO,
     isMatrixSyncResponseInviteStateDTO
 } from "./MatrixSyncResponseInviteStateDTO";
-import { hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, keys } from "../../../../../ts/modules/lodash";
 import MatrixSyncResponseStrippedStateDTO from "./MatrixSyncResponseStrippedStateDTO";
 
 export interface MatrixSyncResponseInvitedRoomDTO {
@@ -25,6 +26,33 @@ export function isMatrixSyncResponseInvitedRoomDTO (value: any): value is Matrix
         ])
         && isMatrixSyncResponseInviteStateDTO(value?.invite_state)
     );
+}
+
+export function assertMatrixSyncResponseInvitedRoomDTO (value: any): void {
+
+    if(!( isRegularObject(value) )) {
+        throw new TypeError(`Value not object: ${value}`);
+    }
+
+    if(!( hasNoOtherKeys(value, [
+            'invite_state'
+        ]) )) {
+        throw new TypeError(`Object has extra keys: all keys: ${keys(value)}`);
+    }
+
+    if(!( isMatrixSyncResponseInviteStateDTO(value?.invite_state) )) {
+        throw new TypeError(`Property "invite_state" invalid: ${explainMatrixSyncResponseInviteStateDTO(value?.invite_state)}`);
+    }
+
+}
+
+export function explainMatrixSyncResponseInvitedRoomDTO (value : any) : string {
+    try {
+        assertMatrixSyncResponseInvitedRoomDTO(value);
+        return 'No errors detected';
+    } catch (err) {
+        return err.message;
+    }
 }
 
 export function stringifyMatrixSyncResponseInvitedRoomDTO (value: MatrixSyncResponseInvitedRoomDTO): string {
