@@ -6,18 +6,23 @@ import SimpleMatrixClient from "./SimpleMatrixClient";
 import MatrixCreateRoomResponseDTO from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import MatrixCreateRoomPreset
     from "./types/request/createRoom/types/MatrixCreateRoomPreset";
-import JsonAny, { isJsonObject, JsonObject } from "../ts/Json";
+import JsonAny, {
+    isJsonObject,
+    JsonObject
+} from "../ts/Json";
 import MatrixSyncResponseDTO from "./types/response/sync/MatrixSyncResponseDTO";
 import LogService from "../ts/LogService";
 import {
     concat,
     filter,
     has,
+    get,
     isInteger,
     isNumber,
     keys,
     map,
-    reduce
+    reduce,
+    values
 } from "../ts/modules/lodash";
 import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO
@@ -28,42 +33,47 @@ import MatrixType from "./types/core/MatrixType";
 import RequestError from "../ts/request/types/RequestError";
 import PutRoomStateWithEventTypeDTO
     from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
-import { values } from "lodash";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
 /**
  * Saves objects of type T as special matrix rooms identified by `stateType` and `stateKey`.
+ *
+ * See also [MemoryRepository](https://github.com/sendanor/ui/blob/main/repository/MemoryRepository.ts)
  */
 export class MatrixCrudRepository<T> implements Repository<T> {
 
-    private readonly _client      : SimpleMatrixClient;
-    private readonly _stateType   : string;
-    private readonly _stateKey    : string;
-    private readonly _deletedType : string;
-    private readonly _deletedKey  : string;
+    private readonly _client         : SimpleMatrixClient;
+    private readonly _serviceAccount : SimpleMatrixClient | undefined;
+    private readonly _stateType      : string;
+    private readonly _stateKey       : string;
+    private readonly _deletedType    : string;
+    private readonly _deletedKey     : string;
 
     /**
      *
      * @param client Use `SimpleMatrixClient.login(user, pw) : Promise<SimpleMatrixClient>` to get
      *               a client instance which has authenticated
+     * @param serviceAccount Optional. If defined, this user will be joined to any created rooms.
      * @param stateType
      * @param stateKey
      * @param deletedType
      * @param deletedKey
      */
     public constructor (
-        client      : SimpleMatrixClient,
-        stateType   : string,
-        stateKey    : string = '',
-        deletedType : string = MatrixType.FI_NOR_DELETED,
-        deletedKey  : string = ''
+        client                 : SimpleMatrixClient,
+        stateType              : string,
+        stateKey               : string = '',
+        serviceAccount         : SimpleMatrixClient | undefined = undefined,
+        deletedType            : string = MatrixType.FI_NOR_DELETED,
+        deletedKey             : string = ''
     ) {
-        this._client      = client;
-        this._stateType   = stateType;
-        this._stateKey    = stateKey;
-        this._deletedType = deletedType;
-        this._deletedKey  = deletedKey;
+        this._client         = client;
+        this._serviceAccount = serviceAccount;
+        this._stateType      = stateType;
+        this._stateKey       = stateKey;
+        this._deletedType    = deletedType;
+        this._deletedKey     = deletedKey;
     }
 
     public async getAll () : Promise<RepositoryEntry<T>[]> {
@@ -101,6 +111,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         LOG.debug(`response = `, JSON.stringify(response, null, 2));
 
         const joinObject = response?.rooms?.join ?? {};
+
         const joinedRoomIds : string[] = keys(joinObject);
 
         return reduce(joinedRoomIds, (result : RepositoryEntry<T>[], roomId: MatrixRoomId) : RepositoryEntry<T>[] => {
@@ -144,20 +155,31 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
-    public async getAllByFormId (id: string): Promise<RepositoryEntry<T>[]> {
-        throw new Error(`Not implemented yet`);
-        // function test (item: MatrixItem<T>) : boolean {
-        //     // @ts-ignore
-        //     return item?.data?.formId === id;
-        // }
-        // return map(
-        //     filter(this._items, test),
-        //     (item: MatrixItem<T>) : RepositoryEntry<T> => ({
-        //         id       : item.id,
-        //         version  : item.version,
-        //         data     : item.data
-        //     })
-        // );
+    /**
+     *
+     * @param propertyName This may also be a path to value inside the model,
+     *                     eg. `user.id` to match `{user: {id: 123}}`.
+     * @param propertyValue
+     */
+    public async getAllByProperty (
+        propertyName  : string,
+        propertyValue : any
+    ): Promise<RepositoryEntry<T>[]> {
+
+        const items = await this.getAll();
+
+        return map(
+            filter(
+                items,
+                (item: RepositoryEntry<T>) : boolean => get(item?.data, propertyName) === propertyValue
+            ),
+            (item: RepositoryEntry<T>) : RepositoryEntry<T> => ({
+                id       : item.id,
+                version  : item.version,
+                data     : item.data
+            })
+        );
+
     }
 
     public async createItem (data: T) : Promise<RepositoryEntry<T>> {
@@ -170,11 +192,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             version : version
         };
 
+        const serviceAccountId = this._serviceAccount?.getUserId();
+
         const response : MatrixCreateRoomResponseDTO = await this._client.createRoom({
             preset: MatrixCreateRoomPreset.PRIVATE_CHAT,
             creation_content: {
                 "m.federate": false
             },
+            invite: serviceAccountId ? [ serviceAccountId ] : [],
             initial_state: [
                 {
                     type: this._stateType,
@@ -185,6 +210,10 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         });
 
         const room_id = response.room_id;
+
+        if (this._serviceAccount) {
+            await this._serviceAccount.joinRoom(room_id);
+        }
 
         return {
             id      : room_id,
@@ -303,6 +332,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 this._deletedKey,
                 {}
             );
+
+            if (this._serviceAccount) {
+
+                await this._serviceAccount.leaveRoom(id);
+
+                await this._serviceAccount.forgetRoom(id);
+
+            }
 
             await this._client.leaveRoom(id);
 
