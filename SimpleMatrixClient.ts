@@ -52,9 +52,10 @@ export enum SimpleMatrixClientEvent {
 export type SimpleMatrixClientDestructor = ObserverDestructor;
 
 /**
- * Super simple matrix event listener.
+ * Super lightweight Matrix client and simple event listener.
  *
- * Far from perfect, but works on OpenWRT and NodeJS 8 and full POC takes only 50k as compiled :)
+ * Far from perfect, but works both on browser and on OpenWRT with NodeJS 8 and full POC takes only
+ * 50k as compiled single bundle file (including all the dependencies) :)
  */
 export class SimpleMatrixClient {
 
