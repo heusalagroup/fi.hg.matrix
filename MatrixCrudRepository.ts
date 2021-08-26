@@ -22,7 +22,8 @@ import {
     keys,
     map,
     reduce,
-    values
+    values,
+    parseNonEmptyString
 } from "../ts/modules/lodash";
 import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO
@@ -37,7 +38,7 @@ import PutRoomStateWithEventTypeDTO
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
 /**
- * Saves objects of type T as special matrix rooms identified by `stateType` and `stateKey`.
+ * Saves JSON-able objects of type T as special Matrix.org rooms identified by `stateType` and `stateKey`.
  *
  * See also [MemoryRepository](https://github.com/sendanor/ui/blob/main/repository/MemoryRepository.ts)
  */
@@ -51,29 +52,38 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     private readonly _deletedKey     : string;
 
     /**
+     * Creates an instance of MatrixCrudRepository.
      *
      * @param client Use `SimpleMatrixClient.login(user, pw) : Promise<SimpleMatrixClient>` to get
-     *               a client instance which has authenticated
-     * @param serviceAccount Optional. If defined, this user will be joined to any created rooms.
-     * @param stateType
-     * @param stateKey
-     * @param deletedType
-     * @param deletedKey
+     *               a client instance which has authenticated.
+     *
+     * @param stateType The MatrixType for this type of resource. Use matrix-style namespace syntax,
+     *                  eg. `com.example.foo.dto`.
+     *
+     * @param stateKey Optional. The state key, defaults to ''.
+     *
+     * @param serviceAccount Optional. If defined, this user will be joined to any created rooms
+     *                       and removed from them when resoure-room is destroyed.
+     *
+     * @param deletedType Optional. The state event type to add to any resource which is deleted.
+     *                    Defaults to `MatrixType.FI_NOR_DELETED`.
+     *
+     * @param deletedKey Optional. The state key for deletedType, defaults to ''.
      */
     public constructor (
-        client                 : SimpleMatrixClient,
-        stateType              : string,
-        stateKey               : string = '',
-        serviceAccount         : SimpleMatrixClient | undefined = undefined,
-        deletedType            : string = MatrixType.FI_NOR_DELETED,
-        deletedKey             : string = ''
+        client          : SimpleMatrixClient,
+        stateType       : string,
+        stateKey        : string             | undefined = undefined,
+        serviceAccount  : SimpleMatrixClient | undefined = undefined,
+        deletedType     : string             | undefined = undefined,
+        deletedKey      : string             | undefined = undefined
     ) {
         this._client         = client;
-        this._serviceAccount = serviceAccount;
         this._stateType      = stateType;
-        this._stateKey       = stateKey;
-        this._deletedType    = deletedType;
-        this._deletedKey     = deletedKey;
+        this._stateKey       = stateKey                          ?? '';
+        this._serviceAccount = serviceAccount                    ?? undefined;
+        this._deletedType    = parseNonEmptyString(deletedType)  ?? MatrixType.FI_NOR_DELETED;
+        this._deletedKey     = deletedKey                        ?? '';
     }
 
     public async getAll () : Promise<RepositoryEntry<T>[]> {
@@ -93,6 +103,9 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                         limit: 0,
                         // types: [ this._stateType ]
                     },
+                    ephemeral: {
+                        limit: 0,
+                    },
                     timeline: {
                         limit: 0,
                         // types: [ this._stateType ]
@@ -108,7 +121,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             full_state: true
         });
 
-        LOG.debug(`response = `, JSON.stringify(response, null, 2));
+        LOG.debug(`getAll: response = `, response);
 
         const joinObject = response?.rooms?.join ?? {};
 
