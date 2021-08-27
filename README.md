@@ -20,8 +20,11 @@ library](https://lodash.com/).
 
 ### It's well tested
 
-Our unit tests exists beside the code. To run tests, check out our test repository 
-[@sendanor/test](https://github.com/sendanor/test).
+~~Our unit tests exists beside the code. To run tests, check out our test repository 
+[@sendanor/test](https://github.com/sendanor/test).~~
+
+Well, it will be. This submodule is part of an experimental project, which still evolves much more 
+unstable manner :)
 
 ### We don't have traditional releases
 
