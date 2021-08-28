@@ -1,15 +1,22 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseUnsignedDataDTO, { isMatrixSyncResponseUnsignedDataDTO } from "./MatrixSyncResponseUnsignedDataDTO";
-import { isJsonObject, JsonObject } from "../../../../../ts/Json";
+import MatrixSyncResponseUnsignedDataDTO, {
+    isMatrixSyncResponseUnsignedDataDTO
+} from "./MatrixSyncResponseUnsignedDataDTO";
+
+import {
+    isJsonObject,
+    JsonObject
+} from "../../../../../ts/Json";
+
 import {
     hasNoOtherKeys,
     isInteger,
     isRegularObject,
     isString,
-    isUndefined, keys
+    isUndefined,
+    keys
 } from "../../../../../ts/modules/lodash";
-import { assertMatrixSyncResponseStateDTO } from "./MatrixSyncResponseStateDTO";
 
 export interface MatrixSyncResponseStateEventDTO {
     readonly content           : JsonObject;
@@ -101,7 +108,7 @@ export function assertMatrixSyncResponseStateEventDTO (value: any) : void {
 
 export function explainMatrixSyncResponseStateEventDTO (value: any) : string {
     try {
-        assertMatrixSyncResponseStateDTO(value);
+        assertMatrixSyncResponseStateEventDTO(value);
         return 'No errors detected';
     } catch (err) {
         return err.message;

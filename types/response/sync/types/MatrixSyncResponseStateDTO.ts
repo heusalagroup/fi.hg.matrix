@@ -1,16 +1,17 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    concat, find,
+    concat,
+    find,
     hasNoOtherKeys,
     isArrayOf,
     isRegularObject
 } from "../../../../../ts/modules/lodash";
+
 import MatrixSyncResponseStateEventDTO, {
     explainMatrixSyncResponseStateEventDTO,
     isMatrixSyncResponseStateEventDTO
 } from "./MatrixSyncResponseStateEventDTO";
-import { assertMatrixSyncResponseRoomsDTO } from "./MatrixSyncResponseRoomsDTO";
 
 export interface MatrixSyncResponseStateDTO {
     readonly events : MatrixSyncResponseStateEventDTO[];
