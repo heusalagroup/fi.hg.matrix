@@ -41,9 +41,6 @@ mkdir -p src/nor
 git submodule add git@github.com:sendanor/typescript.git src/nor/ts
 git config -f .gitmodules submodule.src/nor/ts.branch main
 
-git submodule add git@github.com:sendanor/ui.git src/nor/ui
-git config -f .gitmodules submodule.src/nor/ui.branch main
-
 git submodule add git@github.com:sendanor/matrix.git src/nor/matrix
 git config -f .gitmodules submodule.src/nor/matrix.branch main
 ```

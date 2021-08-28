@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { RepositoryEntry } from "../ui/types/RepositoryEntry";
-import Repository from "../ui/types/Repository";
+import { RepositoryEntry } from "../ts/simpleRepository/types/RepositoryEntry";
+import Repository from "../ts/simpleRepository/types/Repository";
 import SimpleMatrixClient from "./SimpleMatrixClient";
 import MatrixCreateRoomResponseDTO from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import MatrixCreateRoomPreset
@@ -46,8 +46,7 @@ const LOG = LogService.createLogger('MatrixCrudRepository');
  * Saves JSON-able objects of type T as special Matrix.org rooms identified by `stateType` and
  * `stateKey`.
  *
- * See also
- * [MemoryRepository](https://github.com/sendanor/ui/blob/main/repository/MemoryRepository.ts)
+ * See also [MemoryRepository](https://github.com/sendanor/typescript/tree/main/simpleRepository)
  */
 export class MatrixCrudRepository<T> implements Repository<T> {
 
