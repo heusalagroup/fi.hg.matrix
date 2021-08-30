@@ -22,6 +22,9 @@ export enum MatrixType {
     FI_NOR_DELETED              = "fi.nor.deleted",
     FI_NOR_FORM_DTO             = "fi.nor.form_dto",
     FI_NOR_FORM_VALUE_DTO       = "fi.nor.form_value_dto",
+    FI_NOR_PIPELINE_DTO         = "fi.nor.dto.pipeline",
+    FI_NOR_PIPELINE_RUN_DTO     = "fi.nor.dto.pipeline.run",
+    FI_NOR_AGENT_DTO            = "fi.nor.dto.agent",
     FI_NOR_PIPELINE             = "fi.nor.pipeline",
     FI_NOR_PIPELINE_STATE       = "fi.nor.pipeline.state"
 

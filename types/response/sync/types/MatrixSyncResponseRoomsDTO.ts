@@ -80,9 +80,11 @@ export function isMatrixSyncResponseRoomsDTO (value: any): value is MatrixSyncRe
 }
 
 export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
+
     if(!( isRegularObject(value) )) {
         throw new TypeError(`value was not regular object`);
     }
+
     if(!( hasNoOtherKeys(value, [
         'join',
         'invite',
@@ -90,15 +92,37 @@ export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
     ]) )) {
         throw new TypeError(`value had extra properties`);
     }
-    if(!( ( isUndefined(value?.join)   || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>( value?.join,   isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO) ) )) {
-        throw new TypeError(`Property "join" was invalid: ${explainRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>(value?.join, isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO, explainMatrixRoomId, explainMatrixSyncResponseJoinedRoomDTO)}`);
+
+    if(!(
+        isUndefined(value?.join)
+        || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>(
+            value?.join,
+            isMatrixRoomId,
+            isMatrixSyncResponseJoinedRoomDTO
+        )
+    )) {
+        throw new TypeError(`Property "join" was invalid: ${
+            explainRegularObjectOf<
+                MatrixRoomId, 
+                MatrixSyncResponseJoinedRoomDTO
+            >(
+                value?.join,
+                isMatrixRoomId,
+                isMatrixSyncResponseJoinedRoomDTO,
+                explainMatrixRoomId,
+                explainMatrixSyncResponseJoinedRoomDTO
+            )
+        }`);
     }
+
     if(!( ( isUndefined(value?.invite) || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO) ) )) {
         throw new TypeError(`Property "invite" was invalid: ${explainRegularObjectOf<MatrixRoomId, MatrixSyncResponseInvitedRoomDTO>(value?.invite, isMatrixRoomId, isMatrixSyncResponseInvitedRoomDTO, explainMatrixRoomId, explainMatrixSyncResponseInvitedRoomDTO)}`);
     }
+
     if(!( ( isUndefined(value?.leave)  || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseLeftRoomDTO>(   value?.leave,  isMatrixRoomId, isMatrixSyncResponseLeftRoomDTO) ) )) {
         throw new TypeError(`Property "leave" was invalid`);
     }
+
 }
 
 export function explainMatrixSyncResponseRoomsDTO (value : any) : string {
