@@ -574,6 +574,30 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    public async inviteToItem (
+        id      : string,
+        members : string[]
+    ): Promise<void> {
+
+        await reduce(
+            members,
+            async (p : Promise<void>, item : string) => {
+                await p;
+                await this._client.inviteToRoom(id, item);
+            },
+            Promise.resolve()
+        )
+
+    }
+
+    public async subscribeToItem (
+        id : string
+    ): Promise<void> {
+
+        await this._client.joinRoom(id);
+
+    }
+
 }
 
 export default MatrixCrudRepository;
