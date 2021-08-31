@@ -1,13 +1,6 @@
 // Copyright (c) 2021 Sendanor. All rights reserved.
 
-import {
-    concat,
-    forEach,
-    isString,
-    keys,
-    join,
-    map
-} from "../ts/modules/lodash";
+import { concat, forEach, isString, join, keys, map } from "../ts/modules/lodash";
 
 import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
 import RequestClient from "../ts/RequestClient";
@@ -40,13 +33,14 @@ import MatrixSyncResponseLeftRoomDTO, { getEventsFromMatrixSyncResponseLeftRoomD
 import MatrixUserId, { isMatrixUserId } from "./types/core/MatrixUserId";
 import MatrixJoinRoomRequestDTO from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
 import MatrixJoinRoomResponseDTO, { isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
-import {
-    SimpleMatrixClientState
-} from "./types/SimpleMatrixClientState";
-import PutRoomStateWithEventTypeDTO
-    , { isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
-import MatrixRoomJoinedMembersDTO
-    , { isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
+import { SimpleMatrixClientState } from "./types/SimpleMatrixClientState";
+import PutRoomStateWithEventTypeDTO, { isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
+import MatrixRoomJoinedMembersDTO, { isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
+import MatrixRegisterKind from "./types/request/register/types/MatrixRegisterKind";
+import MatrixRegisterDTO from "./types/request/register/MatrixRegisterDTO";
+import MatrixRegisterResponseDTO, { isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
+import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
+import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -185,8 +179,8 @@ export class SimpleMatrixClient {
      *
      * It will not remove any listeners.
      *
-     * @FIXME: This could be stopped automatically when listeners are removed from our own observer.
-     *         If so, this method could be changed to private later.
+     * @FIXME: This could be stopped automatically when listeners are removed from our own
+     *     observer. If so, this method could be changed to private later.
      */
     public stop () {
 
@@ -219,12 +213,87 @@ export class SimpleMatrixClient {
         return u.hostname;
     }
 
+    public async register (
+        requestBody  : MatrixRegisterDTO,
+        kind         : MatrixRegisterKind | undefined = undefined
+    ) : Promise<MatrixRegisterResponseDTO> {
+
+        try {
+
+            LOG.debug(`Registering user:`, requestBody, kind);
+
+            const response : any = await RequestClient.postJson(
+                this._resolveHomeServerUrl(`/register`) + (kind ? `?kind=${q(kind)}`: ''),
+                requestBody as unknown as JsonAny
+            );
+
+            if (!isMatrixRegisterResponseDTO(response)) {
+                LOG.debug(`Invalid response received: `, response);
+                throw new TypeError(`register: Response was invalid`);
+            }
+
+            LOG.debug(`RegisterResponseDTO received: `, response);
+
+            return response;
+
+        } catch (err) {
+
+            LOG.debug(`Could not register user: `, err);
+
+            if (err instanceof RequestError) {
+
+                const statusCode = err?.getStatusCode();
+
+                if ( statusCode === 400 ) {
+
+                    const errorBody: any = err?.getBody();
+
+                    if ( isMatrixErrorDTO(errorBody) ) {
+                        switch (errorBody.errcode) {
+                            case MatrixErrorCode.M_USER_IN_USE:
+                                throw new RequestError(RequestStatus.Conflict, `User already exists`);
+                            case MatrixErrorCode.M_INVALID_USERNAME:
+                                throw new RequestError(RequestStatus.BadRequest, `Username invalid`);
+                            case MatrixErrorCode.M_EXCLUSIVE:
+                                throw new RequestError(RequestStatus.Conflict, `User name conflicts with exclusive namespace`);
+                            default:
+                                throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+                        }
+
+                    } else {
+                        throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+                    }
+
+                } else if ( statusCode === 401 ) {
+                    throw new RequestError(RequestStatus.Unauthorized);
+
+                } else if ( statusCode === 403 ) {
+                    throw new RequestError(RequestStatus.Forbidden);
+
+                } else if ( statusCode === 429 ) {
+                    // Rate limited
+                    // FIXME: implement special exception that contains the retry_after_ms property and/or handle it here
+                    throw new RequestError(429);
+
+                } else {
+                    throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+                }
+
+            } else {
+                throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+            }
+
+        }
+
+    }
+
     /**
      * Log in to the matrix server
      *
      * @param userId    The Matrix user ID to log into
      * @param password  The Matrix user password
-     * @returns New instance of SimpleMatrixClient which is initialized in to the authenticated state
+     * @returns New instance of SimpleMatrixClient which is initialized in to the authenticated
+     *     state
      */
     public async login (
         userId   : MatrixUserId,

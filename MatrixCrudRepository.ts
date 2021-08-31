@@ -21,7 +21,8 @@ import {
     keys,
     map,
     reduce,
-    parseNonEmptyString
+    parseNonEmptyString,
+    uniq
 } from "../ts/modules/lodash";
 import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO
@@ -39,6 +40,8 @@ import MatrixUserId from "./types/core/MatrixUserId";
 import MatrixHistoryVisibility from "./types/event/roomHistoryVisibility/MatrixHistoryVisibility";
 import MatrixJoinRule from "./types/event/roomJoinRules/MatrixJoinRule";
 import MatrixGuestAccess from "./types/event/roomGuestAccess/MatrixGuestAccess";
+import MatrixRoomJoinedMembersDTO
+    from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -268,11 +271,13 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      * Creates a resource in the repository for `data`, eg. a room in Matrix for this resource.
      *
      * @param data The data of the resource.
+     * @param members Any members which will be invited to this resource
      *
      * @returns The new resource
      */
     public async createItem (
-        data              : T
+        data    : T,
+        members ?: string[]
     ) : Promise<RepositoryEntry<T>> {
 
         const jsonData : JsonAny = data as unknown as JsonAny;
@@ -286,7 +291,10 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         const serviceAccountId = this._serviceAccount?.getUserId();
 
         const invitedMembers : MatrixUserId[] = (
-            serviceAccountId ? [ serviceAccountId ]: []
+            uniq(concat(
+                serviceAccountId ? [ serviceAccountId ]: [],
+                members ? members : []
+            ))
         );
 
         const allowedGroups : MatrixRoomId[] | undefined = this._allowedGroups;
@@ -378,7 +386,10 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      * @returns Promise of the latest resource with this ID, if it's defined, otherwise
      *     `undefined`.
      */
-    public async findById (id: string) : Promise<RepositoryEntry<T> | undefined> {
+    public async findById (
+        id              : string,
+        includeMembers ?: boolean
+    ) : Promise<RepositoryEntry<T> | undefined> {
 
         const response : JsonObject | undefined = await this._client.getRoomStateByType(
             id,
@@ -398,11 +409,19 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             throw new TypeError(`version was not integer: ${version}`);
         }
 
+        let members : string[] | undefined = undefined;
+
+        if (includeMembers) {
+            const dto : MatrixRoomJoinedMembersDTO = await this._client.getJoinedMembers(id);
+            members = keys(dto);
+        }
+
         return {
             // @ts-ignore
             data: data,
             id: id,
-            version: version
+            version: version,
+            members
         };
 
     }
