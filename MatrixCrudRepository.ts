@@ -42,6 +42,7 @@ import MatrixJoinRule from "./types/event/roomJoinRules/MatrixJoinRule";
 import MatrixGuestAccess from "./types/event/roomGuestAccess/MatrixGuestAccess";
 import MatrixRoomJoinedMembersDTO
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
+import RepositoryMember from "../ts/simpleRepository/types/RepositoryMember";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -409,11 +410,17 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             throw new TypeError(`version was not integer: ${version}`);
         }
 
-        let members : string[] | undefined = undefined;
-
+        let members : RepositoryMember[] | undefined = undefined;
         if (includeMembers) {
             const dto : MatrixRoomJoinedMembersDTO = await this._client.getJoinedMembers(id);
-            members = keys(dto);
+            members = map(keys(dto.joined), (memberId: string) : RepositoryMember => {
+                const member = dto.joined[memberId];
+                return {
+                    id          : memberId,
+                    displayName : member.display_name,
+                    avatarUrl   : member?.avatar_url ? member.avatar_url : undefined
+                };
+            });
         }
 
         return {
