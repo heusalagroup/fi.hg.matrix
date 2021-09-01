@@ -22,7 +22,7 @@ import {
     map,
     reduce,
     parseNonEmptyString,
-    uniq
+    uniq, forEach
 } from "../ts/modules/lodash";
 import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO
@@ -62,6 +62,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     private readonly _deletedType    : string;
     private readonly _deletedKey     : string;
     private readonly _allowedGroups  : MatrixRoomId[] | undefined;
+    private readonly _allowedEvents  : string[] | undefined;
 
     /**
      * Creates an instance of MatrixCrudRepository.
@@ -93,7 +94,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         serviceAccount        : SimpleMatrixClient | undefined = undefined,
         deletedType           : string             | undefined = undefined,
         deletedKey            : string             | undefined = undefined,
-        allowedGroups         : MatrixRoomId[]     | undefined = undefined
+        allowedGroups         : MatrixRoomId[]     | undefined = undefined,
+        allowedEvents         : string[]           | undefined = undefined
     ) {
 
         this._client         = client;
@@ -102,6 +104,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         this._serviceAccount = serviceAccount                    ?? undefined;
         this._deletedType    = parseNonEmptyString(deletedType)  ?? MatrixType.FI_NOR_DELETED;
         this._deletedKey     = deletedKey                        ?? '';
+        this._allowedEvents  = allowedEvents;
 
         if (allowedGroups === undefined) {
             this._allowedGroups = undefined;
@@ -382,6 +385,17 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         );
         LOG.debug(`createItem: inviteOptions = `, inviteOptions);
 
+        const allowedEventsObject = {
+            [this._stateType]: 0,
+            [this._deletedType]: 0
+        };
+
+        if (this._allowedEvents?.length) {
+            forEach(this._allowedEvents, (eventName : string ) => {
+                allowedEventsObject[eventName] = 0;
+            });
+        }
+
         const options : MatrixCreateRoomDTO = {
             ...inviteOptions,
             preset: MatrixCreateRoomPreset.PRIVATE_CHAT,
@@ -389,10 +403,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             initial_state: initialState,
             room_version: "8",
             power_level_content_override: {
-                events: {
-                    [this._stateType]: 0,
-                    [this._deletedType]: 0
-                }
+                events: allowedEventsObject
             }
         };
 
