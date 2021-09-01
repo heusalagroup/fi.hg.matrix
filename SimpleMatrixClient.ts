@@ -41,6 +41,8 @@ import MatrixRegisterDTO from "./types/request/register/MatrixRegisterDTO";
 import MatrixRegisterResponseDTO, { isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
 import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
 import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
+import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
+import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -215,16 +217,22 @@ export class SimpleMatrixClient {
 
     public async register (
         requestBody  : MatrixRegisterDTO,
-        kind         : MatrixRegisterKind | undefined = undefined
+        kind         : MatrixRegisterKind | undefined = undefined,
+        accessToken ?: string
     ) : Promise<MatrixRegisterResponseDTO> {
 
         try {
 
             LOG.debug(`Registering user:`, requestBody, kind);
 
+            const access_token : string | undefined = this?._accessToken ?? accessToken ?? undefined;
+
             const response : any = await RequestClient.postJson(
                 this._resolveHomeServerUrl(`/register`) + (kind ? `?kind=${q(kind)}`: ''),
-                requestBody as unknown as JsonAny
+                requestBody as unknown as JsonAny,
+                access_token ? {
+                    'Authorization': `Bearer ${access_token}`
+                } : undefined
             );
 
             if (!isMatrixRegisterResponseDTO(response)) {
@@ -239,6 +247,115 @@ export class SimpleMatrixClient {
         } catch (err) {
 
             LOG.debug(`Could not register user: `, err);
+
+            if (err instanceof RequestError) {
+
+                const statusCode = err?.getStatusCode();
+
+                if ( statusCode === 400 ) {
+
+                    const errorBody: any = err?.getBody();
+
+                    if ( isMatrixErrorDTO(errorBody) ) {
+                        switch (errorBody.errcode) {
+                            case MatrixErrorCode.M_USER_IN_USE:
+                                throw new RequestError(RequestStatus.Conflict, `User already exists`);
+                            case MatrixErrorCode.M_INVALID_USERNAME:
+                                throw new RequestError(RequestStatus.BadRequest, `Username invalid`);
+                            case MatrixErrorCode.M_EXCLUSIVE:
+                                throw new RequestError(RequestStatus.Conflict, `User name conflicts with exclusive namespace`);
+                            default:
+                                throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+                        }
+
+                    } else {
+                        throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+                    }
+
+                } else if ( statusCode === 401 ) {
+                    throw new RequestError(RequestStatus.Unauthorized);
+
+                } else if ( statusCode === 403 ) {
+                    throw new RequestError(RequestStatus.Forbidden);
+
+                } else if ( statusCode === 429 ) {
+                    // Rate limited
+                    // FIXME: implement special exception that contains the retry_after_ms property and/or handle it here
+                    throw new RequestError(429);
+
+                } else {
+                    throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+                }
+
+            } else {
+                throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
+            }
+
+        }
+
+    }
+
+    public async getRegisterNonce () : Promise<string> {
+
+        try {
+
+            LOG.debug(`Fetching nonce for registration...`);
+
+            const url : string  = this._resolveSynapseServerUrl(`/register`);
+
+            const nonceResponse : any = await RequestClient.getJson(url);
+
+            const nonce = nonceResponse?.nonce ?? undefined;
+            if (!nonce) throw new TypeError(`No nonce detected`);
+
+            return nonce;
+
+        } catch (err) {
+
+            LOG.debug(`Could not fetch nonce for registration: `, err);
+
+            throw new TypeError(`Could not fetch nonce for the register request. Is it Synapse?`);
+
+        }
+
+    }
+
+    /**
+     * This call requires correctly configured Synapse and a shared secret code.
+     *
+     * See `SynapseUtils.createRegisterDTO(...)` and `.getRegisterNonce()` to create a DTO.
+     * Note, it requires NodeJS crypto module.
+     *
+     * @param requestBody
+     * @see https://matrix-org.github.io/synapse/latest/admin_api/register_api.html
+     */
+    public async registerWithSharedSecret (
+        requestBody  : SynapseRegisterRequestDTO
+    ) : Promise<SynapseRegisterResponseDTO> {
+
+        try {
+
+            LOG.debug(`registerWithSharedSecret: Registering user:`, requestBody);
+
+            const url : string  = this._resolveSynapseServerUrl(`/register`);
+
+            const response : any = await RequestClient.postJson(
+                url,
+                requestBody as unknown as JsonAny
+            );
+
+            if (!isSynapseRegisterResponseDTO(response)) {
+                LOG.debug(`registerWithSharedSecret: Invalid response received: `, response);
+                throw new TypeError(`registerWithSharedSecret: Response was invalid`);
+            }
+
+            LOG.debug(`registerWithSharedSecret: RegisterResponseDTO received: `, response);
+
+            return response;
+
+        } catch (err) {
+
+            LOG.debug(`registerWithSharedSecret: Could not register user: `, err);
 
             if (err instanceof RequestError) {
 
@@ -1027,6 +1144,13 @@ export class SimpleMatrixClient {
         const p1 = homeUrl[homeUrl.length-1] === '/' ? '' : '/';
         const p2 = path[0] === '/' ? '' : '/';
         return `${homeUrl}${p1}_matrix/client/r0${p2}${path}`;
+    }
+
+    private _resolveSynapseServerUrl (path : string) : string {
+        const homeUrl = this._homeServerUrl;
+        const p1 = homeUrl[homeUrl.length-1] === '/' ? '' : '/';
+        const p2 = path[0] === '/' ? '' : '/';
+        return `${homeUrl}${p1}_synapse/admin/v1${p2}${path}`;
     }
 
 }
