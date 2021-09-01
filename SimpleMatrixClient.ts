@@ -295,6 +295,37 @@ export class SimpleMatrixClient {
 
     }
 
+    public async whoami () : Promise<string | undefined> {
+
+        try {
+
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`whoami: Client did not have access token`);
+            }
+
+            const url = this._resolveHomeServerUrl(`/account/whoami`);
+            LOG.debug(`whoami: Fetching account whoami... `, url);
+
+            const response : any = await RequestClient.getJson(url,
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+            LOG.debug(`whoami: response = `, response);
+
+            const user_id = response?.user_id ?? undefined;
+            LOG.debug(`whoami: user_id = `, user_id);
+
+            return isString(user_id) ? user_id : undefined;
+
+        } catch (err) {
+            LOG.error(`whoami: Could not fetch user_id: `, err);
+            return undefined;
+        }
+
+    }
+
     public async getRegisterNonce () : Promise<string> {
 
         try {
