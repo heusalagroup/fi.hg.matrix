@@ -156,11 +156,15 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         const inviteObject = response?.rooms?.invite ?? {};
 
         const joinedRooms  : MatrixRoomId[] = keys(joinObject);
-        const invitedRooms : MatrixRoomId[] = keys(inviteObject);
+        LOG.debug(`joinedRooms = `, joinedRooms);
 
-        const roomsNotYetJoined : MatrixRoomId[] = filter(invitedRooms, (item : MatrixRoomId) : boolean => {
-            return !joinedRooms.includes(item);
-        });
+        const invitedRooms : MatrixRoomId[] = keys(inviteObject);
+        LOG.debug(`invitedRooms = `, invitedRooms);
+
+        const roomsNotYetJoined : MatrixRoomId[] = filter(
+            invitedRooms,
+            (item : MatrixRoomId) : boolean => !joinedRooms.includes(item)
+        );
 
         if (roomsNotYetJoined.length) {
 
@@ -196,44 +200,54 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
         }
 
-        return reduce(joinedRooms, (result : RepositoryEntry<T>[], roomId: MatrixRoomId) : RepositoryEntry<T>[] => {
+        return reduce(
+            joinedRooms,
+            (result : RepositoryEntry<T>[], roomId: MatrixRoomId) : RepositoryEntry<T>[] => {
 
-            const value : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
+                const value : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
 
-            const events : MatrixSyncResponseRoomEventDTO[] = filter(
-                value?.state?.events ?? [],
-                (item : MatrixSyncResponseRoomEventDTO) : boolean => {
-                    return (
-                        (item?.type === this._stateType)
-                        && (item?.state_key === this._stateKey)
-                        && isNumber(item?.content?.version)
-                    );
-                }
-            );
+                const events : MatrixSyncResponseRoomEventDTO[] = filter(
+                    value?.state?.events ?? [],
+                    (item : MatrixSyncResponseRoomEventDTO) : boolean => {
+                        return (
+                            (item?.type === this._stateType)
+                            && (item?.state_key === this._stateKey)
+                            && isNumber(item?.content?.version)
+                        );
+                    }
+                );
 
-            let entries : RepositoryEntry<T>[] = concat(result, map(events, (item : MatrixSyncResponseRoomEventDTO) : RepositoryEntry<T> => {
+                let entries : RepositoryEntry<T>[] = concat(
+                    result,
+                    map(
+                        events,
+                        (item : MatrixSyncResponseRoomEventDTO) : RepositoryEntry<T> => {
 
-                // @ts-ignore
-                const data    : T = item?.content?.data ?? {};
+                            // @ts-ignore
+                            const data    : T       = item?.content?.data ?? {};
 
-                // @ts-ignore
-                const version : number = item?.content?.version;
+                            // @ts-ignore
+                            const version : number  = item?.content?.version;
 
-                // @ts-ignore
-                const deleted : boolean = !!(item?.content?.deleted);
+                            // @ts-ignore
+                            const deleted : boolean = !!(item?.content?.deleted);
 
-                return {
-                    data: data,
-                    id: roomId,
-                    version: version,
-                    deleted: deleted
-                };
+                            return {
+                                data: data,
+                                id: roomId,
+                                version: version,
+                                deleted: deleted
+                            };
 
-            }));
+                        }
+                    )
+                );
 
-            return entries;
+                return entries;
 
-        }, []);
+            },
+            []
+        );
 
     }
 
