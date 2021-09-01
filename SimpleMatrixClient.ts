@@ -40,7 +40,7 @@ import MatrixRegisterKind from "./types/request/register/types/MatrixRegisterKin
 import MatrixRegisterDTO from "./types/request/register/MatrixRegisterDTO";
 import MatrixRegisterResponseDTO, { isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
 import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
-import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
+import MatrixErrorCode, { isMatrixErrorCode } from "./types/response/error/types/MatrixErrorCode";
 import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
 import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
 
@@ -317,7 +317,9 @@ export class SimpleMatrixClient {
             const user_id = response?.user_id ?? undefined;
             LOG.debug(`whoami: user_id = `, user_id);
 
-            return isString(user_id) ? user_id : undefined;
+            const userId = isString(user_id) ? user_id : undefined;
+            this._userId = userId;
+            return userId;
 
         } catch (err) {
             LOG.error(`whoami: Could not fetch user_id: `, err);
@@ -797,6 +799,9 @@ export class SimpleMatrixClient {
             LOG.debug(`inviteToRoom: received: `, response);
 
         } catch (err) {
+
+            if ( this.isAlreadyInTheRoom(err?.body) ) return;
+
             LOG.error(`inviteToRoom: Passing on error: `, err);
             throw err;
         }
@@ -881,29 +886,42 @@ export class SimpleMatrixClient {
         body   : MatrixJoinRoomRequestDTO | undefined = undefined
     ) : Promise<MatrixJoinRoomResponseDTO> {
 
-        const accessToken : string | undefined = this._accessToken;
-        if (!accessToken) {
-            throw new TypeError(`createRoom: Client did not have access token`);
-        }
+        try {
 
-        LOG.debug(`Joining to room ${roomId} with body:`, body);
-
-        const response : MatrixCreateRoomResponseDTO | any = await RequestClient.postJson(
-            this._resolveHomeServerUrl( `/rooms/${q(roomId)}/join` ),
-            (body ?? {}) as unknown as JsonAny,
-            {
-                'Authorization': `Bearer ${accessToken}`
+            const accessToken : string | undefined = this._accessToken;
+            if (!accessToken) {
+                throw new TypeError(`createRoom: Client did not have access token`);
             }
-        );
 
-        if (!isMatrixJoinRoomResponseDTO(response)) {
-            LOG.debug(`response = `, response);
-            throw new TypeError(`Could not join to ${roomId}: Response was not MatrixJoinRoomResponseDTO: ` + response);
+            LOG.debug(`Joining to room ${roomId} with body:`, body);
+
+            const response : MatrixCreateRoomResponseDTO | any = await RequestClient.postJson(
+                this._resolveHomeServerUrl( `/rooms/${q(roomId)}/join` ),
+                (body ?? {}) as unknown as JsonAny,
+                {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            );
+
+            if (!isMatrixJoinRoomResponseDTO(response)) {
+                LOG.debug(`response = `, response);
+                throw new TypeError(`Could not join to ${roomId}: Response was not MatrixJoinRoomResponseDTO: ` + response);
+            }
+
+            LOG.debug(`Joined to room ${roomId}: `, response);
+
+            return response;
+
+        } catch (err) {
+
+            if ( this.isAlreadyInTheRoom(err?.body) ) {
+                return {room_id: roomId};
+            }
+
+            LOG.debug(`Could not join to room ${roomId}: `, err);
+            throw err;
+
         }
-
-        LOG.debug(`Joined to room ${roomId}: `, response);
-
-        return response;
 
     }
 
@@ -994,6 +1012,25 @@ export class SimpleMatrixClient {
         }
 
         return response;
+
+    }
+
+
+    public isAlreadyInTheRoom (body: any) : boolean {
+
+        if (isMatrixErrorDTO(body)) {
+
+            const errCode   : string = body?.errcode ?? '';
+            const errString : string = body?.error   ?? '';
+
+            if ( errCode === MatrixErrorCode.M_FORBIDDEN
+                && errString.indexOf('already in the room') >= 0
+            ) {
+                return true;
+            }
+
+        }
+        return false;
 
     }
 

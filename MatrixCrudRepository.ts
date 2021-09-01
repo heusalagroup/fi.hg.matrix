@@ -43,6 +43,7 @@ import MatrixGuestAccess from "./types/event/roomGuestAccess/MatrixGuestAccess";
 import MatrixRoomJoinedMembersDTO
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import RepositoryMember from "../ts/simpleRepository/types/RepositoryMember";
+import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -295,6 +296,9 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         members ?: string[]
     ) : Promise<RepositoryEntry<T>> {
 
+        const clientUserId : string | undefined = this._client.getUserId();
+        LOG.debug(`createItem: clientUserId = `, clientUserId);
+
         const jsonData : JsonAny = data as unknown as JsonAny;
         const version  : number     = 1;
 
@@ -302,17 +306,24 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             data    : jsonData,
             version : version
         };
+        LOG.debug(`createItem: content = `, content);
 
         const serviceAccountId = this._serviceAccount?.getUserId();
+        LOG.debug(`createItem: serviceAccountId = `, serviceAccountId);
 
         const invitedMembers : MatrixUserId[] = (
-            uniq(concat(
-                serviceAccountId ? [ serviceAccountId ]: [],
-                members ? members : []
-            ))
+            filter(
+                uniq(concat(
+                    serviceAccountId ? [ serviceAccountId ]: [],
+                    members ? members : []
+                )),
+                item => item !== clientUserId
+            )
         );
+        LOG.debug(`createItem: invitedMembers = `, invitedMembers);
 
         const allowedGroups : MatrixRoomId[] | undefined = this._allowedGroups;
+        LOG.debug(`createItem: allowedGroups = `, allowedGroups);
 
         const creationContent : Partial<MatrixRoomCreateEventDTO> = {
             [MatrixType.M_FEDERATE]: false
@@ -364,24 +375,39 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             });
         }
 
+        LOG.debug(`createItem: initialState = `, initialState);
+
         const inviteOptions : Partial<MatrixCreateRoomDTO> = (
             invitedMembers.length ? {invite: invitedMembers} : {}
         );
+        LOG.debug(`createItem: inviteOptions = `, inviteOptions);
 
         const options : MatrixCreateRoomDTO = {
             ...inviteOptions,
             preset: MatrixCreateRoomPreset.PRIVATE_CHAT,
             creation_content: creationContent,
             initial_state: initialState,
-            room_version: "8"
+            room_version: "8",
+            power_level_content_override: {
+                events: {
+                    [this._stateType]: 0,
+                    [this._deletedType]: 0
+                }
+            }
         };
 
         const response : MatrixCreateRoomResponseDTO = await this._client.createRoom(options);
+        LOG.debug(`createItem: response = `, response);
 
         const room_id = response.room_id;
+        LOG.debug(`createItem: room_id = `, room_id);
 
-        if (this._serviceAccount) {
-            await this._serviceAccount.joinRoom(room_id);
+        if ( this._serviceAccount && clientUserId && clientUserId !== this._serviceAccount.getUserId() ) {
+            try {
+                await this._serviceAccount.joinRoom(room_id);
+            } catch (err) {
+                LOG.warn(`Warning! Could not join service account to room ${room_id}: `, err);
+            }
         }
 
         return {
@@ -600,11 +626,35 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         members : string[]
     ): Promise<void> {
 
+        let serviceAccountUserId : string | undefined;
+        if (this._serviceAccount) {
+            serviceAccountUserId = this._serviceAccount?.getUserId();
+            if (!serviceAccountUserId) {
+                serviceAccountUserId = await this._serviceAccount.whoami();
+            }
+        }
+
         await reduce(
             members,
             async (p : Promise<void>, item : string) => {
+
                 await p;
-                await this._client.inviteToRoom(id, item);
+
+                if ( serviceAccountUserId && item === serviceAccountUserId ) {
+                    return;
+                }
+
+                try {
+                    await this._client.inviteToRoom(id, item);
+                } catch (err) {
+
+                    if ( this._client.isAlreadyInTheRoom(err?.body) ) return;
+
+                    LOG.error(`Warning! Could not invite user ${item} to room ${id}: `, err);
+                    throw err;
+
+                }
+
             },
             Promise.resolve()
         )
@@ -618,6 +668,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         await this._client.joinRoom(id);
 
     }
+
 
 }
 
