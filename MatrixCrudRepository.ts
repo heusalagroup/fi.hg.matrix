@@ -81,11 +81,15 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      *
      * @param deletedType    Optional. The state event type to add to any resource which is
      *     deleted. Defaults to `MatrixType.FI_NOR_DELETED`.
+     *     NOTE! This only has partial support. Filtering for example does not support it yet.
      *
      * @param deletedKey     Optional. The state key for deletedType, defaults to ''.
      *
      * @param allowedGroups  Optional. List of Matrix rooms who's members will be able to access
      *     any resources (eg. rooms) created in this repository without an invite.
+     *
+     * @param allowedEvents  Optional. List of allowed event IDs in the room.
+     *
      */
     public constructor (
         client                : SimpleMatrixClient,
