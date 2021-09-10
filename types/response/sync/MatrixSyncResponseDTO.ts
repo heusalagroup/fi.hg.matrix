@@ -24,7 +24,10 @@ import MatrixSyncResponseToDeviceDTO, {
     getEventsFromMatrixSyncResponseToDeviceDTO,
     isMatrixSyncResponseToDeviceDTO
 } from "./types/MatrixSyncResponseToDeviceDTO";
-import MatrixSyncResponseDeviceListsDTO, { isMatrixSyncResponseDeviceListsDTO } from "./types/MatrixSyncResponseDeviceListsDTO";
+import MatrixSyncResponseDeviceListsDTO, {
+    explainMatrixSyncResponseDeviceListsDTO,
+    isMatrixSyncResponseDeviceListsDTO
+} from "./types/MatrixSyncResponseDeviceListsDTO";
 import MatrixSyncResponseDeviceOneTimeKeysCountDTO
     , { isMatrixSyncResponseDeviceOneTimeKeysCountDTO } from "./types/MatrixSyncResponseDeviceOneTimeKeysCountDTO";
 import MatrixSyncResponseAnyEventDTO from "./types/MatrixSyncResponseAnyEventDTO";
@@ -111,7 +114,7 @@ export function assertMatrixSyncResponseDTO (value: any) : void {
     }
 
     if (!( isUndefined(value?.device_lists)                || isMatrixSyncResponseDeviceListsDTO(value?.device_lists) )) {
-        throw new TypeError('Property "device_lists" was invalid');
+        throw new TypeError(`Property "device_lists" was invalid: ${explainMatrixSyncResponseDeviceListsDTO(value?.device_lists)}`);
     }
 
     if (!( isUndefined(value?.device_one_time_keys_count)  || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(value?.device_one_time_keys_count) )) {

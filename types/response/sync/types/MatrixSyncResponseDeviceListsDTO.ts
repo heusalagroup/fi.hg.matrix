@@ -1,7 +1,12 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
-import { hasNoOtherKeys, isArrayOf, isRegularObject } from "../../../../../ts/modules/lodash";
+import {
+    hasNoOtherKeys,
+    isArrayOf,
+    isRegularObject,
+    keys
+} from "../../../../../ts/modules/lodash";
 
 export interface MatrixSyncResponseDeviceListsDTO {
     readonly changed : MatrixUserId[];
@@ -18,6 +23,38 @@ export function isMatrixSyncResponseDeviceListsDTO (value: any): value is Matrix
         && isArrayOf<MatrixUserId>(value?.changed, isMatrixUserId)
         && isArrayOf<MatrixUserId>(value?.left, isMatrixUserId)
     );
+}
+
+export function assertMatrixSyncResponseDeviceListsDTO (value: any) : void {
+
+    if (! isRegularObject(value) ) {
+        throw new TypeError(`Value not regular object: ${value}`);
+    }
+
+    if (! hasNoOtherKeys(value, [
+        'changed',
+        'left'
+    ])) {
+        throw new TypeError(`Value properties not right: ${keys(value)}`);
+    }
+
+    if (! isArrayOf<MatrixUserId>(value?.changed, isMatrixUserId)) {
+        throw new TypeError(`Property "changed" not valid: ${value?.changed}`);
+    }
+
+    if (! isArrayOf<MatrixUserId>(value?.left, isMatrixUserId)) {
+        throw new TypeError(`Property "left" not valid: ${value?.left}`);
+    }
+
+}
+
+export function explainMatrixSyncResponseDeviceListsDTO (value : any) : string {
+    try {
+        assertMatrixSyncResponseDeviceListsDTO(value);
+        return 'No errors detected';
+    } catch (err) {
+        return err.message;
+    }
 }
 
 export function stringifyMatrixSyncResponseDeviceListsDTO (value: MatrixSyncResponseDeviceListsDTO): string {
