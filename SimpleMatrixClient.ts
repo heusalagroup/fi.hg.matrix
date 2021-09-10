@@ -43,6 +43,7 @@ import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
 import MatrixErrorCode, { isMatrixErrorCode } from "./types/response/error/types/MatrixErrorCode";
 import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
 import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
+import Json from "../ts/Json";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -828,7 +829,7 @@ export class SimpleMatrixClient {
 
         LOG.debug(`Sending message with body:`, requestBody);
 
-        const response = await RequestClient.postJson(
+        const response : Json | undefined = await RequestClient.postJson(
             this._resolveHomeServerUrl(`/rooms/${q(roomId)}/send/m.room.message`),
             requestBody as unknown as JsonAny,
             {
@@ -1121,7 +1122,7 @@ export class SimpleMatrixClient {
 
         this._state = SimpleMatrixClientState.AUTHENTICATED_AND_STARTING;
 
-        const response = this.sync({
+        const response : MatrixSyncResponseDTO = await this.sync({
 
             // FIXME: Create reusable filter on the server
             filter: {
