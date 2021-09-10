@@ -14,7 +14,7 @@ import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResp
 import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
 import MatrixCreateRoomResponseDTO, { isMatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRoomAlias/GetDirectoryRoomAliasResponseDTO";
-import RequestError from "../ts/request/types/RequestError";
+import RequestError, { isRequestError } from "../ts/request/types/RequestError";
 import RequestStatus from "../ts/request/types/RequestStatus";
 import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
 import MatrixSyncResponseDTO, {
@@ -864,22 +864,21 @@ export class SimpleMatrixClient {
     ) : Promise<Json| undefined> {
 
         try {
-
             return await RequestClient.postJson(url, body, headers);
-
         } catch (err) {
 
-            if ( isMatrixErrorDTO(err) && err.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
-
-                const retry_after_ms = err?.retry_after_ms;
-
-                return await this._retryLater<Json| undefined>(async () => {
-                    return await this._postJson(url, body, headers);
-                }, retry_after_ms)
-
-            } else {
-                throw err;
+            if ( isRequestError(err) ) {
+                const body = err.getBody();
+                if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+                    const retry_after_ms = body?.retry_after_ms;
+                    return await this._retryLater<Json | undefined>(async () => {
+                        return await this._postJson(url, body, headers);
+                    }, retry_after_ms)
+                }
             }
+
+            throw err;
+
         }
 
     }
@@ -891,22 +890,21 @@ export class SimpleMatrixClient {
     ) : Promise<Json| undefined> {
 
         try {
-
             return await RequestClient.putJson(url, body, headers);
-
         } catch (err) {
 
-            if ( isMatrixErrorDTO(err) && err.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
-
-                const retry_after_ms = err?.retry_after_ms;
-
-                return await this._retryLater<Json| undefined>(async () => {
-                    return await this._putJson(url, body, headers);
-                }, retry_after_ms)
-
-            } else {
-                throw err;
+            if ( isRequestError(err) ) {
+                const body = err.getBody();
+                if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+                    const retry_after_ms = body?.retry_after_ms;
+                    return await this._retryLater<Json | undefined>(async () => {
+                        return await this._putJson(url, body, headers);
+                    }, retry_after_ms)
+                }
             }
+
+            throw err;
+
         }
 
     }
@@ -922,17 +920,18 @@ export class SimpleMatrixClient {
 
         } catch (err) {
 
-            if ( isMatrixErrorDTO(err) && err.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
-
-                const retry_after_ms = err?.retry_after_ms;
-
-                return await this._retryLater<Json| undefined>(async () => {
-                    return await this._getJson(url, headers);
-                }, retry_after_ms)
-
-            } else {
-                throw err;
+            if ( isRequestError(err) ) {
+                const body = err.getBody();
+                if ( isMatrixErrorDTO(body) && body?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+                    const retry_after_ms = body?.retry_after_ms;
+                    return await this._retryLater<Json| undefined>(async () => {
+                        return await this._getJson(url, headers);
+                    }, retry_after_ms)
+                }
             }
+
+            throw err;
+
         }
 
     }
