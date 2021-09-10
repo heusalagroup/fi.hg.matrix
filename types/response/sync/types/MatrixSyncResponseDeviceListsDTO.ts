@@ -4,13 +4,13 @@ import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
 import {
     hasNoOtherKeys,
     isArrayOf,
-    isRegularObject,
+    isRegularObject, isUndefined,
     keys
 } from "../../../../../ts/modules/lodash";
 
 export interface MatrixSyncResponseDeviceListsDTO {
     readonly changed : MatrixUserId[];
-    readonly left    : MatrixUserId[];
+    readonly left    : MatrixUserId[] | undefined;
 }
 
 export function isMatrixSyncResponseDeviceListsDTO (value: any): value is MatrixSyncResponseDeviceListsDTO {
@@ -21,7 +21,7 @@ export function isMatrixSyncResponseDeviceListsDTO (value: any): value is Matrix
             'left'
         ])
         && isArrayOf<MatrixUserId>(value?.changed, isMatrixUserId)
-        && isArrayOf<MatrixUserId>(value?.left, isMatrixUserId)
+        && ( isUndefined(value?.left) || isArrayOf<MatrixUserId>(value?.left, isMatrixUserId) )
     );
 }
 
@@ -42,7 +42,7 @@ export function assertMatrixSyncResponseDeviceListsDTO (value: any) : void {
         throw new TypeError(`Property "changed" not valid: ${value?.changed}`);
     }
 
-    if (! isArrayOf<MatrixUserId>(value?.left, isMatrixUserId)) {
+    if (! (isUndefined(value?.left) || isArrayOf<MatrixUserId>(value?.left, isMatrixUserId))) {
         throw new TypeError(`Property "left" not valid: ${value?.left}`);
     }
 

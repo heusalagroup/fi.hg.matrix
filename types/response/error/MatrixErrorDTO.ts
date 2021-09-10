@@ -2,7 +2,8 @@
 
 import MatrixErrorCode, { isMatrixErrorCode } from "./types/MatrixErrorCode";
 import {
-    hasNoOtherKeys, isNumberOrUndefined,
+    hasNoOtherKeys,
+    isNumberOrUndefined,
     isRegularObject,
     isString
 } from "../../../../ts/modules/lodash";

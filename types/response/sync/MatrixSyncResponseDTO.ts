@@ -5,7 +5,7 @@ import {
     hasNoOtherKeys,
     isRegularObject,
     isString,
-    isUndefined
+    isUndefined, keys
 } from "../../../../ts/modules/lodash";
 import MatrixSyncResponseRoomsDTO, {
     explainMatrixSyncResponseRoomsDTO,
@@ -63,7 +63,8 @@ export function isMatrixSyncResponseDTO (value: any): value is MatrixSyncRespons
             'account_data',
             'to_device',
             'device_lists',
-            'device_one_time_keys_count'
+            'device_one_time_keys_count',
+            'org.matrix.msc2732.device_unused_fallback_key_types'
         ])
         && isString(value?.next_batch)
         && ( isUndefined(value?.rooms)                       || isMatrixSyncResponseRoomsDTO(value?.rooms) )
@@ -88,9 +89,10 @@ export function assertMatrixSyncResponseDTO (value: any) : void {
             'account_data',
             'to_device',
             'device_lists',
-            'device_one_time_keys_count'
+            'device_one_time_keys_count',
+            'org.matrix.msc2732.device_unused_fallback_key_types'
         ]) ) {
-        throw new TypeError(`value has additional keys`);
+        throw new TypeError(`value has additional keys: ${keys(value)}`);
     }
 
     if (!isString(value?.next_batch)) {

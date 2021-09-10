@@ -43,7 +43,6 @@ import MatrixGuestAccess from "./types/event/roomGuestAccess/MatrixGuestAccess";
 import MatrixRoomJoinedMembersDTO
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import RepositoryMember from "../ts/simpleRepository/types/RepositoryMember";
-import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 

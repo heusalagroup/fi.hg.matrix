@@ -14,7 +14,7 @@ import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResp
 import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
 import MatrixCreateRoomResponseDTO, { isMatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRoomAlias/GetDirectoryRoomAliasResponseDTO";
-import RequestError, { isRequestError } from "../ts/request/types/RequestError";
+import RequestError from "../ts/request/types/RequestError";
 import RequestStatus from "../ts/request/types/RequestStatus";
 import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
 import MatrixSyncResponseDTO, {
@@ -759,22 +759,6 @@ export class SimpleMatrixClient {
 
     }
 
-    private async _retryLater<T> (callback : any, timeout : number) : Promise<T> {
-        return await new Promise((resolve, reject) => {
-            try {
-                setTimeout(() => {
-                    try {
-                        resolve(callback());
-                    } catch (err) {
-                        reject(err);
-                    }
-                }, timeout);
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }
-
     /**
      * Invite user to a room.
      *
@@ -854,85 +838,6 @@ export class SimpleMatrixClient {
         );
 
         LOG.debug(`sendTextMessage response received: `, response);
-
-    }
-
-    private async _postJson (
-        url      : string,
-        body    ?: JsonAny,
-        headers ?: {[key: string]: string}
-    ) : Promise<Json| undefined> {
-
-        try {
-            return await RequestClient.postJson(url, body, headers);
-        } catch (err) {
-
-            if ( isRequestError(err) ) {
-                const body = err.getBody();
-                if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
-                    const retry_after_ms = body?.retry_after_ms;
-                    return await this._retryLater<Json | undefined>(async () => {
-                        return await this._postJson(url, body, headers);
-                    }, retry_after_ms)
-                }
-            }
-
-            throw err;
-
-        }
-
-    }
-
-    private async _putJson (
-        url      : string,
-        body    ?: JsonAny,
-        headers ?: {[key: string]: string}
-    ) : Promise<Json| undefined> {
-
-        try {
-            return await RequestClient.putJson(url, body, headers);
-        } catch (err) {
-
-            if ( isRequestError(err) ) {
-                const body = err.getBody();
-                if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
-                    const retry_after_ms = body?.retry_after_ms;
-                    return await this._retryLater<Json | undefined>(async () => {
-                        return await this._putJson(url, body, headers);
-                    }, retry_after_ms)
-                }
-            }
-
-            throw err;
-
-        }
-
-    }
-
-    private async _getJson (
-        url      : string,
-        headers ?: {[key: string]: string}
-    ) : Promise<Json| undefined> {
-
-        try {
-
-            return await RequestClient.getJson(url, headers);
-
-        } catch (err) {
-
-            if ( isRequestError(err) ) {
-                const body = err.getBody();
-                if ( isMatrixErrorDTO(body) && body?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
-                    const retry_after_ms = body?.retry_after_ms;
-                    return await this._retryLater<Json| undefined>(async () => {
-                        return await this._getJson(url, headers);
-                    }, retry_after_ms)
-                }
-            }
-
-            throw err;
-
-        }
 
     }
 
@@ -1111,7 +1016,6 @@ export class SimpleMatrixClient {
 
     }
 
-
     public isAlreadyInTheRoom (body: any) : boolean {
 
         if (isMatrixErrorDTO(body)) {
@@ -1130,6 +1034,143 @@ export class SimpleMatrixClient {
 
     }
 
+
+    private async _retryLater<T> (callback : any, timeout : number) : Promise<T> {
+        let timer : any;
+        return await new Promise((resolve, reject) => {
+            try {
+                LOG.debug(`_retryLater: Waiting for a moment (${timeout})`);
+                timer = setTimeout(() => {
+
+                    timer = undefined;
+
+                    try {
+                        LOG.debug(`_retryLater: Restoring now`);
+                        resolve(callback());
+                    } catch (err) {
+                        reject(err);
+                    }
+                }, timeout);
+            } catch (err) {
+
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = undefined;
+                }
+
+                reject(err);
+            }
+        });
+    }
+
+    private async _postJson (
+        url      : string,
+        body    ?: JsonAny,
+        headers ?: {[key: string]: string}
+    ) : Promise<Json| undefined> {
+
+        try {
+
+            LOG.debug(`Executing POST request ${url} with `, body, headers);
+            const result = await RequestClient.postJson(url, body, headers);
+
+            LOG.debug(`Response received for POST request ${url} as `, result);
+            return result;
+
+        } catch (err) {
+
+            const responseBody = err?.getBody() ?? err?.body;
+            if ( responseBody ) {
+                if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+                    const retry_after_ms = responseBody?.retry_after_ms ?? 1000;
+                    LOG.error(`Limit reached: `, retry_after_ms, url, body, headers);
+                    return await this._retryLater<Json | undefined>(async () => {
+                        LOG.error(`Calling again: `, url, body, headers);
+                        return await this._postJson(url, body, headers);
+                    }, retry_after_ms)
+                } else {
+                    LOG.error(`Error did not have body: `, err);
+                }
+            } else {
+                LOG.error(`Error did not have body: `, err);
+            }
+
+            throw err;
+
+        }
+
+    }
+
+    private async _putJson (
+        url      : string,
+        body    ?: JsonAny,
+        headers ?: {[key: string]: string}
+    ) : Promise<Json| undefined> {
+
+        try {
+            LOG.debug(`Executing PUT request ${url} with `, body, headers);
+
+            const result = await RequestClient.putJson(url, body, headers);
+            LOG.debug(`Response received for PUT request ${url} as `, result);
+            return result;
+
+        } catch (err) {
+
+            if ( err?.getBody || err?.body ) {
+                const responseBody = err?.getBody() ?? err?.body;
+                if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+                    const retry_after_ms = responseBody?.retry_after_ms ?? 1000;
+                    LOG.error(`Limit reached: `, retry_after_ms, url, body, headers);
+                    return await this._retryLater<Json | undefined>(async () => {
+                        LOG.error(`Calling again: `, url, body, headers);
+                        return await this._putJson(url, body, headers);
+                    }, retry_after_ms)
+                } else {
+                    LOG.error(`Error did not have body: `, err);
+                }
+            } else {
+                LOG.error(`Error did not have body: `, err);
+            }
+
+            throw err;
+
+        }
+
+    }
+
+    private async _getJson (
+        url      : string,
+        headers ?: {[key: string]: string}
+    ) : Promise<Json| undefined> {
+
+        try {
+            LOG.debug(`Executing GET request ${url} with `, headers);
+            const result = await RequestClient.getJson(url, headers);
+            LOG.debug(`Response received for PUT request ${url} as `, result);
+            return result;
+        } catch (err) {
+
+            if ( err?.getBody || err?.body ) {
+                const responseBody = err?.getBody() ?? err?.body;
+                if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+                    const retry_after_ms = responseBody?.retry_after_ms ?? 1000;
+                    LOG.error(`Limit reached: `, retry_after_ms, url, headers);
+                    return await this._retryLater<Json| undefined>(async () => {
+                        LOG.error(`Calling again: `, url, headers);
+                        return await this._getJson(url, headers);
+                    }, retry_after_ms)
+                } else {
+                    LOG.error(`Error did not have body: `, err);
+                }
+            } else {
+                LOG.error(`Error did not have body: `, err);
+            }
+
+            throw err;
+
+        }
+
+    }
 
     private _sendMatrixEventList (events : readonly MatrixSyncResponseAnyEventDTO[], room_id : string | undefined) {
         forEach(events, (event) => {
