@@ -5,7 +5,8 @@ import { concat, forEach, isString, join, keys, map } from "../ts/modules/lodash
 import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
 import RequestClient from "../ts/RequestClient";
 import LogService from "../ts/LogService";
-import JsonAny, { isJsonObject, JsonObject } from "../ts/Json";
+import JsonAny from "../ts/Json";
+import Json, { isJsonObject, JsonObject } from "../ts/Json";
 import { MatrixPasswordLoginDTO } from "./types/request/passwordLogin/MatrixPasswordLoginDTO";
 import { MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
 import { MatrixType } from "./types/core/MatrixType";
@@ -40,10 +41,9 @@ import MatrixRegisterKind from "./types/request/register/types/MatrixRegisterKin
 import MatrixRegisterDTO from "./types/request/register/MatrixRegisterDTO";
 import MatrixRegisterResponseDTO, { isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
 import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
-import MatrixErrorCode, { isMatrixErrorCode } from "./types/response/error/types/MatrixErrorCode";
+import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
 import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
 import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
-import Json from "../ts/Json";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -228,7 +228,7 @@ export class SimpleMatrixClient {
 
             const access_token : string | undefined = this?._accessToken ?? accessToken ?? undefined;
 
-            const response : any = await RequestClient.postJson(
+            const response : any = await this._postJson(
                 this._resolveHomeServerUrl(`/register`) + (kind ? `?kind=${q(kind)}`: ''),
                 requestBody as unknown as JsonAny,
                 access_token ? {
@@ -308,7 +308,7 @@ export class SimpleMatrixClient {
             const url = this._resolveHomeServerUrl(`/account/whoami`);
             LOG.debug(`whoami: Fetching account whoami... `, url);
 
-            const response : any = await RequestClient.getJson(url,
+            const response : any = await this._getJson(url,
                 {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -337,7 +337,7 @@ export class SimpleMatrixClient {
 
             const url : string  = this._resolveSynapseServerUrl(`/register`);
 
-            const nonceResponse : any = await RequestClient.getJson(url);
+            const nonceResponse : any = await this._getJson(url);
 
             const nonce = nonceResponse?.nonce ?? undefined;
             if (!nonce) throw new TypeError(`No nonce detected`);
@@ -373,7 +373,7 @@ export class SimpleMatrixClient {
 
             const url : string  = this._resolveSynapseServerUrl(`/register`);
 
-            const response : any = await RequestClient.postJson(
+            const response : any = await this._postJson(
                 url,
                 requestBody as unknown as JsonAny
             );
@@ -464,7 +464,7 @@ export class SimpleMatrixClient {
 
             LOG.debug(`Sending login with userId:`, userId);
 
-            const response : any = await RequestClient.postJson(
+            const response : any = await this._postJson(
                 this._resolveHomeServerUrl(`/login`),
                 requestBody as unknown as JsonAny
             );
@@ -544,7 +544,7 @@ export class SimpleMatrixClient {
 
             const roomName : string = this._normalizeRoomName(name);
 
-            const response : any = await RequestClient.getJson(
+            const response : any = await this._getJson(
                 this._resolveHomeServerUrl(`/directory/room/${q(roomName)}`)
             );
 
@@ -579,7 +579,7 @@ export class SimpleMatrixClient {
             throw new TypeError(`getRoomStateByType: Client did not have access token`);
         }
 
-        const response : any = await RequestClient.getJson(
+        const response : any = await this._getJson(
             this._resolveHomeServerUrl(`/rooms/${q(roomId)}/joined_members`),
             {
                 'Authorization': `Bearer ${accessToken}`
@@ -617,7 +617,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`getRoomStateByType: Client did not have access token`);
             }
 
-            const response : any = await RequestClient.getJson(
+            const response : any = await this._getJson(
                 this._resolveHomeServerUrl(`/rooms/${q(roomId)}/state/${q(eventType)}/${q(stateKey)}`),
                 {
                     'Authorization': `Bearer ${accessToken}`
@@ -666,7 +666,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`setRoomStateByType: Client did not have access token`);
             }
 
-            const response : JsonAny | undefined = await RequestClient.putJson(
+            const response : JsonAny | undefined = await this._putJson(
                 this._resolveHomeServerUrl(`/rooms/${q(roomId)}/state/${q(eventType)}/${q(stateKey)}`),
                 body,
                 {
@@ -709,7 +709,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`forgetRoom: Client did not have access token`);
             }
 
-            const response : JsonAny | undefined = await RequestClient.postJson(
+            const response : JsonAny | undefined = await this._postJson(
                 this._resolveHomeServerUrl(`/rooms/${q(roomId)}/forget`),
                 {},
                 {
@@ -742,7 +742,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`leaveRoom: Client did not have access token`);
             }
 
-            const response : JsonAny | undefined = await RequestClient.postJson(
+            const response : JsonAny | undefined = await this._postJson(
                 this._resolveHomeServerUrl(`/rooms/${q(roomId)}/leave`),
                 {},
                 {
@@ -757,6 +757,22 @@ export class SimpleMatrixClient {
             throw err;
         }
 
+    }
+
+    private async _retryLater<T> (callback : any, timeout : number) : Promise<T> {
+        return await new Promise((resolve, reject) => {
+            try {
+                setTimeout(() => {
+                    try {
+                        resolve(callback());
+                    } catch (err) {
+                        reject(err);
+                    }
+                }, timeout);
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 
     /**
@@ -787,7 +803,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`inviteToRoom: Client did not have access token`);
             }
 
-            const response : JsonAny | undefined = await RequestClient.postJson(
+            const response : JsonAny | undefined = await this._postJson(
                 this._resolveHomeServerUrl(`/rooms/${q(roomId)}/invite`),
                 {
                     user_id: userId
@@ -829,7 +845,7 @@ export class SimpleMatrixClient {
 
         LOG.debug(`Sending message with body:`, requestBody);
 
-        const response : Json | undefined = await RequestClient.postJson(
+        const response : Json | undefined = await this._postJson(
             this._resolveHomeServerUrl(`/rooms/${q(roomId)}/send/m.room.message`),
             requestBody as unknown as JsonAny,
             {
@@ -838,6 +854,86 @@ export class SimpleMatrixClient {
         );
 
         LOG.debug(`sendTextMessage response received: `, response);
+
+    }
+
+    private async _postJson (
+        url      : string,
+        body    ?: JsonAny,
+        headers ?: {[key: string]: string}
+    ) : Promise<Json| undefined> {
+
+        try {
+
+            return await RequestClient.postJson(url, body, headers);
+
+        } catch (err) {
+
+            if ( isMatrixErrorDTO(err) && err.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+
+                const retry_after_ms = err?.retry_after_ms;
+
+                return await this._retryLater<Json| undefined>(async () => {
+                    return await this._postJson(url, body, headers);
+                }, retry_after_ms)
+
+            } else {
+                throw err;
+            }
+        }
+
+    }
+
+    private async _putJson (
+        url      : string,
+        body    ?: JsonAny,
+        headers ?: {[key: string]: string}
+    ) : Promise<Json| undefined> {
+
+        try {
+
+            return await RequestClient.putJson(url, body, headers);
+
+        } catch (err) {
+
+            if ( isMatrixErrorDTO(err) && err.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+
+                const retry_after_ms = err?.retry_after_ms;
+
+                return await this._retryLater<Json| undefined>(async () => {
+                    return await this._putJson(url, body, headers);
+                }, retry_after_ms)
+
+            } else {
+                throw err;
+            }
+        }
+
+    }
+
+    private async _getJson (
+        url      : string,
+        headers ?: {[key: string]: string}
+    ) : Promise<Json| undefined> {
+
+        try {
+
+            return await RequestClient.getJson(url, headers);
+
+        } catch (err) {
+
+            if ( isMatrixErrorDTO(err) && err.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
+
+                const retry_after_ms = err?.retry_after_ms;
+
+                return await this._retryLater<Json| undefined>(async () => {
+                    return await this._getJson(url, headers);
+                }, retry_after_ms)
+
+            } else {
+                throw err;
+            }
+        }
 
     }
 
@@ -857,7 +953,7 @@ export class SimpleMatrixClient {
 
         LOG.debug(`Creating room with body:`, body);
 
-        const response : MatrixCreateRoomResponseDTO | any = await RequestClient.postJson(
+        const response : MatrixCreateRoomResponseDTO | any = await this._postJson(
             this._resolveHomeServerUrl( `/createRoom` ),
             body as unknown as JsonAny,
             {
@@ -896,7 +992,7 @@ export class SimpleMatrixClient {
 
             LOG.debug(`Joining to room ${roomId} with body:`, body);
 
-            const response : MatrixCreateRoomResponseDTO | any = await RequestClient.postJson(
+            const response : MatrixCreateRoomResponseDTO | any = await this._postJson(
                 this._resolveHomeServerUrl( `/rooms/${q(roomId)}/join` ),
                 (body ?? {}) as unknown as JsonAny,
                 {
@@ -1000,7 +1096,7 @@ export class SimpleMatrixClient {
             '&'
         );
 
-        const response : any = await RequestClient.getJson(
+        const response : any = await this._getJson(
             this._resolveHomeServerUrl(`/sync?${queryString}`),
             {
                 'Authorization': `Bearer ${accessToken}`

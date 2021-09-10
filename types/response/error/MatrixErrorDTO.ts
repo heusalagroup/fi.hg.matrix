@@ -2,14 +2,15 @@
 
 import MatrixErrorCode, { isMatrixErrorCode } from "./types/MatrixErrorCode";
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeys, isNumberOrUndefined,
     isRegularObject,
     isString
 } from "../../../../ts/modules/lodash";
 
 export interface MatrixErrorDTO {
-    readonly errcode : MatrixErrorCode;
-    readonly error   : string;
+    readonly errcode         : MatrixErrorCode;
+    readonly error           : string;
+    readonly retry_after_ms ?: number;
 }
 
 export function isMatrixErrorDTO (value: any): value is MatrixErrorDTO {
@@ -17,10 +18,12 @@ export function isMatrixErrorDTO (value: any): value is MatrixErrorDTO {
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'errcode',
-            'error'
+            'error',
+            'retry_after_ms'
         ])
         && isMatrixErrorCode(value?.errcode)
         && isString(value?.error)
+        && isNumberOrUndefined(value?.retry_after_ms)
     );
 }
 

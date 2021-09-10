@@ -4,7 +4,8 @@ export enum MatrixErrorCode {
     M_USER_IN_USE      = "M_USER_IN_USE",
     M_INVALID_USERNAME = "M_INVALID_USERNAME",
     M_EXCLUSIVE        = "M_EXCLUSIVE",
-    M_FORBIDDEN        = "M_FORBIDDEN"
+    M_FORBIDDEN        = "M_FORBIDDEN",
+    M_LIMIT_EXCEEDED   = "M_LIMIT_EXCEEDED"
 }
 
 export function isMatrixErrorCode (value: any): value is MatrixErrorCode {
@@ -14,6 +15,7 @@ export function isMatrixErrorCode (value: any): value is MatrixErrorCode {
         case MatrixErrorCode.M_INVALID_USERNAME:
         case MatrixErrorCode.M_EXCLUSIVE:
         case MatrixErrorCode.M_FORBIDDEN:
+        case MatrixErrorCode.M_LIMIT_EXCEEDED:
             return true;
 
         default:
@@ -28,6 +30,7 @@ export function stringifyMatrixErrorCode (value: MatrixErrorCode): string {
         case MatrixErrorCode.M_INVALID_USERNAME  : return 'M_INVALID_USERNAME';
         case MatrixErrorCode.M_EXCLUSIVE         : return 'M_EXCLUSIVE';
         case MatrixErrorCode.M_FORBIDDEN         : return 'M_FORBIDDEN';
+        case MatrixErrorCode.M_LIMIT_EXCEEDED    : return 'M_LIMIT_EXCEEDED';
     }
     throw new TypeError(`Unsupported MatrixErrorCode value: ${value}`);
 }
@@ -40,6 +43,7 @@ export function parseMatrixErrorCode (value: any): MatrixErrorCode | undefined {
         case 'M_INVALID_USERNAME' : return MatrixErrorCode.M_INVALID_USERNAME;
         case 'M_EXCLUSIVE'        : return MatrixErrorCode.M_EXCLUSIVE;
         case 'M_FORBIDDEN'        : return MatrixErrorCode.M_FORBIDDEN;
+        case 'M_LIMIT_EXCEEDED'   : return MatrixErrorCode.M_LIMIT_EXCEEDED;
         default                   : return undefined;
 
     }
