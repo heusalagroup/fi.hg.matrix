@@ -22,7 +22,8 @@ import {
     map,
     reduce,
     parseNonEmptyString,
-    uniq, forEach
+    uniq,
+    forEach
 } from "../ts/modules/lodash";
 import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO
@@ -438,6 +439,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      *
      * @param id The ID of the resource. It's also a Matrix Room ID.
      *
+     * @param includeMembers Include list of members who have access to this item.
+     *
      * @returns Promise of the latest resource with this ID, if it's defined, otherwise
      *     `undefined`.
      */
@@ -452,16 +455,21 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             this._stateKey
         );
 
-        LOG.debug(`response = `, JSON.stringify(response, null, 2));
+        if (response === undefined) {
+            LOG.debug(`findById: response not found for ${id}`);
+            return undefined;
+        }
+
+        LOG.debug(`findById: response = `, JSON.stringify(response, null, 2));
 
         const data = response?.data;
         if (!isJsonObject(data)) {
-            throw new TypeError(`data was not JsonObject: ${data}`);
+            throw new TypeError(`findById: data was not JsonObject: ${data}`);
         }
 
         const version = response?.version;
         if (!isInteger(version)) {
-            throw new TypeError(`version was not integer: ${version}`);
+            throw new TypeError(`findById: version was not integer: ${version}`);
         }
 
         let members : RepositoryMember[] | undefined = undefined;
@@ -683,6 +691,36 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     * Wait for item to change
+     * @param id
+     * @param includeMembers
+     * @param timeout
+     */
+    public async waitById (
+        id              : string,
+        includeMembers ?: boolean,
+        timeout        ?: number
+    ) : Promise< RepositoryEntry<T> | undefined > {
+
+        if (!id) throw new TypeError(`id is required: ${id}`);
+
+        const isNotTimeout : boolean = await this._client.waitForEvents(
+            [
+                this._stateType
+            ], [
+                id
+            ],
+            timeout
+        );
+
+        if (!isNotTimeout) {
+            LOG.debug(`waitById: Timeout received for ${id}`);
+        }
+
+        return await this.findById(id, includeMembers);
+
+    }
 
 }
 
