@@ -967,7 +967,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`createRoom: Client did not have access token`);
             }
 
-            LOG.debug(`joinRoom: Joining to room ${roomId} with body:`, body);
+            LOG.debug(`joinRoom: Joining to room "${roomId}" with body:`, body);
 
             const response : MatrixCreateRoomResponseDTO | any = await this._postJson(
                 this._resolveHomeServerUrl( `/rooms/${q(roomId)}/join` ),
@@ -979,10 +979,10 @@ export class SimpleMatrixClient {
 
             if (!isMatrixJoinRoomResponseDTO(response)) {
                 LOG.debug(`response = `, response);
-                throw new TypeError(`Could not join to ${roomId}: Response was not MatrixJoinRoomResponseDTO: ` + response);
+                throw new TypeError(`Could not join to "${roomId}": Response was not MatrixJoinRoomResponseDTO: ` + response);
             }
 
-            LOG.debug(`joinRoom: Joined to room ${roomId}: `, response);
+            LOG.debug(`joinRoom: Joined to room "${roomId}": `, response);
 
             return response;
 
@@ -994,10 +994,10 @@ export class SimpleMatrixClient {
 
             const body = err?.getBody();
             if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_FORBIDDEN ) {
-                LOG.warn(`joinRoom: Passing on error: Could not join to room ${roomId}: ${body?.errcode}: ${body?.error}`);
+                LOG.warn(`joinRoom: Passing on error: Could not join to room "${roomId}": ${body?.errcode}: ${body?.error}`);
                 throw err;
             } else {
-                LOG.warn(`joinRoom: Passing on error: Could not join to room ${roomId}: `, err);
+                LOG.warn(`joinRoom: Passing on error: Could not join to room "${roomId}": `, err);
                 throw err;
             }
 
