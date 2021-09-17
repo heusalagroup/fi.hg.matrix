@@ -1034,6 +1034,75 @@ export class SimpleMatrixClient {
 
     }
 
+    public async waitForEvents (
+        events      : string[],
+        onlyInRooms : string[] | undefined = undefined
+    ) : Promise<void> {
+
+        if (onlyInRooms === undefined) {
+            LOG.debug(`Waiting for events ${events.join(' | ')} in all rooms`);
+        } else {
+            LOG.debug(`Waiting for events ${events.join(' | ')} in rooms ${onlyInRooms.join(', ')}`);
+        }
+
+        return await new Promise((resolve, reject) => {
+            let listener : any;
+            try {
+
+                const onEvent = (
+                    event : SimpleMatrixClientEvent,
+                    data  : MatrixSyncResponseAnyEventDTO & {room_id?: string}
+                ) => {
+
+                    const type   = data?.type;
+                    const roomId = data?.room_id;
+
+                    if ( onlyInRooms !== undefined && !(roomId && onlyInRooms.includes(roomId)) ) {
+                        LOG.debug(`waitForEvents: Event was not in watched room list: `, type, roomId, data);
+                        return;
+                    }
+
+                    if ( type && events.includes(type) ) {
+
+                        LOG.debug(`waitForEvents: Event found: `, type, roomId, data);
+
+                        if (listener) {
+                            listener();
+                            listener = undefined;
+                        }
+
+                        this.stop();
+
+                        resolve();
+
+                    } else {
+
+                        LOG.debug(`waitForEvents: Ignored event: `, type, roomId, data);
+
+                    }
+
+                }
+
+                listener = this.on(SimpleMatrixClientEvent.EVENT, onEvent);
+
+                this.start();
+
+            } catch (err) {
+
+                if (listener) {
+                    listener();
+                    listener = undefined;
+                }
+
+                this.stop();
+
+                reject(err);
+
+            }
+        });
+
+    }
+
 
     private async _retryLater<T> (callback : any, timeout : number) : Promise<T> {
         let timer : any;
