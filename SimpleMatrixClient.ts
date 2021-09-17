@@ -55,6 +55,7 @@ import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
 import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
 import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
 import { VoidCallback } from "../ts/interfaces/callbacks";
+import LogLevel from "../ts/types/LogLevel";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -75,6 +76,10 @@ export type SimpleMatrixClientDestructor = ObserverDestructor;
 export class SimpleMatrixClient {
 
     public static Event = SimpleMatrixClientEvent;
+
+    public static setLogLevel (level: LogLevel) {
+        LOG.setLogLevel(level);
+    }
 
 
     private readonly _observer                 : Observer<SimpleMatrixClientEvent>;
@@ -987,8 +992,14 @@ export class SimpleMatrixClient {
                 return {room_id: roomId};
             }
 
-            LOG.warn(`joinRoom: Passing on error: Could not join to room ${roomId}: `, err);
-            throw err;
+            const body = err?.getBody();
+            if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_FORBIDDEN ) {
+                LOG.warn(`joinRoom: Passing on error: Could not join to room ${roomId}: ${body?.errcode}: ${body?.error}`);
+                throw err;
+            } else {
+                LOG.warn(`joinRoom: Passing on error: Could not join to room ${roomId}: `, err);
+                throw err;
+            }
 
         }
 
@@ -1218,7 +1229,7 @@ export class SimpleMatrixClient {
         } catch (err) {
 
             const responseBody = err?.getBody() ?? err?.body;
-            if ( responseBody ) {
+            if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
                 if ( errCode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
                     const retry_after_ms = responseBody?.retry_after_ms ?? 1000;
@@ -1228,7 +1239,7 @@ export class SimpleMatrixClient {
                         return await this._postJson(url, body, headers);
                     }, retry_after_ms)
                 } else {
-                    LOG.warn(`_postJson: Passing on error code ${errCode}: `, err);
+                    LOG.warn(`_postJson: Passing on error code ${errCode}: ${responseBody?.error}`);
                 }
             } else {
                 LOG.warn(`_postJson: Passing on error with no body: `, err);
@@ -1256,8 +1267,8 @@ export class SimpleMatrixClient {
 
         } catch (err) {
 
-            if ( err?.getBody || err?.body ) {
-                const responseBody = err?.getBody() ?? err?.body;
+            const responseBody = err?.getBody() ?? err?.body;
+            if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
                 if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
                     const retry_after_ms = responseBody?.retry_after_ms ?? 1000;
@@ -1267,7 +1278,7 @@ export class SimpleMatrixClient {
                         return await this._putJson(url, body, headers);
                     }, retry_after_ms)
                 } else {
-                    LOG.warn(`Passing on: Error with code ${errCode}: `, err);
+                    LOG.warn(`Passing on: Error with code ${errCode}: ${responseBody.error}`);
                 }
             } else {
                 LOG.warn(`Passing on: Error did not have body: `, err);
@@ -1291,8 +1302,8 @@ export class SimpleMatrixClient {
             return result;
         } catch (err) {
 
-            if ( err?.getBody || err?.body ) {
-                const responseBody = err?.getBody() ?? err?.body;
+            const responseBody = err?.getBody() ?? err?.body;
+            if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
                 if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
                     const retry_after_ms = responseBody?.retry_after_ms ?? 1000;
@@ -1302,7 +1313,7 @@ export class SimpleMatrixClient {
                         return await this._getJson(url, headers);
                     }, retry_after_ms)
                 } else {
-                    LOG.warn(`_getJson: Passing on: Error with code ${errCode}: `, err);
+                    LOG.warn(`_getJson: Passing on: Error with code ${errCode}: ${responseBody?.error}`);
                 }
             } else {
                 LOG.warn(`_getJson: Passing on: Error did not have body: `, err);

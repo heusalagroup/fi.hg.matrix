@@ -44,6 +44,7 @@ import MatrixGuestAccess from "./types/event/roomGuestAccess/MatrixGuestAccess";
 import MatrixRoomJoinedMembersDTO
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import RepositoryMember from "../ts/simpleRepository/types/RepositoryMember";
+import LogLevel from "../ts/types/LogLevel";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -54,6 +55,11 @@ const LOG = LogService.createLogger('MatrixCrudRepository');
  * See also [MemoryRepository](https://github.com/sendanor/typescript/tree/main/simpleRepository)
  */
 export class MatrixCrudRepository<T> implements Repository<T> {
+
+    public static setLogLevel (level: LogLevel) {
+        LOG.setLogLevel(level);
+    }
+
 
     private readonly _client         : SimpleMatrixClient;
     private readonly _serviceAccount : SimpleMatrixClient | undefined;
@@ -194,7 +200,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                         joinedRooms += 1;
 
                     } catch (err) {
-                        LOG.warn(`Warning! Could not join client to room ${roomId}`);
+                        LOG.warn(`Warning! Could not join client "${this._client.getUserId()}" to room: ${roomId}`);
                     }
 
                 },
@@ -421,7 +427,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             try {
                 await this._serviceAccount.joinRoom(room_id);
             } catch (err) {
-                LOG.warn(`Warning! Could not join service account to room ${room_id}: `, err);
+                LOG.warn(`Warning! Could not join service account to room "${room_id}": `, err);
             }
         }
 
