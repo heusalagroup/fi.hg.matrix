@@ -1024,7 +1024,7 @@ export class SimpleMatrixClient {
         timeout      ?: number
     }) : Promise<MatrixSyncResponseDTO> {
 
-        LOG.info(`sync with `, options);
+        LOG.debug(`sync with `, options);
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
