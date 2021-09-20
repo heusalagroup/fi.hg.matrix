@@ -67,6 +67,8 @@ export enum SimpleMatrixClientEvent {
 
 export type SimpleMatrixClientDestructor = ObserverDestructor;
 
+const DEFAULT_WAIT_FOR_EVENTS_TIMEOUT = 30000;
+
 /**
  * Super lightweight Matrix client and simple event listener.
  *
@@ -117,6 +119,7 @@ export class SimpleMatrixClient {
      *                            from upstream Matrix server.
      *
      * @param pollWaitTime        Optional. The default wait time between polls, in milliseconds.
+     *
      */
     public constructor (
         url                : string,
@@ -1098,11 +1101,21 @@ export class SimpleMatrixClient {
 
     }
 
+    /**
+     *
+     * @param events
+     * @param onlyInRooms
+     * @param timeout Optional. The default is 30 seconds.
+     */
     public async waitForEvents (
         events      : string[],
         onlyInRooms : string[] | undefined = undefined,
         timeout     : number | undefined = undefined
     ) : Promise<boolean> {
+
+        if (timeout === undefined) {
+            timeout = DEFAULT_WAIT_FOR_EVENTS_TIMEOUT;
+        }
 
         if (onlyInRooms === undefined) {
             LOG.debug(`Waiting for events ${events.join(' | ')} in all rooms`);
