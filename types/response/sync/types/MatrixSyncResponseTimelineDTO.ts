@@ -12,7 +12,6 @@ import {
     isRegularObject,
     isString, keys
 } from "../../../../../ts/modules/lodash";
-import { assertMatrixSyncResponseStateDTO } from "./MatrixSyncResponseStateDTO";
 
 export interface MatrixSyncResponseTimelineDTO {
     readonly events     : MatrixSyncResponseRoomEventDTO[];
@@ -73,8 +72,8 @@ export function explainMatrixSyncResponseTimelineDTO (value : any) : string {
     try {
         assertMatrixSyncResponseTimelineDTO(value);
         return 'No errors detected';
-    } catch (err) {
-        return err.message;
+    } catch (err : any) {
+        return err?.message;
     }
 }
 

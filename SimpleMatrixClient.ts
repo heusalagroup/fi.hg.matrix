@@ -319,7 +319,7 @@ export class SimpleMatrixClient {
 
             return response;
 
-        } catch (err) {
+        } catch (err : any) {
 
             LOG.debug(`register: Could not register user: `, err);
 
@@ -396,7 +396,7 @@ export class SimpleMatrixClient {
             this._userId = userId;
             return userId;
 
-        } catch (err) {
+        } catch (err : any) {
             LOG.error(`whoami: Could not fetch user_id: `, err);
             return undefined;
         }
@@ -418,7 +418,7 @@ export class SimpleMatrixClient {
 
             return nonce;
 
-        } catch (err) {
+        } catch (err : any) {
 
             LOG.debug(`Could not fetch nonce for registration: `, err);
 
@@ -461,7 +461,7 @@ export class SimpleMatrixClient {
 
             return response;
 
-        } catch (err) {
+        } catch (err : any) {
 
             LOG.debug(`registerWithSharedSecret: Could not register user: `, err);
 
@@ -595,7 +595,7 @@ export class SimpleMatrixClient {
                 this._syncAgainTimeMs
             );
 
-        } catch (err) {
+        } catch (err : any) {
 
             LOG.debug(`Could not login: `, err);
 
@@ -631,7 +631,7 @@ export class SimpleMatrixClient {
 
             return response.room_id;
 
-        } catch (err) {
+        } catch (err : any) {
             if (err instanceof RequestError && err.getStatusCode() === RequestStatus.NotFound) {
                 return undefined;
             } else {
@@ -709,7 +709,7 @@ export class SimpleMatrixClient {
             // @ts-ignore
             return response;
 
-        } catch (err) {
+        } catch (err : any) {
             if (err instanceof RequestError && err.getStatusCode() === RequestStatus.NotFound) {
                 return undefined;
             } else {
@@ -760,7 +760,7 @@ export class SimpleMatrixClient {
             // @ts-ignore
             return response;
 
-        } catch (err) {
+        } catch (err : any) {
             LOG.error(`setRoomStateByType: Passing on error: `, err);
             throw err;
         }
@@ -795,7 +795,7 @@ export class SimpleMatrixClient {
 
             LOG.debug(`forgetRoom: received: `, response);
 
-        } catch (err) {
+        } catch (err : any) {
             LOG.warn(`forgetRoom: Passing on error: `, err);
             throw err;
         }
@@ -828,7 +828,7 @@ export class SimpleMatrixClient {
 
             LOG.debug(`leaveRoom: received: `, response);
 
-        } catch (err) {
+        } catch (err : any) {
             LOG.warn(`leaveRoom: Passing on error: `, err);
             throw err;
         }
@@ -875,7 +875,7 @@ export class SimpleMatrixClient {
 
             LOG.debug(`inviteToRoom: received: `, response);
 
-        } catch (err) {
+        } catch (err : any) {
 
             if ( this.isAlreadyInTheRoom(err?.body) ) return;
 
@@ -989,7 +989,7 @@ export class SimpleMatrixClient {
 
             return response;
 
-        } catch (err) {
+        } catch (err : any) {
 
             if ( this.isAlreadyInTheRoom(err?.body) ) {
                 return {room_id: roomId};
@@ -1182,13 +1182,13 @@ export class SimpleMatrixClient {
                     listener = this.on(SimpleMatrixClientEvent.EVENT, onEvent);
                     LOG.debug(`waitForEvents: Started listening events`);
                     this._startSyncing();
-                } catch (err) {
+                } catch (err : any) {
                     LOG.error(`waitForEvents: Error: `, err);
                     reject(err);
                     onStop();
                 }
 
-            } catch (err) {
+            } catch (err : any) {
                 LOG.error(`waitForEvents: Outer error: `, err);
                 reject(err);
             }
@@ -1209,11 +1209,11 @@ export class SimpleMatrixClient {
                     try {
                         LOG.debug(`_retryLater: Restoring now`);
                         resolve(callback());
-                    } catch (err) {
+                    } catch (err: any) {
                         reject(err);
                     }
                 }, timeout);
-            } catch (err) {
+            } catch (err: any) {
 
                 if (timer) {
                     clearTimeout(timer);
@@ -1239,7 +1239,7 @@ export class SimpleMatrixClient {
             LOG.debug(`_postJson: Response received for POST request ${url} as `, result);
             return result;
 
-        } catch (err) {
+        } catch (err : any) {
 
             const responseBody = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(responseBody) ) {
@@ -1278,7 +1278,7 @@ export class SimpleMatrixClient {
             LOG.debug(`_putJson: Response received for PUT request ${url} as `, result);
             return result;
 
-        } catch (err) {
+        } catch (err : any) {
 
             const responseBody = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(responseBody) ) {
@@ -1313,7 +1313,7 @@ export class SimpleMatrixClient {
             const result = await RequestClient.getJson(url, headers);
             LOG.debug(`_getJson: Response received for PUT request ${url} as `, result);
             return result;
-        } catch (err) {
+        } catch (err : any) {
 
             const responseBody = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(responseBody) ) {
@@ -1643,7 +1643,7 @@ export class SimpleMatrixClient {
             this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_SYNCING);
             await this._syncSinceBatch(nextBatch);
             restartTimer();
-        } catch (err) {
+        } catch (err : any) {
             LOG.error(`_syncNextBatch: ERROR: `, err);
             restartTimer();
         }
@@ -1712,7 +1712,7 @@ export class SimpleMatrixClient {
             this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_STARTED);
             LOG.debug('_initSync: Started successfully');
 
-        } catch (err) {
+        } catch (err : any) {
             LOG.error(`_initSync: Error: `, err);
             if (this._stopSyncOnNext) {
                 this._stopSyncOnNext = false;

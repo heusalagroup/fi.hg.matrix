@@ -199,7 +199,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
                         joinedRooms += 1;
 
-                    } catch (err) {
+                    } catch (err : any) {
                         LOG.warn(`Warning! Could not join client "${this._client.getUserId()}" to room: ${roomId}`);
                     }
 
@@ -426,7 +426,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         if ( this._serviceAccount && clientUserId && clientUserId !== this._serviceAccount.getUserId() ) {
             try {
                 await this._serviceAccount.joinRoom(room_id);
-            } catch (err) {
+            } catch (err : any) {
                 LOG.warn(`Warning! Could not join service account to room "${room_id}": `, err);
             }
         }
@@ -609,13 +609,13 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
                 try {
                     await this._serviceAccount.leaveRoom(id);
-                } catch (err) {
+                } catch (err : any) {
                     LOG.warn(`Warning! Service account could not leave from the room ${id}: `, err);
                 }
 
                 try {
                     await this._serviceAccount.forgetRoom(id);
-                } catch (err) {
+                } catch (err : any) {
                     LOG.warn(`Warning! Service account could not forget the room ${id}: `, err);
                 }
 
@@ -634,7 +634,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 deleted: true
             };
 
-        } catch (err) {
+        } catch (err : any) {
 
             if ( err instanceof RequestError && [401, 403, 404].includes(err.getStatusCode()) ) {
                 throw err;
@@ -674,7 +674,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
                 try {
                     await this._client.inviteToRoom(id, item);
-                } catch (err) {
+                } catch (err : any) {
 
                     if ( this._client.isAlreadyInTheRoom(err?.body) ) return;
 

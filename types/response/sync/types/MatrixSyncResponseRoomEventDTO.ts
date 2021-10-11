@@ -97,8 +97,8 @@ export function explainMatrixSyncResponseRoomEventDTO (value : any) : string {
     try {
         assertMatrixSyncResponseRoomEventDTO(value);
         return 'No errors detected';
-    } catch (err) {
-        return err.message;
+    } catch (err : any) {
+        return err?.message;
     }
 }
 

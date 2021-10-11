@@ -129,8 +129,8 @@ export function explainMatrixSyncResponseDTO (value : any) : string {
     try {
         assertMatrixSyncResponseDTO(value);
         return 'No errors detected';
-    } catch (err) {
-        return err.message;
+    } catch (err: any) {
+        return err?.message;
     }
 }
 

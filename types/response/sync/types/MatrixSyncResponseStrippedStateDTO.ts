@@ -1,9 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    isMatrixEventContentDTO
-} from "../../../core/MatrixEventContentDTO";
-import {
     hasNoOtherKeys, isNumberOrUndefined,
     isRegularObject,
     isString,
@@ -87,8 +84,8 @@ export function explainMatrixSyncResponseStrippedStateDTO (value : any) : string
     try {
         assertMatrixSyncResponseStrippedStateDTO(value);
         return 'No errors detected';
-    } catch (err) {
-        return err.message;
+    } catch (err : any) {
+        return err?.message;
     }
 }
 
