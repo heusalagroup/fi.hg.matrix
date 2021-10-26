@@ -606,6 +606,39 @@ export class SimpleMatrixClient {
     }
 
     /**
+     * Authenticate to the Matrix server using access key
+     *
+     * @param access_token  The Matrix access key
+     * @returns New instance of SimpleMatrixClient which is initialized in to the authenticated
+     *     state
+     */
+    public async authenticate (
+        access_token : string
+    ) : Promise<SimpleMatrixClient> {
+
+        try {
+
+            return new SimpleMatrixClient(
+                this._originalUrl,
+                undefined,
+                undefined,
+                access_token,
+                undefined,
+                this._syncRequestTimeoutMs,
+                this._syncAgainTimeMs
+            );
+
+        } catch (err : any) {
+
+            LOG.debug(`Could not login: `, err);
+
+            throw new RequestError(RequestStatus.Forbidden, `Access denied`);
+
+        }
+
+    }
+
+    /**
      * Resolve room name (eg. alias) into room ID.
      *
      * Eg. if you say `'foo'` here, it will be converted to `'#foo:homeServerHostname'`.
