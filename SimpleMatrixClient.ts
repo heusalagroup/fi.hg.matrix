@@ -69,6 +69,10 @@ export type SimpleMatrixClientDestructor = ObserverDestructor;
 
 const DEFAULT_WAIT_FOR_EVENTS_TIMEOUT = 30000;
 
+interface SyncAgainCallback {
+    (triggerEvents: boolean) : void;
+}
+
 /**
  * Super lightweight Matrix client and simple event listener.
  *
@@ -93,7 +97,7 @@ export class SimpleMatrixClient {
     private readonly _syncAgainTimeMs          : number;
     private readonly _syncRequestTimeoutMs     : number;
     private readonly _syncAgainTimeoutCallback : VoidCallback;
-    private readonly _initSyncAgainTimeoutCallback : VoidCallback;
+    private readonly _initSyncAgainTimeoutCallback : SyncAgainCallback;
 
     private _state              : SimpleMatrixClientState;
     private _userId             : string | undefined;
@@ -274,8 +278,8 @@ export class SimpleMatrixClient {
      * @FIXME: This could be started automatically from listeners in our own observer. If so, this
      *         method could be changed to private later.
      */
-    public start () {
-        this._startSyncing();
+    public start (triggerEvents : boolean = true) {
+        this._startSyncing(triggerEvents);
     }
 
     /**
@@ -1139,11 +1143,13 @@ export class SimpleMatrixClient {
      * @param events
      * @param onlyInRooms
      * @param timeout Optional. The default is 30 seconds.
+     * @param triggerEvents Optional. If true, events from the first sync call are triggered.
      */
     public async waitForEvents (
         events      : string[],
         onlyInRooms : string[] | undefined = undefined,
-        timeout     : number | undefined = undefined
+        timeout     : number | undefined = undefined,
+        triggerEvents : boolean = true
     ) : Promise<boolean> {
 
         if (timeout === undefined) {
@@ -1214,7 +1220,7 @@ export class SimpleMatrixClient {
                     timeoutListener = setTimeout(onTimeout, timeout);
                     listener = this.on(SimpleMatrixClientEvent.EVENT, onEvent);
                     LOG.debug(`waitForEvents: Started listening events`);
-                    this._startSyncing();
+                    this._startSyncing(triggerEvents);
                 } catch (err : any) {
                     LOG.error(`waitForEvents: Error: `, err);
                     reject(err);
@@ -1424,7 +1430,7 @@ export class SimpleMatrixClient {
      * @FIXME: This could be started automatically from listeners in our own observer. If so, this
      *         method could be changed to private later.
      */
-    public _startSyncing () {
+    public _startSyncing (triggerEvents: boolean) {
 
         switch (this._state) {
 
@@ -1458,7 +1464,7 @@ export class SimpleMatrixClient {
         this._clearSyncAgainTimer();
 
         LOG.debug(`start: Initializing sync`);
-        this._initSync().catch((err : any) => {
+        this._initSync(triggerEvents).catch((err : any) => {
             LOG.error('SYNC ERROR: ', err);
         });
 
@@ -1577,7 +1583,7 @@ export class SimpleMatrixClient {
      *
      * @private
      */
-    private _onInitSyncAgain () {
+    private _onInitSyncAgain (triggerEvents: boolean) {
 
         this._initSyncAgainTimer = undefined;
 
@@ -1594,7 +1600,7 @@ export class SimpleMatrixClient {
 
         this._setState(SimpleMatrixClientState.AUTHENTICATED);
 
-        this._initSync().catch(err => {
+        this._initSync(triggerEvents).catch(err => {
             LOG.error(`_onInitSyncAgain: Error: `, err);
         });
 
@@ -1696,7 +1702,9 @@ export class SimpleMatrixClient {
      *
      * @private
      */
-    private async _initSync () {
+    private async _initSync (
+        triggerEvents : boolean
+    ) {
 
         if ( this._state !== SimpleMatrixClientState.AUTHENTICATED ) {
             throw new TypeError(`_initSync: Client was not authenticated (${stringifySimpleMatrixClientState(this._state)})`);
@@ -1730,6 +1738,7 @@ export class SimpleMatrixClient {
                 this._stopSyncOnNext = false;
                 this._setState(SimpleMatrixClientState.AUTHENTICATED);
                 LOG.debug('_initSync: Started successfully, but stop was already scheduled.');
+                if (triggerEvents) this._triggerSyncEvents(response);
                 return;
             }
 
@@ -1738,12 +1747,14 @@ export class SimpleMatrixClient {
                 LOG.warn(`_initSync: Warning! No next_batch in the response: `, response);
                 this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING);
                 this._startInitSyncAgainLater();
+                if (triggerEvents) this._triggerSyncEvents(response);
                 return;
             }
 
             this._nextSyncBatch = next_batch;
             this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_STARTED);
             LOG.debug('_initSync: Started successfully');
+            if (triggerEvents) this._triggerSyncEvents(response);
 
         } catch (err : any) {
             LOG.error(`_initSync: Error: `, err);
@@ -1770,15 +1781,20 @@ export class SimpleMatrixClient {
             timeout: this._syncRequestTimeoutMs
         });
 
-        // @ts-ignore
         const next_batch : string | undefined = response.next_batch;
         if (next_batch) {
             this._nextSyncBatch = next_batch;
+            LOG.debug(`next_batch = `, next_batch);
         } else {
             LOG.error(`No next_batch in the response: `, response)
         }
 
         // LOG.debug('Response: ', response);
+        this._triggerSyncEvents(response);
+
+    }
+
+    private _triggerSyncEvents (response: MatrixSyncResponseDTO) {
 
         const nonRoomEvents : readonly MatrixSyncResponseEventDTO[] = concat(
             response?.presence     ? getEventsFromMatrixSyncResponsePresenceDTO(response?.presence)        : [],
@@ -1812,8 +1828,8 @@ export class SimpleMatrixClient {
             this._triggerMatrixEventList(events, roomId);
         });
 
-    }
 
+    }
 
 }
 
