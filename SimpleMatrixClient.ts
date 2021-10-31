@@ -135,18 +135,18 @@ export class SimpleMatrixClient {
         pollWaitTime       : number = 1000
     ) {
 
-        this._stopSyncOnNext            = false;
-        this._state                     = accessToken ? SimpleMatrixClientState.AUTHENTICATED : SimpleMatrixClientState.UNAUTHENTICATED;
-        this._originalUrl               = url;
-        this._homeServerUrl             = homeServerUrl ?? url;
-        this._identityServerUrl         = identityServerUrl ?? url;
-        this._nextSyncBatch             = undefined;
-        this._accessToken               = accessToken;
-        this._userId                    = userId;
-        this._syncRequestTimeoutMs      = pollTimeout;
-        this._syncAgainTimeMs           = pollWaitTime;
-        this._observer                  = new Observer<SimpleMatrixClientEvent>("SimpleMatrixClient");
-        this._syncAgainTimeoutCallback  = this._onSyncAgainTimeout.bind(this);
+        this._stopSyncOnNext                = false;
+        this._state                         = accessToken ? SimpleMatrixClientState.AUTHENTICATED : SimpleMatrixClientState.UNAUTHENTICATED;
+        this._originalUrl                   = url;
+        this._homeServerUrl                 = homeServerUrl ?? url;
+        this._identityServerUrl             = identityServerUrl ?? url;
+        this._nextSyncBatch                 = undefined;
+        this._accessToken                   = accessToken;
+        this._userId                        = userId;
+        this._syncRequestTimeoutMs          = pollTimeout;
+        this._syncAgainTimeMs               = pollWaitTime;
+        this._observer                      = new Observer<SimpleMatrixClientEvent>("SimpleMatrixClient");
+        this._syncAgainTimeoutCallback      = this._onSyncAgainTimeout.bind(this);
         this._initSyncAgainTimeoutCallback  = this._onInitSyncAgain.bind(this);
 
     }
@@ -325,7 +325,7 @@ export class SimpleMatrixClient {
 
         } catch (err : any) {
 
-            LOG.debug(`register: Could not register user: `, err);
+            LOG.warn(`register: Could not register user: `, err);
 
             if (err instanceof RequestError) {
 
@@ -333,7 +333,7 @@ export class SimpleMatrixClient {
 
                 if ( statusCode === 400 ) {
 
-                    const errorBody: any = err?.getBody();
+                    const errorBody: any = err?.getBody() ?? err?.body;
 
                     if ( isMatrixErrorDTO(errorBody) ) {
                         switch (errorBody.errcode) {
@@ -467,7 +467,7 @@ export class SimpleMatrixClient {
 
         } catch (err : any) {
 
-            LOG.debug(`registerWithSharedSecret: Could not register user: `, err);
+            LOG.warn(`registerWithSharedSecret: Could not register user: `, err);
 
             if (err instanceof RequestError) {
 
@@ -475,7 +475,7 @@ export class SimpleMatrixClient {
 
                 if ( statusCode === 400 ) {
 
-                    const errorBody: any = err?.getBody();
+                    const errorBody: any = err?.getBody() ?? err?.body;
 
                     if ( isMatrixErrorDTO(errorBody) ) {
                         switch (errorBody.errcode) {
@@ -1028,11 +1028,13 @@ export class SimpleMatrixClient {
 
         } catch (err : any) {
 
+            LOG.warn(`joinRoom: Error: `, err);
+
             if ( this.isAlreadyInTheRoom(err?.body) ) {
                 return {room_id: roomId};
             }
 
-            const body = err?.getBody();
+            const body = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_FORBIDDEN ) {
                 LOG.warn(`joinRoom: Passing on error: Could not join to room "${roomId}": ${body?.errcode}: ${body?.error}`);
                 throw err;
@@ -1280,6 +1282,8 @@ export class SimpleMatrixClient {
 
         } catch (err : any) {
 
+            LOG.warn(`_postJson: Error: `, err);
+
             const responseBody = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
@@ -1319,6 +1323,8 @@ export class SimpleMatrixClient {
 
         } catch (err : any) {
 
+            LOG.warn(`_putJson: Error: `, err);
+
             const responseBody = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
@@ -1353,6 +1359,8 @@ export class SimpleMatrixClient {
             LOG.debug(`_getJson: Response received for PUT request ${url} as `, result);
             return result;
         } catch (err : any) {
+
+            LOG.warn(`_getJson: Error: `, err);
 
             const responseBody = err?.getBody() ?? err?.body;
             if ( isMatrixErrorDTO(responseBody) ) {
@@ -1755,6 +1763,8 @@ export class SimpleMatrixClient {
             this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_STARTED);
             LOG.debug('_initSync: Started successfully');
             if (triggerEvents) this._triggerSyncEvents(response);
+
+            this._startSyncAgainTimer();
 
         } catch (err : any) {
             LOG.error(`_initSync: Error: `, err);

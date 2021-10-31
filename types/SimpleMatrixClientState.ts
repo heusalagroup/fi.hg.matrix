@@ -49,6 +49,7 @@ export function isSimpleMatrixClientState (value: any): value is SimpleMatrixCli
         case SimpleMatrixClientState.AUTHENTICATING:
         case SimpleMatrixClientState.AUTHENTICATED:
         case SimpleMatrixClientState.AUTHENTICATED_AND_STARTING:
+        case SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING:
         case SimpleMatrixClientState.AUTHENTICATED_AND_STARTED:
         case SimpleMatrixClientState.AUTHENTICATED_AND_SYNCING:
             return true;
@@ -65,6 +66,7 @@ export function stringifySimpleMatrixClientState (value: SimpleMatrixClientState
         case SimpleMatrixClientState.AUTHENTICATING             : return 'AUTHENTICATING';
         case SimpleMatrixClientState.AUTHENTICATED              : return 'AUTHENTICATED';
         case SimpleMatrixClientState.AUTHENTICATED_AND_STARTING : return 'AUTHENTICATED_AND_STARTING';
+        case SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING : return 'AUTHENTICATED_AND_RESTARTING';
         case SimpleMatrixClientState.AUTHENTICATED_AND_STARTED  : return 'AUTHENTICATED_AND_STARTED';
         case SimpleMatrixClientState.AUTHENTICATED_AND_SYNCING  : return 'AUTHENTICATED_AND_SYNCING';
     }
@@ -79,6 +81,7 @@ export function parseSimpleMatrixClientState (value: any): SimpleMatrixClientSta
         case 'AUTHENTICATING'               : return SimpleMatrixClientState.AUTHENTICATING;
         case 'AUTHENTICATED'                : return SimpleMatrixClientState.AUTHENTICATED;
         case 'AUTHENTICATED_AND_STARTING'   : return SimpleMatrixClientState.AUTHENTICATED_AND_STARTING;
+        case 'AUTHENTICATED_AND_RESTARTING'   : return SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING;
         case 'AUTHENTICATED_AND_STARTED'    : return SimpleMatrixClientState.AUTHENTICATED_AND_STARTED;
         case 'AUTHENTICATED_AND_SYNCING'    : return SimpleMatrixClientState.AUTHENTICATED_AND_SYNCING;
 
