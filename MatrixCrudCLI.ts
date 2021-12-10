@@ -1,5 +1,8 @@
 // Copyright (c) 2021. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
+import { TestCallback } from "../ts/modules/lodash";
+import MatrixCrudRepository from "./MatrixCrudRepository";
+
 export class MatrixCrudCLI<T> {
 
     private _test   : TestCallback;
