@@ -1,8 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
-import { isJsonObject, JsonObject } from "../../../../../ts/Json";
+import { isJsonObject, JsonObject } from "../../../../../core/Json";
 
 export interface MatrixJoinRoomThirdPartySignedDTO {
 

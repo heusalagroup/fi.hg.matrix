@@ -4,7 +4,7 @@ import {
     isInteger,
     isRegularObjectOf,
     isString
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixEventType from "../../../event/MatrixEventType";
 import MatrixType from "../../../core/MatrixType";
 

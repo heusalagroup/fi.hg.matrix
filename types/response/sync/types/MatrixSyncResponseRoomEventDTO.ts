@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { isJsonObject, JsonObject } from "../../../../../ts/Json";
+import { isJsonObject, JsonObject } from "../../../../../core/Json";
 import MatrixSyncResponseUnsignedDataDTO, {
     explainMatrixSyncResponseUnsignedDataDTO,
     isMatrixSyncResponseUnsignedDataDTO
@@ -10,7 +10,7 @@ import {
     isInteger,
     isRegularObject,
     isString, isStringOrUndefined, isUndefined, keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
 
 export interface MatrixSyncResponseRoomEventDTO {

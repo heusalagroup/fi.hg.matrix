@@ -5,7 +5,7 @@ import {
     isRegularObject,
     isString,
     isStringArray
-} from "../../../../ts/modules/lodash";
+} from "../../../../core/modules/lodash";
 
 export interface GetDirectoryRoomAliasResponseDTO {
     readonly room_id : string;

@@ -5,7 +5,7 @@ import {
     hasNoOtherKeys,
     isArrayOf,
     isRegularObject
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponseEphemeralDTO {

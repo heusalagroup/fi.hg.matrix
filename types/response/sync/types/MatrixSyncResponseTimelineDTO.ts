@@ -11,7 +11,7 @@ import {
     isBoolean,
     isRegularObject,
     isString, keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseTimelineDTO {
     readonly events     : MatrixSyncResponseRoomEventDTO[];

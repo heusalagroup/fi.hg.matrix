@@ -4,7 +4,7 @@ import {
     hasNoOtherKeys,
     isIntegerOrUndefined,
     isRegularObject, isUndefined
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixEventPowerLevelsDTO, { isMatrixEventPowerLevelsDTO } from "./MatrixEventPowerLevelsDTO";
 import MatrixUserPowerLevelsDTO, { isMatrixUserPowerLevelsDTO } from "./MatrixUserPowerLevelsDTO";
 import MatrixNotificationPowerLevelsDTO, { isMatrixNotificationPowerLevelsDTO } from "./MatrixNotificationPowerLevelsDTO";

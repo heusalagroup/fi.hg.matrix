@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { isInteger, isRegularObjectOf } from "../../../../../ts/modules/lodash";
+import { isInteger, isRegularObjectOf } from "../../../../../core/modules/lodash";
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
 
 export type MatrixUserPowerLevelsDTO = {

@@ -12,7 +12,7 @@ import MatrixSyncResponseAccountDataDTO, {
     getEventsFromMatrixSyncResponseAccountDataDTO,
     isMatrixSyncResponseAccountDataDTO
 } from "./MatrixSyncResponseAccountDataDTO";
-import { concat, hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import { concat, hasNoOtherKeys, isRegularObject } from "../../../../../core/modules/lodash";
 import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
 import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
 import MatrixSyncResponseStateEventDTO from "./MatrixSyncResponseStateEventDTO";

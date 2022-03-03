@@ -4,7 +4,7 @@ import {
     isInteger,
     isRegularObjectOf,
     isString
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseDeviceOneTimeKeysCountDTO {
     readonly [key : string] : number;

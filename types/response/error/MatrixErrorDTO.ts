@@ -6,7 +6,7 @@ import {
     isNumberOrUndefined,
     isRegularObject,
     isString
-} from "../../../../ts/modules/lodash";
+} from "../../../../core/modules/lodash";
 
 export interface MatrixErrorDTO {
     readonly errcode         : MatrixErrorCode;

@@ -4,7 +4,7 @@ import {
     hasNoOtherKeys,
     isInteger,
     isRegularObject
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseUnreadNotificationCountsDTO {
     readonly highlight_count    : number;

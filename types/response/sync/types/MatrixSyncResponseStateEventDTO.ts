@@ -7,7 +7,7 @@ import MatrixSyncResponseUnsignedDataDTO, {
 import {
     isJsonObject,
     JsonObject
-} from "../../../../../ts/Json";
+} from "../../../../../core/Json";
 
 import {
     hasNoOtherKeys,
@@ -16,7 +16,7 @@ import {
     isString,
     isUndefined,
     keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseStateEventDTO {
     readonly content           : JsonObject;

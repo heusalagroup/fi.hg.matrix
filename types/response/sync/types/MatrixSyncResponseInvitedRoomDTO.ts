@@ -5,7 +5,7 @@ import MatrixSyncResponseInviteStateDTO, {
     getEventsFromMatrixSyncResponseInviteStateDTO,
     isMatrixSyncResponseInviteStateDTO
 } from "./MatrixSyncResponseInviteStateDTO";
-import { hasNoOtherKeys, isRegularObject, keys } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, keys } from "../../../../../core/modules/lodash";
 import MatrixSyncResponseStrippedStateDTO from "./MatrixSyncResponseStrippedStateDTO";
 
 export interface MatrixSyncResponseInvitedRoomDTO {

@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject } from "../../../../../core/modules/lodash";
 import MatrixRoomId, { isMatrixRoomId } from "../../../core/MatrixRoomId";
 
 export interface MatrixJoinRoomResponseDTO {

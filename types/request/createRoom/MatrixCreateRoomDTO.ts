@@ -8,7 +8,7 @@ import {
     isString,
     isStringOrUndefined,
     isUndefined
-} from "../../../../ts/modules/lodash";
+} from "../../../../core/modules/lodash";
 import MatrixVisibility, { isMatrixVisibility } from "./types/MatrixVisibility";
 import { isMatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
 import MatrixRoomCreateEventDTO, { isPartialMatrixCreationContentDTO } from "../../event/roomCreate/MatrixRoomCreateEventDTO";

@@ -6,7 +6,7 @@ import {
     isArrayOf,
     isRegularObject, isUndefined,
     keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseDeviceListsDTO {
     readonly changed : MatrixUserId[];

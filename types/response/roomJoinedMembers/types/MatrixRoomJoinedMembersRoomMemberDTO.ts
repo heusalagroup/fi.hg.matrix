@@ -5,7 +5,7 @@ import {
     isNull,
     isRegularObject,
     isString
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixRoomJoinedMembersRoomMemberDTO {
     readonly display_name : string;

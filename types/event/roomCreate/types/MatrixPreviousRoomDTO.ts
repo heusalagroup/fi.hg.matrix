@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface MatrixPreviousRoomDTO {
     readonly room_id  : string;

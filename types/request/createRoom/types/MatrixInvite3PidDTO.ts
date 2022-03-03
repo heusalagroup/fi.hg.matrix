@@ -1,4 +1,4 @@
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../ts/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface MatrixInvite3PidDTO {
 

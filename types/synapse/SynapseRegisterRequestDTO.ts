@@ -5,7 +5,7 @@ import {
     isBoolean,
     isRegularObject,
     isString
-} from "../../../ts/modules/lodash";
+} from "../../../core/modules/lodash";
 
 /**
  * @see https://matrix-org.github.io/synapse/latest/admin_api/register_api.html

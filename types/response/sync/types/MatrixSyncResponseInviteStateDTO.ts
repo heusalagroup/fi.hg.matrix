@@ -10,7 +10,7 @@ import {
     isArrayOf,
     isRegularObject,
     keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseInviteStateDTO {
     readonly events: MatrixSyncResponseStrippedStateDTO[];

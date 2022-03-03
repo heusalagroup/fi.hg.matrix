@@ -4,7 +4,7 @@ import {
     hasNoOtherKeys,
     isNumberOrUndefined,
     isRegularObject
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixNotificationPowerLevelsDTO {
     readonly room: number;

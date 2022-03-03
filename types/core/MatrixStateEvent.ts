@@ -5,8 +5,8 @@ import {
     isRegularObject,
     isString,
     isStringOrUndefined
-} from "../../../ts/modules/lodash";
-import { JsonObject } from "../../../ts/Json";
+} from "../../../core/modules/lodash";
+import { JsonObject } from "../../../core/Json";
 
 export interface MatrixStateEvent {
     readonly type       : string;

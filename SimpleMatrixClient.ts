@@ -7,13 +7,13 @@ import {
     join,
     keys,
     map
-} from "../ts/modules/lodash";
+} from "../core/modules/lodash";
 
-import Observer, { ObserverCallback, ObserverDestructor } from "../ts/Observer";
-import RequestClient from "../ts/RequestClient";
-import LogService from "../ts/LogService";
-import JsonAny from "../ts/Json";
-import Json, { isJsonObject, JsonObject } from "../ts/Json";
+import Observer, { ObserverCallback, ObserverDestructor } from "../core/Observer";
+import RequestClient from "../core/RequestClient";
+import LogService from "../core/LogService";
+import JsonAny from "../core/Json";
+import Json, { isJsonObject, JsonObject } from "../core/Json";
 import { MatrixPasswordLoginDTO } from "./types/request/passwordLogin/MatrixPasswordLoginDTO";
 import { MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
 import { MatrixType } from "./types/core/MatrixType";
@@ -21,8 +21,8 @@ import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResp
 import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
 import MatrixCreateRoomResponseDTO, { isMatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRoomAlias/GetDirectoryRoomAliasResponseDTO";
-import RequestError from "../ts/request/types/RequestError";
-import RequestStatus from "../ts/request/types/RequestStatus";
+import RequestError from "../core/request/types/RequestError";
+import RequestStatus from "../core/request/types/RequestStatus";
 import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
 import MatrixSyncResponseDTO, {
     explainMatrixSyncResponseDTO,
@@ -54,8 +54,8 @@ import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
 import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
 import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
 import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
-import { VoidCallback } from "../ts/interfaces/callbacks";
-import LogLevel from "../ts/types/LogLevel";
+import { VoidCallback } from "../core/interfaces/callbacks";
+import LogLevel from "../core/types/LogLevel";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 

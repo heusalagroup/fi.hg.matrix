@@ -1,4 +1,4 @@
-# @sendanor/matrix
+# @heusalagroup/fi.hg.matrix
 
 Our lightweight Matrix.org library written in TypeScript.
 
@@ -14,14 +14,14 @@ library. It runs on the browser as well as on the NodeJS LTS v8 and up.
 
 ### It doesn't have many runtime dependencies
 
-This library expects [@sendanor/typescript](https://github.com/sendanor/typescript) to be located 
+This library expects [@heusalagroup/fi.hg.core](https://github.com/heusalagroup/fi.hg.core) to be located 
 in the relative path `../ts` and only required dependency it has is for [Lodash 
 library](https://lodash.com/).
 
 ### It's well tested
 
 ~~Our unit tests exists beside the code. To run tests, check out our test repository 
-[@sendanor/test](https://github.com/sendanor/test).~~
+[@heusalagroup/test](https://github.com/heusalagroup/test).~~
 
 Well, it will be. This submodule is part of an experimental project, which still evolves much more 
 unstable manner :)
@@ -36,13 +36,13 @@ as a git submodule in a NodeJS or webpack project.
 Recommended way to initialize your project is like this:
 
 ```
-mkdir -p src/nor
+mkdir -p src/fi/hg
 
-git submodule add git@github.com:sendanor/typescript.git src/nor/ts
-git config -f .gitmodules submodule.src/nor/ts.branch main
+git submodule add git@github.com:heusalagroup/fi.hg.core.git src/fi/hg/core
+git config -f .gitmodules submodule.src/fi/hg/core.branch main
 
-git submodule add git@github.com:sendanor/matrix.git src/nor/matrix
-git config -f .gitmodules submodule.src/nor/matrix.branch main
+git submodule add git@github.com:heusalagroup/fi.hg.matrix.git src/fi/hg/matrix
+git config -f .gitmodules submodule.src/fi/hg/matrix.branch main
 ```
 
 Only required dependency is to [the Lodash library](https://lodash.com/):
@@ -56,12 +56,3 @@ Some of our code may use reflect metadata. It's optional otherwise.
 ```
 npm install --save-dev reflect-metadata
 ```
-
-### Stable releases available for a commercial customer
-
-For *tailored commercial release*, you may contact [our sales](mailto:info@sendanor.fi).
-
-General rule for pricing is 500 € (or $600) / [feature](https://github.com/sendanor/matrix/issues). 
-
-One full stable release containing multiple components is 8000 €. The full payment includes a month 
-of agile development with the customer, and a year of support for that release branch.

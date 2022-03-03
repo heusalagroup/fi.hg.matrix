@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { RepositoryEntry } from "../ts/simpleRepository/types/RepositoryEntry";
-import Repository from "../ts/simpleRepository/types/Repository";
+import { RepositoryEntry } from "../core/simpleRepository/types/RepositoryEntry";
+import Repository from "../core/simpleRepository/types/Repository";
 import SimpleMatrixClient from "./SimpleMatrixClient";
 import MatrixCreateRoomResponseDTO from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import MatrixCreateRoomPreset
@@ -9,9 +9,9 @@ import MatrixCreateRoomPreset
 import JsonAny, {
     isJsonObject,
     JsonObject
-} from "../ts/Json";
+} from "../core/Json";
 import MatrixSyncResponseDTO from "./types/response/sync/MatrixSyncResponseDTO";
-import LogService from "../ts/LogService";
+import LogService from "../core/LogService";
 import {
     concat,
     filter,
@@ -24,14 +24,14 @@ import {
     parseNonEmptyString,
     uniq,
     forEach
-} from "../ts/modules/lodash";
+} from "../core/modules/lodash";
 import MatrixRoomId from "./types/core/MatrixRoomId";
 import MatrixSyncResponseJoinedRoomDTO
     from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
 import MatrixSyncResponseRoomEventDTO
     from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
 import MatrixType from "./types/core/MatrixType";
-import RequestError from "../ts/request/types/RequestError";
+import RequestError from "../core/request/types/RequestError";
 import PutRoomStateWithEventTypeDTO
     from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
 import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
@@ -43,8 +43,8 @@ import MatrixJoinRule from "./types/event/roomJoinRules/MatrixJoinRule";
 import MatrixGuestAccess from "./types/event/roomGuestAccess/MatrixGuestAccess";
 import MatrixRoomJoinedMembersDTO
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
-import RepositoryMember from "../ts/simpleRepository/types/RepositoryMember";
-import LogLevel from "../ts/types/LogLevel";
+import RepositoryMember from "../core/simpleRepository/types/RepositoryMember";
+import LogLevel from "../core/types/LogLevel";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 

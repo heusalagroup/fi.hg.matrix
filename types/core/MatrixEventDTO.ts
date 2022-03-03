@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { isMatrixEventContentDTO, MatrixEventContentDTO } from "./MatrixEventContentDTO";
-import { hasNoOtherKeys, isNumber, isRegularObject, isString } from "../../../ts/modules/lodash";
+import { hasNoOtherKeys, isNumber, isRegularObject, isString } from "../../../core/modules/lodash";
 
 export interface MatrixEventDTO {
 

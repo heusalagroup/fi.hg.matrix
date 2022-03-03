@@ -5,9 +5,9 @@ import {
     isRegularObject,
     isString,
     isStringOrUndefined, isUndefined, keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixSyncResponseUnsignedDataDTO, { isMatrixSyncResponseUnsignedDataDTO } from "./MatrixSyncResponseUnsignedDataDTO";
-import { isJsonObject, JsonObject } from "../../../../../ts/Json";
+import { isJsonObject, JsonObject } from "../../../../../core/Json";
 
 export interface MatrixSyncResponseStrippedStateDTO {
     readonly content           : JsonObject;

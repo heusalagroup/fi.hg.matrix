@@ -4,7 +4,7 @@ import {
     hasNoOtherKeys,
     isRegularObject, isStringOrUndefined,
     isUndefined
-} from "../../../../ts/modules/lodash";
+} from "../../../../core/modules/lodash";
 import MatrixRegisterAuthenticationData, { isMatrixRegisterAuthenticationData } from "./types/MatrixRegisterAuthenticationData";
 
 export interface MatrixRegisterDTO {

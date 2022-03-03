@@ -4,7 +4,7 @@ import {
     hasNoOtherKeys,
     isRegularObject,
     isString
-} from "../../../ts/modules/lodash";
+} from "../../../core/modules/lodash";
 
 export interface SynapseRegisterResponseDTO {
     readonly access_token : string;

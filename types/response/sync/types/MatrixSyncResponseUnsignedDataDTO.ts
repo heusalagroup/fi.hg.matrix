@@ -6,9 +6,9 @@ import {
     isRegularObject,
     isStringOrUndefined,
     isUndefined, keys
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
-import { isJsonObjectOrUndefined, JsonObject } from "../../../../../ts/Json";
+import { isJsonObjectOrUndefined, JsonObject } from "../../../../../core/Json";
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
 
 /**

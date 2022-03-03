@@ -26,7 +26,7 @@ import {
     hasNoOtherKeys, isNumberOrUndefined,
     isRegularObject,
     isUndefined
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
 import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
 

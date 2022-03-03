@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { isJsonObject, JsonObject } from "../../../../../ts/Json";
-import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../ts/modules/lodash";
+import { isJsonObject, JsonObject } from "../../../../../core/Json";
+import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
 import MatrixType, { isMatrixType } from "../../../core/MatrixType";
 import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
 

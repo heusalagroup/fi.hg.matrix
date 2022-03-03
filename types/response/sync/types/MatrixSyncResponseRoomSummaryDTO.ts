@@ -5,7 +5,7 @@ import {
     isIntegerOrUndefined,
     isRegularObject,
     isStringArrayOrUndefined
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseRoomSummaryDTO {
 

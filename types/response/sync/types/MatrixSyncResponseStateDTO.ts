@@ -6,7 +6,7 @@ import {
     hasNoOtherKeys,
     isArrayOf,
     isRegularObject
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 
 import MatrixSyncResponseStateEventDTO, {
     explainMatrixSyncResponseStateEventDTO,

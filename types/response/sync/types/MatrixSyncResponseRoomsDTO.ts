@@ -22,7 +22,7 @@ import {
     isRegularObjectOf, isUndefined,
     keys,
     reduce
-} from "../../../../../ts/modules/lodash";
+} from "../../../../../core/modules/lodash";
 import MatrixSyncResponseAnyEventDTO from "./MatrixSyncResponseAnyEventDTO";
 
 export interface MatrixSyncResponseRoomsDTO {

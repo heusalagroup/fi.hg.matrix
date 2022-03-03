@@ -6,7 +6,7 @@ import {
     isRegularObject,
     isString,
     isUndefined, keys
-} from "../../../../ts/modules/lodash";
+} from "../../../../core/modules/lodash";
 import MatrixSyncResponseRoomsDTO, {
     explainMatrixSyncResponseRoomsDTO,
     getEventsFromMatrixSyncResponseRoomsDTO,

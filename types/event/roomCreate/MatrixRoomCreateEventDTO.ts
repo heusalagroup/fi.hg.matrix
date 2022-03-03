@@ -5,7 +5,7 @@ import {
     isBooleanOrUndefined,
     isRegularObject,
     isString, isStringOrUndefined, isUndefined
-} from "../../../../ts/modules/lodash";
+} from "../../../../core/modules/lodash";
 import MatrixPreviousRoomDTO, { isMatrixPreviousRoomDTO } from "./types/MatrixPreviousRoomDTO";
 
 export interface MatrixRoomCreateEventDTO {
