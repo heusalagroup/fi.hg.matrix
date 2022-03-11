@@ -5,7 +5,6 @@ import {
     isArrayOf,
     isBooleanOrUndefined,
     isRegularObject,
-    isString,
     isStringOrUndefined,
     isUndefined
 } from "../../../../core/modules/lodash";
@@ -15,7 +14,7 @@ import { MatrixRoomCreateEventDTO,  isPartialMatrixCreationContentDTO } from "..
 import { MatrixStateEvent,  isMatrixStateEvent } from "../../core/MatrixStateEvent";
 import { MatrixCreateRoomPreset,  isMatrixCreateRoomPreset } from "./types/MatrixCreateRoomPreset";
 import { MatrixRoomPowerLevelsEventDTO,  isMatrixPowerLevelEventContentDTO } from "./types/MatrixRoomPowerLevelsEventDTO";
-import MatrixInvite3PidDTO from "./types/MatrixInvite3PidDTO";
+import { MatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
 import { MatrixUserId,  isMatrixUserId } from "../../core/MatrixUserId";
 
 export interface MatrixCreateRoomDTO {

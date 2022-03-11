@@ -8,12 +8,11 @@ import {
     keys,
     map
 } from "../core/modules/lodash";
-
 import { Observer,  ObserverCallback, ObserverDestructor } from "../core/Observer";
 import { RequestClient } from "../core/RequestClient";
 import { LogService } from "../core/LogService";
 import { JsonAny } from "../core/Json";
-import { Json,  isJsonObject, JsonObject } from "../core/Json";
+import { JsonAny as Json, isJsonObject, JsonObject } from "../core/Json";
 import { MatrixPasswordLoginDTO } from "./types/request/passwordLogin/MatrixPasswordLoginDTO";
 import { MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
 import { MatrixType } from "./types/core/MatrixType";
@@ -24,13 +23,12 @@ import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRo
 import { RequestError } from "../core/request/types/RequestError";
 import { RequestStatus } from "../core/request/types/RequestStatus";
 import { MatrixSyncPresence } from "./types/request/sync/types/MatrixSyncPresence";
-import { MatrixSyncResponseDTO, 
+import { MatrixSyncResponseDTO,
     explainMatrixSyncResponseDTO,
     isMatrixSyncResponseDTO
 } from "./types/response/sync/MatrixSyncResponseDTO";
 import { MatrixSyncResponseEventDTO } from "./types/response/sync/types/MatrixSyncResponseEventDTO";
-import MatrixSyncResponseAnyEventDTO
-    from "./types/response/sync/types/MatrixSyncResponseAnyEventDTO";
+import { MatrixSyncResponseAnyEventDTO } from "./types/response/sync/types/MatrixSyncResponseAnyEventDTO";
 import { getEventsFromMatrixSyncResponsePresenceDTO } from "./types/response/sync/types/MatrixSyncResponsePresenceDTO";
 import { getEventsFromMatrixSyncResponseAccountDataDTO } from "./types/response/sync/types/MatrixSyncResponseAccountDataDTO";
 import { getEventsFromMatrixSyncResponseToDeviceDTO } from "./types/response/sync/types/MatrixSyncResponseToDeviceDTO";
@@ -1430,8 +1428,9 @@ export class SimpleMatrixClient {
      *
      * The state SHOULD be AUTHENTICATED.
      *
-     * Nothing is done if the state is AUTHENTICATED_AND_STARTING, AUTHENTICATED_AND_RESTARTING, AUTHENTICATED_AND_STARTED or
-     * AUTHENTICATED_AND_SYNCING -- except if stop request has been scheduled, which will be cancelled.
+     * Nothing is done if the state is AUTHENTICATED_AND_STARTING, AUTHENTICATED_AND_RESTARTING,
+     * AUTHENTICATED_AND_STARTED or AUTHENTICATED_AND_SYNCING -- except if stop request has been
+     * scheduled, which will be cancelled.
      *
      * The state must not be UNAUTHENTICATED or AUTHENTICATING.
      *
@@ -1483,8 +1482,8 @@ export class SimpleMatrixClient {
      *
      * State should be AUTHENTICATED_AND_STARTED.
      *
-     * Will schedule stop later if state is AUTHENTICATED_AND_STARTING, AUTHENTICATED_AND_RESTARTING
-     * or AUTHENTICATED_AND_SYNCING.
+     * Will schedule stop later if state is AUTHENTICATED_AND_STARTING,
+     * AUTHENTICATED_AND_RESTARTING or AUTHENTICATED_AND_SYNCING.
      *
      * Will not do anything (but warning) if state is UNAUTHENTICATED, AUTHENTICATING or
      * AUTHENTICATED.

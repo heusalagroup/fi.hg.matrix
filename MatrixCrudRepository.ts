@@ -1,12 +1,12 @@
-// Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
+// Copyright (c) 2021-2022. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { RepositoryEntry } from "../core/simpleRepository/types/RepositoryEntry";
 import { Repository } from "../core/simpleRepository/types/Repository";
 import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { MatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
-import MatrixCreateRoomPreset
+import { MatrixCreateRoomPreset }
     from "./types/request/createRoom/types/MatrixCreateRoomPreset";
-import { JsonAny, 
+import { JsonAny,
     isJsonObject,
     JsonObject
 } from "../core/Json";
@@ -26,13 +26,13 @@ import {
     forEach
 } from "../core/modules/lodash";
 import { MatrixRoomId } from "./types/core/MatrixRoomId";
-import MatrixSyncResponseJoinedRoomDTO
+import { MatrixSyncResponseJoinedRoomDTO }
     from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
-import MatrixSyncResponseRoomEventDTO
+import { MatrixSyncResponseRoomEventDTO }
     from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
 import { MatrixType } from "./types/core/MatrixType";
 import { RequestError } from "../core/request/types/RequestError";
-import PutRoomStateWithEventTypeDTO
+import { PutRoomStateWithEventTypeDTO }
     from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
 import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
 import { MatrixStateEvent } from "./types/core/MatrixStateEvent";
@@ -41,7 +41,7 @@ import { MatrixUserId } from "./types/core/MatrixUserId";
 import { MatrixHistoryVisibility } from "./types/event/roomHistoryVisibility/MatrixHistoryVisibility";
 import { MatrixJoinRule } from "./types/event/roomJoinRules/MatrixJoinRule";
 import { MatrixGuestAccess } from "./types/event/roomGuestAccess/MatrixGuestAccess";
-import MatrixRoomJoinedMembersDTO
+import { MatrixRoomJoinedMembersDTO }
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import { RepositoryMember } from "../core/simpleRepository/types/RepositoryMember";
 import { LogLevel } from "../core/types/LogLevel";
