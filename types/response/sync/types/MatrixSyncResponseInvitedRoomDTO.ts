@@ -1,12 +1,12 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseInviteStateDTO, {
+import { MatrixSyncResponseInviteStateDTO, 
     explainMatrixSyncResponseInviteStateDTO,
     getEventsFromMatrixSyncResponseInviteStateDTO,
     isMatrixSyncResponseInviteStateDTO
 } from "./MatrixSyncResponseInviteStateDTO";
 import { hasNoOtherKeys, isRegularObject, keys } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseStrippedStateDTO from "./MatrixSyncResponseStrippedStateDTO";
+import { MatrixSyncResponseStrippedStateDTO } from "./MatrixSyncResponseStrippedStateDTO";
 
 export interface MatrixSyncResponseInvitedRoomDTO {
     readonly invite_state : MatrixSyncResponseInviteStateDTO;
@@ -64,4 +64,4 @@ export function parseMatrixSyncResponseInvitedRoomDTO (value: any): MatrixSyncRe
     return undefined;
 }
 
-export default MatrixSyncResponseInvitedRoomDTO;
+

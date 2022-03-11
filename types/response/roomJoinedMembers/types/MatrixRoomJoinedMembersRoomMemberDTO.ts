@@ -33,4 +33,4 @@ export function parseMatrixRoomJoinedMembersRoomMemberDTO (value: any): MatrixRo
     return undefined;
 }
 
-export default MatrixRoomJoinedMembersRoomMemberDTO;
+

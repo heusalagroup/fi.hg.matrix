@@ -39,4 +39,4 @@ export function parseMatrixRegisterKind (value: any): MatrixRegisterKind | undef
 
 }
 
-export default MatrixRegisterKind;
+

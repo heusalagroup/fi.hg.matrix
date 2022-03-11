@@ -47,4 +47,4 @@ export function parseMatrixRoomId (value: any): MatrixRoomId | undefined {
     return undefined;
 }
 
-export default MatrixRoomId;
+

@@ -9,14 +9,14 @@ import {
     isStringOrUndefined,
     isUndefined
 } from "../../../../core/modules/lodash";
-import MatrixVisibility, { isMatrixVisibility } from "./types/MatrixVisibility";
+import { MatrixVisibility,  isMatrixVisibility } from "./types/MatrixVisibility";
 import { isMatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
-import MatrixRoomCreateEventDTO, { isPartialMatrixCreationContentDTO } from "../../event/roomCreate/MatrixRoomCreateEventDTO";
-import MatrixStateEvent, { isMatrixStateEvent } from "../../core/MatrixStateEvent";
-import MatrixCreateRoomPreset, { isMatrixCreateRoomPreset } from "./types/MatrixCreateRoomPreset";
-import MatrixRoomPowerLevelsEventDTO, { isMatrixPowerLevelEventContentDTO } from "./types/MatrixRoomPowerLevelsEventDTO";
+import { MatrixRoomCreateEventDTO,  isPartialMatrixCreationContentDTO } from "../../event/roomCreate/MatrixRoomCreateEventDTO";
+import { MatrixStateEvent,  isMatrixStateEvent } from "../../core/MatrixStateEvent";
+import { MatrixCreateRoomPreset,  isMatrixCreateRoomPreset } from "./types/MatrixCreateRoomPreset";
+import { MatrixRoomPowerLevelsEventDTO,  isMatrixPowerLevelEventContentDTO } from "./types/MatrixRoomPowerLevelsEventDTO";
 import MatrixInvite3PidDTO from "./types/MatrixInvite3PidDTO";
-import MatrixUserId, { isMatrixUserId } from "../../core/MatrixUserId";
+import { MatrixUserId,  isMatrixUserId } from "../../core/MatrixUserId";
 
 export interface MatrixCreateRoomDTO {
 
@@ -76,4 +76,4 @@ export function parseMatrixCreateRoomDTO (value: any): MatrixCreateRoomDTO | und
     return undefined;
 }
 
-export default MatrixCreateRoomDTO;
+

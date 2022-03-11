@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseStrippedStateDTO, {
+import { MatrixSyncResponseStrippedStateDTO, 
     explainMatrixSyncResponseStrippedStateDTO,
     isMatrixSyncResponseStrippedStateDTO
 } from "./MatrixSyncResponseStrippedStateDTO";
@@ -65,4 +65,4 @@ export function parseMatrixSyncResponseInviteStateDTO (value: any): MatrixSyncRe
     return undefined;
 }
 
-export default MatrixSyncResponseInviteStateDTO;
+

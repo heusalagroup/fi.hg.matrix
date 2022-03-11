@@ -34,4 +34,4 @@ export function parseMatrixInvite3PidDTO (value: any): MatrixInvite3PidDTO | und
     return undefined;
 }
 
-export default MatrixInvite3PidDTO;
+

@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { hasNoOtherKeys, isArrayOf, isRegularObject } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseToDeviceDTO {
@@ -34,4 +34,4 @@ export function parseMatrixSyncResponseToDeviceDTO (value: any): MatrixSyncRespo
     return undefined;
 }
 
-export default MatrixSyncResponseToDeviceDTO;
+

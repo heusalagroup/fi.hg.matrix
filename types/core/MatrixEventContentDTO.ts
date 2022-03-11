@@ -28,4 +28,4 @@ export function parseMatrixEventContentDTO (value: any): MatrixEventContentDTO |
     return undefined;
 }
 
-export default MatrixEventContentDTO;
+

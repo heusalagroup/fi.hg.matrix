@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { isJsonObject, JsonObject } from "../../../../../core/Json";
-import MatrixSyncResponseUnsignedDataDTO, {
+import { MatrixSyncResponseUnsignedDataDTO, 
     explainMatrixSyncResponseUnsignedDataDTO,
     isMatrixSyncResponseUnsignedDataDTO
 } from "./MatrixSyncResponseUnsignedDataDTO";
@@ -11,7 +11,7 @@ import {
     isRegularObject,
     isString, isStringOrUndefined, isUndefined, keys
 } from "../../../../../core/modules/lodash";
-import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
+import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 
 export interface MatrixSyncResponseRoomEventDTO {
     readonly content           : JsonObject;
@@ -111,4 +111,4 @@ export function parseMatrixSyncResponseRoomEventDTO (value: any): MatrixSyncResp
     return undefined;
 }
 
-export default MatrixSyncResponseRoomEventDTO;
+

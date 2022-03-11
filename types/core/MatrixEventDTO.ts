@@ -43,4 +43,4 @@ export function parseMatrixEventDTO (value: any): MatrixEventDTO | undefined {
     return undefined;
 }
 
-export default MatrixEventDTO;
+

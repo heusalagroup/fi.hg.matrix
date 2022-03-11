@@ -38,4 +38,4 @@ export function parseMatrixSyncResponseRoomSummaryDTO (value: any): MatrixSyncRe
     return undefined;
 }
 
-export default MatrixSyncResponseRoomSummaryDTO;
+

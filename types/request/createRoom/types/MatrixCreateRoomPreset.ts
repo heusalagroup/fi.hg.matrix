@@ -43,4 +43,4 @@ export function parseMatrixCreateRoomPreset (value: any): MatrixCreateRoomPreset
 
 }
 
-export default MatrixCreateRoomPreset;
+

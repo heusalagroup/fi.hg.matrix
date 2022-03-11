@@ -50,4 +50,4 @@ export function parseSynapseRegisterRequestDTO (value: any): SynapseRegisterRequ
     return undefined;
 }
 
-export default SynapseRegisterRequestDTO;
+

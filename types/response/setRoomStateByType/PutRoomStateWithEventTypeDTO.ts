@@ -25,4 +25,4 @@ export function parsePutRoomStateWithEventTypeDTO (value: any): PutRoomStateWith
     return undefined;
 }
 
-export default PutRoomStateWithEventTypeDTO;
+

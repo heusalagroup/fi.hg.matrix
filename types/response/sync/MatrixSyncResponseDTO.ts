@@ -7,30 +7,30 @@ import {
     isString,
     isUndefined, keys
 } from "../../../../core/modules/lodash";
-import MatrixSyncResponseRoomsDTO, {
+import { MatrixSyncResponseRoomsDTO, 
     explainMatrixSyncResponseRoomsDTO,
     getEventsFromMatrixSyncResponseRoomsDTO,
     isMatrixSyncResponseRoomsDTO
 } from "./types/MatrixSyncResponseRoomsDTO";
-import MatrixSyncResponseAccountDataDTO, {
+import { MatrixSyncResponseAccountDataDTO, 
     getEventsFromMatrixSyncResponseAccountDataDTO,
     isMatrixSyncResponseAccountDataDTO
 } from "./types/MatrixSyncResponseAccountDataDTO";
-import MatrixSyncResponsePresenceDTO, {
+import { MatrixSyncResponsePresenceDTO, 
     getEventsFromMatrixSyncResponsePresenceDTO,
     isMatrixSyncResponsePresenceDTO
 } from "./types/MatrixSyncResponsePresenceDTO";
-import MatrixSyncResponseToDeviceDTO, {
+import { MatrixSyncResponseToDeviceDTO, 
     getEventsFromMatrixSyncResponseToDeviceDTO,
     isMatrixSyncResponseToDeviceDTO
 } from "./types/MatrixSyncResponseToDeviceDTO";
-import MatrixSyncResponseDeviceListsDTO, {
+import { MatrixSyncResponseDeviceListsDTO, 
     explainMatrixSyncResponseDeviceListsDTO,
     isMatrixSyncResponseDeviceListsDTO
 } from "./types/MatrixSyncResponseDeviceListsDTO";
 import MatrixSyncResponseDeviceOneTimeKeysCountDTO
     , { isMatrixSyncResponseDeviceOneTimeKeysCountDTO } from "./types/MatrixSyncResponseDeviceOneTimeKeysCountDTO";
-import MatrixSyncResponseAnyEventDTO from "./types/MatrixSyncResponseAnyEventDTO";
+import { MatrixSyncResponseAnyEventDTO } from "./types/MatrixSyncResponseAnyEventDTO";
 
 export interface MatrixSyncResponseDTO {
     readonly next_batch                    : string;
@@ -143,4 +143,4 @@ export function parseMatrixSyncResponseDTO (value: any): MatrixSyncResponseDTO |
     return undefined;
 }
 
-export default MatrixSyncResponseDTO;
+

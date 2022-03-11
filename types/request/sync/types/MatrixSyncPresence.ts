@@ -43,4 +43,4 @@ export function parseMatrixSyncPresence (value: any): MatrixSyncPresence | undef
 
 }
 
-export default MatrixSyncPresence;
+

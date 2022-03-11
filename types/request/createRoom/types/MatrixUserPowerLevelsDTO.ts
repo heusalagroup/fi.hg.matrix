@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { isInteger, isRegularObjectOf } from "../../../../../core/modules/lodash";
-import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
+import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 
 export type MatrixUserPowerLevelsDTO = {
     [K in MatrixUserId]: number
@@ -22,4 +22,4 @@ export function parseMatrixUserPowerLevelsDTO (value: any): MatrixUserPowerLevel
     return undefined;
 }
 
-export default MatrixUserPowerLevelsDTO;
+

@@ -25,4 +25,4 @@ export function parseMatrixHomeServerDTO (value: any): MatrixHomeServerDTO | und
 }
 
 
-export default MatrixHomeServerDTO;
+

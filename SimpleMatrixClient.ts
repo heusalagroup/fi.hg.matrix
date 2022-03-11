@@ -9,53 +9,53 @@ import {
     map
 } from "../core/modules/lodash";
 
-import Observer, { ObserverCallback, ObserverDestructor } from "../core/Observer";
-import RequestClient from "../core/RequestClient";
-import LogService from "../core/LogService";
-import JsonAny from "../core/Json";
-import Json, { isJsonObject, JsonObject } from "../core/Json";
+import { Observer,  ObserverCallback, ObserverDestructor } from "../core/Observer";
+import { RequestClient } from "../core/RequestClient";
+import { LogService } from "../core/LogService";
+import { JsonAny } from "../core/Json";
+import { Json,  isJsonObject, JsonObject } from "../core/Json";
 import { MatrixPasswordLoginDTO } from "./types/request/passwordLogin/MatrixPasswordLoginDTO";
 import { MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
 import { MatrixType } from "./types/core/MatrixType";
 import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResponseDTO";
-import MatrixCreateRoomDTO from "./types/request/createRoom/MatrixCreateRoomDTO";
-import MatrixCreateRoomResponseDTO, { isMatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
+import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
+import { MatrixCreateRoomResponseDTO,  isMatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { isGetDirectoryRoomAliasResponseDTO } from "./types/response/directoryRoomAlias/GetDirectoryRoomAliasResponseDTO";
-import RequestError from "../core/request/types/RequestError";
-import RequestStatus from "../core/request/types/RequestStatus";
-import MatrixSyncPresence from "./types/request/sync/types/MatrixSyncPresence";
-import MatrixSyncResponseDTO, {
+import { RequestError } from "../core/request/types/RequestError";
+import { RequestStatus } from "../core/request/types/RequestStatus";
+import { MatrixSyncPresence } from "./types/request/sync/types/MatrixSyncPresence";
+import { MatrixSyncResponseDTO, 
     explainMatrixSyncResponseDTO,
     isMatrixSyncResponseDTO
 } from "./types/response/sync/MatrixSyncResponseDTO";
-import MatrixSyncResponseEventDTO from "./types/response/sync/types/MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseEventDTO } from "./types/response/sync/types/MatrixSyncResponseEventDTO";
 import MatrixSyncResponseAnyEventDTO
     from "./types/response/sync/types/MatrixSyncResponseAnyEventDTO";
 import { getEventsFromMatrixSyncResponsePresenceDTO } from "./types/response/sync/types/MatrixSyncResponsePresenceDTO";
 import { getEventsFromMatrixSyncResponseAccountDataDTO } from "./types/response/sync/types/MatrixSyncResponseAccountDataDTO";
 import { getEventsFromMatrixSyncResponseToDeviceDTO } from "./types/response/sync/types/MatrixSyncResponseToDeviceDTO";
-import MatrixRoomId, { isMatrixRoomId } from "./types/core/MatrixRoomId";
-import MatrixSyncResponseJoinedRoomDTO, { getEventsFromMatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
-import MatrixSyncResponseInvitedRoomDTO, { getEventsFromMatrixSyncResponseInvitedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseInvitedRoomDTO";
-import MatrixSyncResponseLeftRoomDTO, { getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
-import MatrixUserId, { isMatrixUserId } from "./types/core/MatrixUserId";
-import MatrixJoinRoomRequestDTO from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
-import MatrixJoinRoomResponseDTO, { isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
+import { MatrixRoomId,  isMatrixRoomId } from "./types/core/MatrixRoomId";
+import { MatrixSyncResponseJoinedRoomDTO,  getEventsFromMatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
+import { MatrixSyncResponseInvitedRoomDTO,  getEventsFromMatrixSyncResponseInvitedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseInvitedRoomDTO";
+import { MatrixSyncResponseLeftRoomDTO,  getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
+import { MatrixUserId,  isMatrixUserId } from "./types/core/MatrixUserId";
+import { MatrixJoinRoomRequestDTO } from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
+import { MatrixJoinRoomResponseDTO,  isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
 import {
     SimpleMatrixClientState,
     stringifySimpleMatrixClientState
 } from "./types/SimpleMatrixClientState";
-import PutRoomStateWithEventTypeDTO, { isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
-import MatrixRoomJoinedMembersDTO, { isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
-import MatrixRegisterKind from "./types/request/register/types/MatrixRegisterKind";
-import MatrixRegisterDTO from "./types/request/register/MatrixRegisterDTO";
-import MatrixRegisterResponseDTO, { isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
+import { PutRoomStateWithEventTypeDTO,  isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
+import { MatrixRoomJoinedMembersDTO,  isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
+import { MatrixRegisterKind } from "./types/request/register/types/MatrixRegisterKind";
+import { MatrixRegisterDTO } from "./types/request/register/MatrixRegisterDTO";
+import { MatrixRegisterResponseDTO,  isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
 import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
-import MatrixErrorCode from "./types/response/error/types/MatrixErrorCode";
-import SynapseRegisterResponseDTO, { isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
-import SynapseRegisterRequestDTO from "./types/synapse/SynapseRegisterRequestDTO";
+import { MatrixErrorCode } from "./types/response/error/types/MatrixErrorCode";
+import { SynapseRegisterResponseDTO,  isSynapseRegisterResponseDTO } from "./types/synapse/SynapseRegisterResponseDTO";
+import { SynapseRegisterRequestDTO } from "./types/synapse/SynapseRegisterRequestDTO";
 import { VoidCallback } from "../core/interfaces/callbacks";
-import LogLevel from "../core/types/LogLevel";
+import { LogLevel } from "../core/types/LogLevel";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -1847,5 +1847,5 @@ function q (value: string) : string {
     return encodeURIComponent(value);
 }
 
-export default SimpleMatrixClient;
+
 

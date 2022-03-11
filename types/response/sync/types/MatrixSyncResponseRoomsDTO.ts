@@ -1,17 +1,17 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixRoomId, { explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
-import MatrixSyncResponseJoinedRoomDTO, {
+import { MatrixRoomId,  explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
+import { MatrixSyncResponseJoinedRoomDTO, 
     explainMatrixSyncResponseJoinedRoomDTO,
     getEventsFromMatrixSyncResponseJoinedRoomDTO,
     isMatrixSyncResponseJoinedRoomDTO
 } from "./MatrixSyncResponseJoinedRoomDTO";
-import MatrixSyncResponseInvitedRoomDTO, {
+import { MatrixSyncResponseInvitedRoomDTO, 
     explainMatrixSyncResponseInvitedRoomDTO,
     getEventsFromMatrixSyncResponseInvitedRoomDTO,
     isMatrixSyncResponseInvitedRoomDTO
 } from "./MatrixSyncResponseInvitedRoomDTO";
-import MatrixSyncResponseLeftRoomDTO, {
+import { MatrixSyncResponseLeftRoomDTO, 
     getEventsFromMatrixSyncResponseLeftRoomDTO,
     isMatrixSyncResponseLeftRoomDTO
 } from "./MatrixSyncResponseLeftRoomDTO";
@@ -23,7 +23,7 @@ import {
     keys,
     reduce
 } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseAnyEventDTO from "./MatrixSyncResponseAnyEventDTO";
+import { MatrixSyncResponseAnyEventDTO } from "./MatrixSyncResponseAnyEventDTO";
 
 export interface MatrixSyncResponseRoomsDTO {
     readonly join   ?: {[K in MatrixRoomId]: MatrixSyncResponseJoinedRoomDTO};
@@ -143,4 +143,4 @@ export function parseMatrixSyncResponseRoomsDTO (value: any): MatrixSyncResponse
     return undefined;
 }
 
-export default MatrixSyncResponseRoomsDTO;
+

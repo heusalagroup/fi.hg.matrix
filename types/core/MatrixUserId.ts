@@ -21,4 +21,4 @@ export function parseMatrixUserId (value: any): MatrixUserId | undefined {
     return undefined;
 }
 
-export default MatrixUserId;
+

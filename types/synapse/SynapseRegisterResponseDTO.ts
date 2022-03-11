@@ -38,4 +38,4 @@ export function parseSynapseRegisterResponseDTO (value: any): SynapseRegisterRes
     return undefined;
 }
 
-export default SynapseRegisterResponseDTO;
+

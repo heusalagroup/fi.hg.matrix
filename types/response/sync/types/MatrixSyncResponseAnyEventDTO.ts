@@ -1,9 +1,9 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
-import MatrixSyncResponseRoomEventDTO, { isMatrixSyncResponseRoomEventDTO } from "./MatrixSyncResponseRoomEventDTO";
-import MatrixSyncResponseStateEventDTO, { isMatrixSyncResponseStateEventDTO } from "./MatrixSyncResponseStateEventDTO";
-import MatrixSyncResponseStrippedStateDTO, { isMatrixSyncResponseStrippedStateDTO } from "./MatrixSyncResponseStrippedStateDTO";
+import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseRoomEventDTO,  isMatrixSyncResponseRoomEventDTO } from "./MatrixSyncResponseRoomEventDTO";
+import { MatrixSyncResponseStateEventDTO,  isMatrixSyncResponseStateEventDTO } from "./MatrixSyncResponseStateEventDTO";
+import { MatrixSyncResponseStrippedStateDTO,  isMatrixSyncResponseStrippedStateDTO } from "./MatrixSyncResponseStrippedStateDTO";
 
 export type MatrixSyncResponseAnyEventDTO = (
     MatrixSyncResponseEventDTO
@@ -30,4 +30,4 @@ export function parseMatrixSyncResponseAnyEventDTO (value: any): MatrixSyncRespo
     return undefined;
 }
 
-export default MatrixSyncResponseAnyEventDTO;
+

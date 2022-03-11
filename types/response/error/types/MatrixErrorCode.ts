@@ -50,4 +50,4 @@ export function parseMatrixErrorCode (value: any): MatrixErrorCode | undefined {
 
 }
 
-export default MatrixErrorCode;
+

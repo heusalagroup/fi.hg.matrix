@@ -8,7 +8,7 @@ import {
     isRegularObject
 } from "../../../../../core/modules/lodash";
 
-import MatrixSyncResponseStateEventDTO, {
+import { MatrixSyncResponseStateEventDTO, 
     explainMatrixSyncResponseStateEventDTO,
     isMatrixSyncResponseStateEventDTO
 } from "./MatrixSyncResponseStateEventDTO";
@@ -70,4 +70,4 @@ export function parseMatrixSyncResponseStateDTO (value: any): MatrixSyncResponse
     return undefined;
 }
 
-export default MatrixSyncResponseStateDTO;
+

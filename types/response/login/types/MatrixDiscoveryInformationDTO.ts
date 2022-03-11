@@ -33,4 +33,4 @@ export function parseMatrixDiscoveryInformationDTO (value: any): MatrixDiscovery
     return undefined;
 }
 
-export default MatrixDiscoveryInformationDTO;
+

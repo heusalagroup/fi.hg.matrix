@@ -53,4 +53,4 @@ export function parseMatrixJoinRule (value: any): MatrixJoinRule | undefined {
 
 }
 
-export default MatrixJoinRule;
+

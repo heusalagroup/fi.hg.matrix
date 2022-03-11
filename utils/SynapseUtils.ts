@@ -1,8 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import crypto from 'crypto';
-import SynapseRegisterRequestDTO from "../types/synapse/SynapseRegisterRequestDTO";
-import MatrixRegisterKind from "../types/request/register/types/MatrixRegisterKind";
+import { crypto } from 'crypto';
+import { SynapseRegisterRequestDTO } from "../types/synapse/SynapseRegisterRequestDTO";
+import { MatrixRegisterKind } from "../types/request/register/types/MatrixRegisterKind";
 
 export class SynapseUtils {
 
@@ -58,4 +58,4 @@ export class SynapseUtils {
 
 }
 
-export default SynapseUtils;
+

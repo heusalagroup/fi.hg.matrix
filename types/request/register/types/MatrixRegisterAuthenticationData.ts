@@ -33,4 +33,4 @@ export function parseMatrixRegisterAuthenticationData (value: any): MatrixRegist
     return undefined;
 }
 
-export default MatrixRegisterAuthenticationData;
+

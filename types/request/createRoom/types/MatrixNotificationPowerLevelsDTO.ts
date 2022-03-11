@@ -29,4 +29,4 @@ export function parseMatrixNotificationPowerLevelsDTO (value: any): MatrixNotifi
     return undefined;
 }
 
-export default MatrixNotificationPowerLevelsDTO;
+

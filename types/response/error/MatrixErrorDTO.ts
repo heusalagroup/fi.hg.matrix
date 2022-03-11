@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixErrorCode, { isMatrixErrorCode } from "./types/MatrixErrorCode";
+import { MatrixErrorCode,  isMatrixErrorCode } from "./types/MatrixErrorCode";
 import {
     hasNoOtherKeys,
     isNumberOrUndefined,
@@ -37,4 +37,4 @@ export function parseMatrixErrorDTO (value: any): MatrixErrorDTO | undefined {
     return undefined;
 }
 
-export default MatrixErrorDTO;
+

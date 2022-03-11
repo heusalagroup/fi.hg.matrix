@@ -37,4 +37,4 @@ export function parseMatrixStateEvent (value: any): MatrixStateEvent | undefined
     return undefined;
 }
 
-export default MatrixStateEvent;
+

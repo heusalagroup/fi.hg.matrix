@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { hasNoOtherKeys, isArrayOf, isRegularObject } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponsePresenceDTO {
     readonly events: MatrixSyncResponseEventDTO[];
@@ -32,4 +32,4 @@ export function parseMatrixSyncResponsePresenceDTO (value: any): MatrixSyncRespo
     return undefined;
 }
 
-export default MatrixSyncResponsePresenceDTO;
+

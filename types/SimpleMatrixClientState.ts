@@ -91,4 +91,4 @@ export function parseSimpleMatrixClientState (value: any): SimpleMatrixClientSta
 
 }
 
-export default SimpleMatrixClientState;
+

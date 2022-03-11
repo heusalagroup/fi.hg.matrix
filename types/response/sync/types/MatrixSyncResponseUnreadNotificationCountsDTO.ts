@@ -32,4 +32,4 @@ export function parseMatrixSyncResponseUnreadNotificationCountsDTO (value: any):
     return undefined;
 }
 
-export default MatrixSyncResponseUnreadNotificationCountsDTO;
+

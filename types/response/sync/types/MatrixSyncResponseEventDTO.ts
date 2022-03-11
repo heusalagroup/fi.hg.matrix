@@ -2,8 +2,8 @@
 
 import { isJsonObject, JsonObject } from "../../../../../core/Json";
 import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
-import MatrixType, { isMatrixType } from "../../../core/MatrixType";
-import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
+import { MatrixType,  isMatrixType } from "../../../core/MatrixType";
+import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 
 export interface MatrixSyncResponseEventDTO {
     readonly content  : JsonObject;
@@ -34,4 +34,4 @@ export function parseMatrixSyncResponseEventDTO (value: any): MatrixSyncResponse
     return undefined;
 }
 
-export default MatrixSyncResponseEventDTO;
+

@@ -5,8 +5,8 @@ import {
     isRegularObjectOf,
     isString
 } from "../../../../../core/modules/lodash";
-import MatrixEventType from "../../../event/MatrixEventType";
-import MatrixType from "../../../core/MatrixType";
+import { MatrixEventType } from "../../../event/MatrixEventType";
+import { MatrixType } from "../../../core/MatrixType";
 
 export type MatrixEventPowerLevelsDTO = {
     [K in MatrixEventType | MatrixType | string ]: number;
@@ -27,4 +27,4 @@ export function parseMatrixEventPowerLevelsDTO (value: any): MatrixEventPowerLev
     return undefined;
 }
 
-export default MatrixEventPowerLevelsDTO;
+

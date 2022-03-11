@@ -33,4 +33,4 @@ export function parseGetDirectoryRoomAliasResponseDTO (value: any): GetDirectory
     return undefined;
 }
 
-export default GetDirectoryRoomAliasResponseDTO;
+

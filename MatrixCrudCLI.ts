@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import { TestCallback } from "../core/modules/lodash";
-import MatrixCrudRepository from "./MatrixCrudRepository";
+import { MatrixCrudRepository } from "./MatrixCrudRepository";
 
 export class MatrixCrudCLI<T> {
 
@@ -14,4 +14,4 @@ export class MatrixCrudCLI<T> {
 
 }
 
-export default MatrixCrudCLI;
+

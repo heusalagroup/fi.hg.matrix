@@ -7,9 +7,9 @@ import {
     isStringOrUndefined,
     isUndefined, keys
 } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { isJsonObjectOrUndefined, JsonObject } from "../../../../../core/Json";
-import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
+import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 
 /**
  *
@@ -113,4 +113,4 @@ export function parseMatrixSyncResponseUnsignedDataDTO (value: any): MatrixSyncR
     return undefined;
 }
 
-export default MatrixSyncResponseUnsignedDataDTO;
+

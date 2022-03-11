@@ -5,4 +5,4 @@ export class MatrixSyncResponseUtils {
 
 }
 
-export default MatrixSyncResponseUtils;
+

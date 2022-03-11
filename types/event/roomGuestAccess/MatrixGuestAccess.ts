@@ -39,4 +39,4 @@ export function parseMatrixGuestAccess (value: any): MatrixGuestAccess | undefin
 
 }
 
-export default MatrixGuestAccess;
+

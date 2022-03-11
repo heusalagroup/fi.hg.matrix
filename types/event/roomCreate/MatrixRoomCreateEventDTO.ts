@@ -6,7 +6,7 @@ import {
     isRegularObject,
     isString, isStringOrUndefined, isUndefined
 } from "../../../../core/modules/lodash";
-import MatrixPreviousRoomDTO, { isMatrixPreviousRoomDTO } from "./types/MatrixPreviousRoomDTO";
+import { MatrixPreviousRoomDTO,  isMatrixPreviousRoomDTO } from "./types/MatrixPreviousRoomDTO";
 
 export interface MatrixRoomCreateEventDTO {
 
@@ -59,4 +59,4 @@ export function parseMatrixCreationContentDTO (value: any): MatrixRoomCreateEven
     return undefined;
 }
 
-export default MatrixRoomCreateEventDTO;
+

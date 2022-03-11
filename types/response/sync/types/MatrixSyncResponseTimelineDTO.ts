@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseRoomEventDTO, {
+import { MatrixSyncResponseRoomEventDTO, 
     explainMatrixSyncResponseRoomEventDTO,
     isMatrixSyncResponseRoomEventDTO
 } from "./MatrixSyncResponseRoomEventDTO";
@@ -86,4 +86,4 @@ export function parseMatrixSyncResponseTimelineDTO (value: any): MatrixSyncRespo
     return undefined;
 }
 
-export default MatrixSyncResponseTimelineDTO;
+

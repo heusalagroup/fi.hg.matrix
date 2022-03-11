@@ -1,21 +1,21 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseRoomSummaryDTO, { isMatrixSyncResponseRoomSummaryDTO } from "./MatrixSyncResponseRoomSummaryDTO";
-import MatrixSyncResponseStateDTO, {
+import { MatrixSyncResponseRoomSummaryDTO,  isMatrixSyncResponseRoomSummaryDTO } from "./MatrixSyncResponseRoomSummaryDTO";
+import { MatrixSyncResponseStateDTO, 
     explainMatrixSyncResponseStateDTO,
     getEventsFromMatrixSyncResponseStateDTO,
     isMatrixSyncResponseStateDTO
 } from "./MatrixSyncResponseStateDTO";
-import MatrixSyncResponseTimelineDTO, {
+import { MatrixSyncResponseTimelineDTO, 
     explainMatrixSyncResponseTimelineDTO,
     getEventsFromMatrixSyncResponseTimelineDTO,
     isMatrixSyncResponseTimelineDTO
 } from "./MatrixSyncResponseTimelineDTO";
-import MatrixSyncResponseEphemeralDTO, {
+import { MatrixSyncResponseEphemeralDTO, 
     getEventsFromMatrixSyncResponseEphemeralDTO,
     isMatrixSyncResponseEphemeralDTO
 } from "./MatrixSyncResponseEphemeralDTO";
-import MatrixSyncResponseAccountDataDTO, {
+import { MatrixSyncResponseAccountDataDTO, 
     getEventsFromMatrixSyncResponseAccountDataDTO,
     isMatrixSyncResponseAccountDataDTO
 } from "./MatrixSyncResponseAccountDataDTO";
@@ -27,8 +27,8 @@ import {
     isRegularObject,
     isUndefined
 } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseEventDTO from "./MatrixSyncResponseEventDTO";
-import MatrixSyncResponseRoomEventDTO from "./MatrixSyncResponseRoomEventDTO";
+import { MatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseRoomEventDTO } from "./MatrixSyncResponseRoomEventDTO";
 
 export interface MatrixSyncResponseJoinedRoomDTO {
     readonly summary                            ?: MatrixSyncResponseRoomSummaryDTO;
@@ -142,4 +142,4 @@ export function parseMatrixSyncResponseJoinedRoomDTO (value: any): MatrixSyncRes
     return undefined;
 }
 
-export default MatrixSyncResponseJoinedRoomDTO;
+

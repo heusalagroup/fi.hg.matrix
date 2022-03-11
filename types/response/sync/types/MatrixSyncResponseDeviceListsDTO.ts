@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixUserId, { isMatrixUserId } from "../../../core/MatrixUserId";
+import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 import {
     hasNoOtherKeys,
     isArrayOf,
@@ -66,4 +66,4 @@ export function parseMatrixSyncResponseDeviceListsDTO (value: any): MatrixSyncRe
     return undefined;
 }
 
-export default MatrixSyncResponseDeviceListsDTO;
+

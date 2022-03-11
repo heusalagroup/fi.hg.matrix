@@ -46,4 +46,4 @@ export function parseMatrixRegisterResponseDTO (value: any): MatrixRegisterRespo
     return undefined;
 }
 
-export default MatrixRegisterResponseDTO;
+

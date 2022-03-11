@@ -25,4 +25,4 @@ export function parseMatrixSyncResponseDeviceOneTimeKeysCountDTO (value: any): M
     return undefined;
 }
 
-export default MatrixSyncResponseDeviceOneTimeKeysCountDTO;
+

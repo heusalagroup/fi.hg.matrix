@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixSyncResponseUnsignedDataDTO, {
+import { MatrixSyncResponseUnsignedDataDTO, 
     isMatrixSyncResponseUnsignedDataDTO
 } from "./MatrixSyncResponseUnsignedDataDTO";
 
@@ -124,4 +124,4 @@ export function parseMatrixSyncResponseStateEventDTO (value: any): MatrixSyncRes
     return undefined;
 }
 
-export default MatrixSyncResponseStateEventDTO;
+

@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixDiscoveryInformationDTO, {
+import { MatrixDiscoveryInformationDTO, 
     isMatrixDiscoveryInformationDTO
 } from "./types/MatrixDiscoveryInformationDTO";
 import {
@@ -49,4 +49,4 @@ export function parseMatrixLoginResponseDTO (value: any): MatrixLoginResponseDTO
     return undefined;
 }
 
-export default MatrixLoginResponseDTO;
+

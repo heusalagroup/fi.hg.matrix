@@ -5,7 +5,7 @@ import {
     isRegularObject, isStringOrUndefined,
     isUndefined
 } from "../../../../core/modules/lodash";
-import MatrixRegisterAuthenticationData, { isMatrixRegisterAuthenticationData } from "./types/MatrixRegisterAuthenticationData";
+import { MatrixRegisterAuthenticationData,  isMatrixRegisterAuthenticationData } from "./types/MatrixRegisterAuthenticationData";
 
 export interface MatrixRegisterDTO {
 
@@ -47,4 +47,4 @@ export function parseMatrixMatrixRegisterDTO (value: any): MatrixRegisterDTO | u
     return undefined;
 }
 
-export default MatrixRegisterDTO;
+

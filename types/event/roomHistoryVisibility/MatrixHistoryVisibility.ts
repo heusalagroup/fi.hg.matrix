@@ -46,4 +46,4 @@ export function parseMatrixHistoryVisibility (value: any): MatrixHistoryVisibili
 
 }
 
-export default MatrixHistoryVisibility;
+

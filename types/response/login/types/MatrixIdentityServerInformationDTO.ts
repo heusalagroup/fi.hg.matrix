@@ -24,4 +24,4 @@ export function parseMatrixIdentityServerInformationDTO (value: any): MatrixIden
     return undefined;
 }
 
-export default MatrixIdentityServerInformationDTO;
+

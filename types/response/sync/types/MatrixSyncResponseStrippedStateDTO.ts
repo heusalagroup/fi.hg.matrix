@@ -6,7 +6,7 @@ import {
     isString,
     isStringOrUndefined, isUndefined, keys
 } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseUnsignedDataDTO, { isMatrixSyncResponseUnsignedDataDTO } from "./MatrixSyncResponseUnsignedDataDTO";
+import { MatrixSyncResponseUnsignedDataDTO,  isMatrixSyncResponseUnsignedDataDTO } from "./MatrixSyncResponseUnsignedDataDTO";
 import { isJsonObject, JsonObject } from "../../../../../core/Json";
 
 export interface MatrixSyncResponseStrippedStateDTO {
@@ -98,4 +98,4 @@ export function parseMatrixSyncResponseStrippedStateDTO (value: any): MatrixSync
     return undefined;
 }
 
-export default MatrixSyncResponseStrippedStateDTO;
+

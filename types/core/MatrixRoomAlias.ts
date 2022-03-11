@@ -21,4 +21,4 @@ export function parseMatrixRoomAlias (value: any): MatrixRoomAlias | undefined {
     return undefined;
 }
 
-export default MatrixRoomAlias;
+

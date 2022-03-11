@@ -37,4 +37,4 @@ export function parseMatrixEventType (value: any): MatrixEventType | undefined {
 
 }
 
-export default MatrixEventType;
+

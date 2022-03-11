@@ -25,4 +25,4 @@ export function parseMatrixPreviousRoomDTO (value: any): MatrixPreviousRoomDTO |
     return undefined;
 }
 
-export default MatrixPreviousRoomDTO;
+

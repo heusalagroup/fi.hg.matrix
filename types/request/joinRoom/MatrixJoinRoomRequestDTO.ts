@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import MatrixJoinRoomThirdPartySignedDTO, { isMatrixJoinRoomThirdPartySignedDTO } from "./types/MatrixJoinRoomThirdPartySignedDTO";
+import { MatrixJoinRoomThirdPartySignedDTO,  isMatrixJoinRoomThirdPartySignedDTO } from "./types/MatrixJoinRoomThirdPartySignedDTO";
 import {
     hasNoOtherKeys,
     isRegularObject,
@@ -32,4 +32,4 @@ export function parseMatrixJoinRoomRequestDTO (value: any): MatrixJoinRoomReques
     return undefined;
 }
 
-export default MatrixJoinRoomRequestDTO;
+

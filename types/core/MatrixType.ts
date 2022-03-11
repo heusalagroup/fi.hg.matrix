@@ -34,4 +34,4 @@ export function isMatrixType (value : any) : value is MatrixType {
     return isString(value);
 }
 
-export default MatrixType;
+

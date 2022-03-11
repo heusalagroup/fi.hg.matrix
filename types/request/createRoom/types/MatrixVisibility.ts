@@ -45,4 +45,4 @@ export function parseMatrixVisibility (value: any): MatrixVisibility | undefined
 
 }
 
-export default MatrixVisibility;
+

@@ -5,9 +5,9 @@ import {
     isIntegerOrUndefined,
     isRegularObject, isUndefined
 } from "../../../../../core/modules/lodash";
-import MatrixEventPowerLevelsDTO, { isMatrixEventPowerLevelsDTO } from "./MatrixEventPowerLevelsDTO";
-import MatrixUserPowerLevelsDTO, { isMatrixUserPowerLevelsDTO } from "./MatrixUserPowerLevelsDTO";
-import MatrixNotificationPowerLevelsDTO, { isMatrixNotificationPowerLevelsDTO } from "./MatrixNotificationPowerLevelsDTO";
+import { MatrixEventPowerLevelsDTO,  isMatrixEventPowerLevelsDTO } from "./MatrixEventPowerLevelsDTO";
+import { MatrixUserPowerLevelsDTO,  isMatrixUserPowerLevelsDTO } from "./MatrixUserPowerLevelsDTO";
+import { MatrixNotificationPowerLevelsDTO,  isMatrixNotificationPowerLevelsDTO } from "./MatrixNotificationPowerLevelsDTO";
 
 export interface MatrixRoomPowerLevelsEventDTO {
 
@@ -61,4 +61,4 @@ export function parseMatrixPowerLevelEventContentDTO (value: any): MatrixRoomPow
     return undefined;
 }
 
-export default MatrixRoomPowerLevelsEventDTO;
+

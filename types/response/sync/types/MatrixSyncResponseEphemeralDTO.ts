@@ -6,7 +6,7 @@ import {
     isArrayOf,
     isRegularObject
 } from "../../../../../core/modules/lodash";
-import MatrixSyncResponseEventDTO, { isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
+import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponseEphemeralDTO {
     readonly events : MatrixSyncResponseEventDTO[];
@@ -37,4 +37,4 @@ export function parseMatrixSyncResponseEphemeralDTO (value: any): MatrixSyncResp
     return undefined;
 }
 
-export default MatrixSyncResponseEphemeralDTO;
+
