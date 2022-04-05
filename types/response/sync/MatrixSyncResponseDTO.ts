@@ -3,6 +3,7 @@
 import {
     concat,
     hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isUndefined, keys
@@ -64,13 +65,14 @@ export function getEventsFromMatrixSyncResponseDTO (
 export function isMatrixSyncResponseDTO (value: any): value is MatrixSyncResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'next_batch',
             'rooms',
             'presence',
             'account_data',
             'to_device',
             'device_lists',
+            'device_unused_fallback_key_types',
             'device_one_time_keys_count',
             'org.matrix.msc2732.device_unused_fallback_key_types'
         ])
@@ -94,7 +96,7 @@ export function assertMatrixSyncResponseDTO (value: any): void {
         throw new TypeError(`value not RegularObject`);
     }
 
-    if ( !hasNoOtherKeys(value, [
+    if ( !hasNoOtherKeysInDevelopment(value, [
         'next_batch',
         'rooms',
         'presence',
@@ -102,6 +104,7 @@ export function assertMatrixSyncResponseDTO (value: any): void {
         'to_device',
         'device_lists',
         'device_one_time_keys_count',
+        'device_unused_fallback_key_types',
         'org.matrix.msc2732.device_unused_fallback_key_types'
     ]) ) {
         throw new TypeError(`value has additional keys: ${keys(value)}`);
