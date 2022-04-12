@@ -10,8 +10,6 @@ minified single file.
 Our compiled version takes space about 50kB. That's *including* all dependencies except standard 
 library. It runs on the browser as well as on the NodeJS LTS v8 and up.
 
-### It's MIT licenced
-
 ### It doesn't have many runtime dependencies
 
 This library expects [@heusalagroup/fi.hg.core](https://github.com/heusalagroup/fi.hg.core) to be located 
@@ -56,3 +54,7 @@ Some of our code may use reflect metadata. It's optional otherwise.
 ```
 npm install --save-dev reflect-metadata
 ```
+
+### License
+
+Copyright (c) Heusala Group. All rights reserved. Licensed under the MIT License (the "[License](./LICENSE)");
