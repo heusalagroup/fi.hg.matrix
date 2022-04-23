@@ -4,6 +4,7 @@ import { isString } from "../../../core/modules/lodash";
 
 export enum MatrixType {
 
+    M_ROOM_MESSAGE              = 'm.room.message',
     M_ROOM_POWER_LEVELS         = "m.room.power_levels",
     M_ROOM_JOIN_RULES           = "m.room.join_rules",
     M_ROOM_MEMBERSHIP           = "m.room.membership",

@@ -4,9 +4,7 @@ import {
     concat,
     forEach,
     isString,
-    join,
-    keys,
-    map
+    keys
 } from "../core/modules/lodash";
 import { Observer,  ObserverCallback, ObserverDestructor } from "../core/Observer";
 import { RequestClient } from "../core/RequestClient";
@@ -54,13 +52,30 @@ import { SynapseRegisterResponseDTO,  isSynapseRegisterResponseDTO } from "./typ
 import { SynapseRegisterRequestDTO } from "./types/synapse/SynapseRegisterRequestDTO";
 import { VoidCallback } from "../core/interfaces/callbacks";
 import { LogLevel } from "../core/types/LogLevel";
+import {
+    MATRIX_AUTHORIZATION_HEADER_NAME,
+    MATRIX_CREATE_ROOM_URL,
+    MATRIX_JOIN_ROOM_URL,
+    MATRIX_JOINED_MEMBERS_URL,
+    MATRIX_LOGIN_URL,
+    MATRIX_REGISTER_URL,
+    MATRIX_ROOM_DIRECTORY_URL,
+    MATRIX_ROOM_EVENT_STATE_FETCH_URL,
+    MATRIX_ROOM_EVENT_STATE_UPDATE_URL,
+    MATRIX_ROOM_FORGET_URL,
+    MATRIX_ROOM_INVITE_URL,
+    MATRIX_ROOM_LEAVE_URL,
+    MATRIX_ROOM_TRIGGER_EVENT_URL,
+    MATRIX_SYNC_URL,
+    MATRIX_WHOAMI_URL, MatrixSyncQueryParams,
+    SYNAPSE_REGISTER_URL
+} from "./constants/matrix-routes";
+import { AuthorizationUtils } from "../core/AuthorizationUtils";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
 export enum SimpleMatrixClientEvent {
-
     EVENT = "SimpleMatrixClient:event"
-
 }
 
 export type SimpleMatrixClientDestructor = ObserverDestructor;
@@ -136,7 +151,7 @@ export class SimpleMatrixClient {
         this._stopSyncOnNext                = false;
         this._state                         = accessToken ? SimpleMatrixClientState.AUTHENTICATED : SimpleMatrixClientState.UNAUTHENTICATED;
         this._originalUrl                   = url;
-        this._homeServerUrl                 = homeServerUrl ?? url;
+        this._homeServerUrl                 = SimpleMatrixClient._normalizeUrl( homeServerUrl ?? url );
         this._identityServerUrl             = identityServerUrl ?? url;
         this._nextSyncBatch                 = undefined;
         this._accessToken                   = accessToken;
@@ -305,7 +320,7 @@ export class SimpleMatrixClient {
             const access_token : string | undefined = this?._accessToken ?? accessToken ?? undefined;
 
             const response : any = await this._postJson(
-                this._resolveHomeServerUrl(`/register`) + (kind ? `?kind=${q(kind)}`: ''),
+                this._homeServerUrl + MATRIX_REGISTER_URL(kind),
                 requestBody as unknown as JsonAny,
                 access_token ? {
                     'Authorization': `Bearer ${access_token}`
@@ -381,7 +396,7 @@ export class SimpleMatrixClient {
                 throw new TypeError(`whoami: Client did not have access token`);
             }
 
-            const url = this._resolveHomeServerUrl(`/account/whoami`);
+            const url = this._homeServerUrl + MATRIX_WHOAMI_URL;
             LOG.debug(`whoami: Fetching account whoami... `, url);
 
             const response : any = await this._getJson(url,
@@ -411,9 +426,7 @@ export class SimpleMatrixClient {
 
             LOG.debug(`Fetching nonce for registration...`);
 
-            const url : string  = this._resolveSynapseServerUrl(`/register`);
-
-            const nonceResponse : any = await this._getJson(url);
+            const nonceResponse : any = await this._getJson(this._homeServerUrl + SYNAPSE_REGISTER_URL);
 
             const nonce = nonceResponse?.nonce ?? undefined;
             if (!nonce) throw new TypeError(`No nonce detected`);
@@ -447,10 +460,8 @@ export class SimpleMatrixClient {
 
             LOG.debug(`registerWithSharedSecret: Registering user:`, requestBody);
 
-            const url : string  = this._resolveSynapseServerUrl(`/register`);
-
             const response : any = await this._postJson(
-                url,
+                this._homeServerUrl + SYNAPSE_REGISTER_URL,
                 requestBody as unknown as JsonAny
             );
 
@@ -541,7 +552,7 @@ export class SimpleMatrixClient {
             LOG.debug(`Sending login with userId:`, userId);
 
             const response : any = await this._postJson(
-                this._resolveHomeServerUrl(`/login`),
+                this._homeServerUrl + MATRIX_LOGIN_URL,
                 requestBody as unknown as JsonAny
             );
 
@@ -654,7 +665,7 @@ export class SimpleMatrixClient {
             const roomName : string = this._normalizeRoomName(name);
 
             const response : any = await this._getJson(
-                this._resolveHomeServerUrl(`/directory/room/${q(roomName)}`)
+                this._homeServerUrl + MATRIX_ROOM_DIRECTORY_URL(roomName)
             );
 
             if (!isGetDirectoryRoomAliasResponseDTO(response)) {
@@ -690,9 +701,9 @@ export class SimpleMatrixClient {
         }
 
         const response : any = await this._getJson(
-            this._resolveHomeServerUrl(`/rooms/${q(roomId)}/joined_members`),
+            this._homeServerUrl + MATRIX_JOINED_MEMBERS_URL(roomId),
             {
-                'Authorization': `Bearer ${accessToken}`
+                [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
             }
         );
 
@@ -728,9 +739,9 @@ export class SimpleMatrixClient {
             }
 
             const response : any = await this._getJson(
-                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/state/${q(eventType)}/${q(stateKey)}`),
+                this._homeServerUrl + MATRIX_ROOM_EVENT_STATE_FETCH_URL(roomId, eventType, stateKey),
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
 
@@ -778,10 +789,10 @@ export class SimpleMatrixClient {
             }
 
             const response : JsonAny | undefined = await this._putJson(
-                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/state/${q(eventType)}/${q(stateKey)}`),
+                this._homeServerUrl + MATRIX_ROOM_EVENT_STATE_UPDATE_URL(roomId, eventType, stateKey),
                 body,
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
 
@@ -821,10 +832,10 @@ export class SimpleMatrixClient {
             }
 
             const response : JsonAny | undefined = await this._postJson(
-                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/forget`),
+                this._homeServerUrl + MATRIX_ROOM_FORGET_URL(roomId),
                 {},
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
 
@@ -854,10 +865,10 @@ export class SimpleMatrixClient {
             }
 
             const response : JsonAny | undefined = await this._postJson(
-                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/leave`),
+                this._homeServerUrl + MATRIX_ROOM_LEAVE_URL(roomId),
                 {},
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
 
@@ -899,12 +910,12 @@ export class SimpleMatrixClient {
             }
 
             const response : JsonAny | undefined = await this._postJson(
-                this._resolveHomeServerUrl(`/rooms/${q(roomId)}/invite`),
+                this._homeServerUrl + MATRIX_ROOM_INVITE_URL(roomId),
                 {
                     user_id: userId
                 },
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
 
@@ -941,10 +952,10 @@ export class SimpleMatrixClient {
         LOG.debug(`Sending message with body:`, requestBody);
 
         const response : Json | undefined = await this._postJson(
-            this._resolveHomeServerUrl(`/rooms/${q(roomId)}/send/m.room.message`),
+            this._homeServerUrl + MATRIX_ROOM_TRIGGER_EVENT_URL(roomId, MatrixType.M_ROOM_MESSAGE),
             requestBody as unknown as JsonAny,
             {
-                'Authorization': `Bearer ${accessToken}`
+                [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
             }
         );
 
@@ -969,10 +980,10 @@ export class SimpleMatrixClient {
         LOG.debug(`Creating room with body:`, body);
 
         const response : MatrixCreateRoomResponseDTO | any = await this._postJson(
-            this._resolveHomeServerUrl( `/createRoom` ),
+            this._homeServerUrl + MATRIX_CREATE_ROOM_URL,
             body as unknown as JsonAny,
             {
-                'Authorization': `Bearer ${accessToken}`
+                [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
             }
         );
 
@@ -1008,10 +1019,10 @@ export class SimpleMatrixClient {
             LOG.debug(`joinRoom: Joining to room "${roomId}" with body:`, body);
 
             const response : MatrixCreateRoomResponseDTO | any = await this._postJson(
-                this._resolveHomeServerUrl( `/rooms/${q(roomId)}/join` ),
+                this._homeServerUrl + MATRIX_JOIN_ROOM_URL( roomId ),
                 (body ?? {}) as unknown as JsonAny,
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
 
@@ -1076,13 +1087,7 @@ export class SimpleMatrixClient {
             timeout
         } = options;
 
-        const queryParams : {
-            filter       ?: string,
-            since        ?: string,
-            full_state   ?: string,
-            set_presence ?: string,
-            timeout      ?: string
-        } = {};
+        const queryParams : MatrixSyncQueryParams = {};
 
         if (filter !== undefined) {
             if ( isString(filter) ) {
@@ -1110,22 +1115,10 @@ export class SimpleMatrixClient {
             queryParams.timeout = `${timeout}`;
         }
 
-        const queryString = join(
-            map(
-                keys(queryParams),
-                (key : string) : string => {
-                    // @ts-ignore
-                    const value : string = queryParams[key];
-                    return `${q(key)}=${q(value)}`;
-                }
-            ),
-            '&'
-        );
-
         const response : any = await this._getJson(
-            this._resolveHomeServerUrl(`/sync?${queryString}`),
+            `${this._homeServerUrl}${MATRIX_SYNC_URL(queryParams)}`,
             {
-                'Authorization': `Bearer ${accessToken}`
+                [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
             }
         );
 
@@ -1401,20 +1394,13 @@ export class SimpleMatrixClient {
 
     }
 
-    private _resolveHomeServerUrl (path : string) : string {
-        const homeUrl = this._homeServerUrl;
-        const p1 = homeUrl[homeUrl.length-1] === '/' ? '' : '/';
-        const p2 = path[0] === '/' ? '' : '/';
-        return `${homeUrl}${p1}_matrix/client/r0${p2}${path}`;
+    private static _normalizeUrl (url : string) {
+        if ( url && url[url.length-1] === '/' ) {
+            return url.substring(0, url.length-1);
+        } else {
+            return url;
+        }
     }
-
-    private _resolveSynapseServerUrl (path : string) : string {
-        const homeUrl = this._homeServerUrl;
-        const p1 = homeUrl[homeUrl.length-1] === '/' ? '' : '/';
-        const p2 = path[0] === '/' ? '' : '/';
-        return `${homeUrl}${p1}_synapse/admin/v1${p2}${path}`;
-    }
-
 
     // ***************** Methods related to event listening and syncing below ***************** //
 
@@ -1841,10 +1827,4 @@ export class SimpleMatrixClient {
     }
 
 }
-
-function q (value: string) : string {
-    return encodeURIComponent(value);
-}
-
-
 
