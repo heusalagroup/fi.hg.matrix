@@ -1,20 +1,19 @@
+// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
     isInteger,
-    isRegularObjectOf,
-    isString
+    isRegularObjectOf
 } from "../../../../../core/modules/lodash";
-import { MatrixEventType } from "../../../event/MatrixEventType";
-import { MatrixType } from "../../../core/MatrixType";
+import { isMatrixType, MatrixType } from "../../../core/MatrixType";
 
 export type MatrixEventPowerLevelsDTO = {
-    [K in MatrixEventType | MatrixType | string ]: number;
+    [K in MatrixType | string ]: number;
 }
 
 export function isMatrixEventPowerLevelsDTO (value: any): value is MatrixEventPowerLevelsDTO {
     return (
-        isRegularObjectOf<MatrixEventType, number>(value, isString, isInteger)
+        isRegularObjectOf<MatrixType, number>(value, isMatrixType, isInteger)
     );
 }
 

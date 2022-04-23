@@ -7,12 +7,13 @@ import {
     isString, isStringOrUndefined, isUndefined
 } from "../../../../core/modules/lodash";
 import { MatrixPreviousRoomDTO,  isMatrixPreviousRoomDTO } from "./types/MatrixPreviousRoomDTO";
+import { MatrixType } from "../../core/MatrixType";
 
 export interface MatrixRoomCreateEventDTO {
 
     type           ?: string;
     creator         : string;
-    'm.federate'   ?: boolean;
+    [MatrixType.M_FEDERATE]   ?: boolean;
     room_version   ?: string;
     predecessor    ?: MatrixPreviousRoomDTO;
 
@@ -23,12 +24,12 @@ export function isMatrixCreationContentDTO (value: any): value is MatrixRoomCrea
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'creator',
-            'm.federate',
+            MatrixType.M_FEDERATE,
             'room_version',
             'predecessor'
         ])
         && isString(value?.creator)
-        && isBooleanOrUndefined(value['m.federate'])
+        && isBooleanOrUndefined(value[MatrixType.M_FEDERATE])
         && isStringOrUndefined(value?.room_version)
         && ( isUndefined(value?.predecessor) || isMatrixPreviousRoomDTO(value?.predecessor) )
     );
@@ -39,12 +40,12 @@ export function isPartialMatrixCreationContentDTO (value: any): value is Partial
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'creator',
-            'm.federate',
+            MatrixType.M_FEDERATE,
             'room_version',
             'predecessor'
         ])
         && isStringOrUndefined(value?.creator)
-        && isBooleanOrUndefined(value['m.federate'])
+        && isBooleanOrUndefined(value[MatrixType.M_FEDERATE])
         && isStringOrUndefined(value?.room_version)
         && ( isUndefined(value?.predecessor) || isMatrixPreviousRoomDTO(value?.predecessor) )
     );

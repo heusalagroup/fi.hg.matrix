@@ -570,14 +570,14 @@ export class SimpleMatrixClient {
 
             if (response?.well_known) {
 
-                const responseHomeServerUrl = response.well_known['m.homeserver']?.base_url;
+                const responseHomeServerUrl = response.well_known[MatrixType.M_HOMESERVER]?.base_url;
                 if (responseHomeServerUrl) {
                     homeServerUrl = responseHomeServerUrl;
                 } else {
                     homeServerUrl = originalUrl;
                 }
 
-                const responseIdentityServerUrl = response.well_known['m.identity_server']?.base_url;
+                const responseIdentityServerUrl = response.well_known[MatrixType.M_IDENTITY_SERVER]?.base_url;
                 if (responseIdentityServerUrl) {
                     identityServerUrl = responseIdentityServerUrl;
                 } else {
@@ -946,7 +946,7 @@ export class SimpleMatrixClient {
         }
 
         const requestBody : MatrixTextMessageDTO = {
-            msgtype: 'm.text',
+            msgtype: MatrixType.M_TEXT,
             body: body
         };
 

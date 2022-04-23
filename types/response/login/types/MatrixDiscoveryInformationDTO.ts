@@ -6,20 +6,21 @@ import {
     MatrixIdentityServerInformationDTO
 } from "./MatrixIdentityServerInformationDTO";
 import { isMatrixHomeServerDTO, MatrixHomeServerDTO } from "./MatrixHomeServerDTO";
+import { MatrixType } from "../../../core/MatrixType";
 
 export interface MatrixDiscoveryInformationDTO {
 
-    readonly "m.homeserver": MatrixHomeServerDTO;
-    readonly "m.identity_server": MatrixIdentityServerInformationDTO;
+    readonly [MatrixType.M_HOMESERVER]: MatrixHomeServerDTO;
+    readonly [MatrixType.M_IDENTITY_SERVER]: MatrixIdentityServerInformationDTO;
 
 }
 
 export function isMatrixDiscoveryInformationDTO (value: any): value is MatrixDiscoveryInformationDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ["m.homeserver", "m.identity_server"])
-        && isMatrixHomeServerDTO(value["m.homeserver"])
-        && ( isUndefined(value["m.identity_server"]) || isMatrixIdentityServerInformationDTO(value["m.identity_server"]) )
+        && hasNoOtherKeys(value, [MatrixType.M_HOMESERVER, MatrixType.M_IDENTITY_SERVER])
+        && isMatrixHomeServerDTO(value[MatrixType.M_HOMESERVER])
+        && ( isUndefined(value[MatrixType.M_IDENTITY_SERVER]) || isMatrixIdentityServerInformationDTO(value[MatrixType.M_IDENTITY_SERVER]) )
     );
 }
 
