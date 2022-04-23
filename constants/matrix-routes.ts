@@ -26,7 +26,7 @@ export const MATRIX_ROOM_EVENT_STATE_UPDATE_URL  = (roomId : string, eventType :
 export const MATRIX_ROOM_FORGET_URL              = (roomId : string) => `/_matrix/client/r0/rooms/${q(roomId)}/forget`;
 export const MATRIX_ROOM_LEAVE_URL               = (roomId : string) => `/_matrix/client/r0/rooms/${q(roomId)}/leave`;
 export const MATRIX_ROOM_INVITE_URL              = (roomId : string) => `/_matrix/client/r0/rooms/${q(roomId)}/invite`;
-export const MATRIX_ROOM_TRIGGER_EVENT_URL       = (roomId : string, eventName: MatrixType) => `/_matrix/client/r0/rooms/${q(roomId)}/send/${q(eventName)}`;
+export const MATRIX_ROOM_SEND_EVENT_URL          = (roomId : string, eventName: MatrixType) => `/_matrix/client/r0/rooms/${q(roomId)}/send/${q(eventName)}`;
 export const MATRIX_CREATE_ROOM_URL              = `/_matrix/client/r0/createRoom`;
 export const MATRIX_JOIN_ROOM_URL                = (roomId : string) => `/_matrix/client/r0/rooms/${q(roomId)}/join`;
 export const MATRIX_SYNC_URL                     = (queryParams: MatrixSyncQueryParams) => `/_matrix/client/r0/sync?${qParams(queryParams)}`;

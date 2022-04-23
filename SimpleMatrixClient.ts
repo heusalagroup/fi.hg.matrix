@@ -65,9 +65,10 @@ import {
     MATRIX_ROOM_FORGET_URL,
     MATRIX_ROOM_INVITE_URL,
     MATRIX_ROOM_LEAVE_URL,
-    MATRIX_ROOM_TRIGGER_EVENT_URL,
+    MATRIX_ROOM_SEND_EVENT_URL,
     MATRIX_SYNC_URL,
-    MATRIX_WHOAMI_URL, MatrixSyncQueryParams,
+    MATRIX_WHOAMI_URL,
+    MatrixSyncQueryParams,
     SYNAPSE_REGISTER_URL
 } from "./constants/matrix-routes";
 import { AuthorizationUtils } from "../core/AuthorizationUtils";
@@ -396,10 +397,10 @@ export class SimpleMatrixClient {
                 throw new TypeError(`whoami: Client did not have access token`);
             }
 
-            const url = this._homeServerUrl + MATRIX_WHOAMI_URL;
-            LOG.debug(`whoami: Fetching account whoami... `, url);
+            LOG.debug(`whoami: Fetching account whoami... `);
 
-            const response : any = await this._getJson(url,
+            const response : any = await this._getJson(
+                this._homeServerUrl + MATRIX_WHOAMI_URL,
                 {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -952,7 +953,7 @@ export class SimpleMatrixClient {
         LOG.debug(`Sending message with body:`, requestBody);
 
         const response : Json | undefined = await this._postJson(
-            this._homeServerUrl + MATRIX_ROOM_TRIGGER_EVENT_URL(roomId, MatrixType.M_ROOM_MESSAGE),
+            this._homeServerUrl + MATRIX_ROOM_SEND_EVENT_URL(roomId, MatrixType.M_ROOM_MESSAGE),
             requestBody as unknown as JsonAny,
             {
                 [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
