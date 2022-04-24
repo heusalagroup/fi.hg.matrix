@@ -8,6 +8,14 @@ export interface MatrixRoomJoinedMembersDTO {
     readonly joined: {[P in MatrixUserId]: MatrixRoomJoinedMembersRoomMemberDTO}
 }
 
+export function createMatrixRoomJoinedMembersDTO (
+    joined: {[P in MatrixUserId]: MatrixRoomJoinedMembersRoomMemberDTO}
+) : MatrixRoomJoinedMembersDTO{
+    return {
+        joined
+    };
+}
+
 export function isMatrixRoomJoinedMembersDTO (value: any): value is MatrixRoomJoinedMembersDTO {
     return (
         isRegularObject(value)

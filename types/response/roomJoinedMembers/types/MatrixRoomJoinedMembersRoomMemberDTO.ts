@@ -12,6 +12,16 @@ export interface MatrixRoomJoinedMembersRoomMemberDTO {
     readonly avatar_url   : string | null;
 }
 
+export function createMatrixRoomJoinedMembersRoomMemberDTO (
+    display_name : string,
+    avatar_url : string | null
+) : MatrixRoomJoinedMembersRoomMemberDTO {
+    return {
+        display_name,
+        avatar_url
+    };
+}
+
 export function isMatrixRoomJoinedMembersRoomMemberDTO (value: any): value is MatrixRoomJoinedMembersRoomMemberDTO {
     return (
         isRegularObject(value)
