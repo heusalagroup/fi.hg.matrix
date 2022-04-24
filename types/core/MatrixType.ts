@@ -60,7 +60,10 @@ export enum MatrixType {
      *
      * This may be written in wrong syntax
      *
+     * You should probably use RoomMembershipType.M_ROOM_MEMBERSHIP
+     *
      * @see https://github.com/heusalagroup/hghs/issues/20
+     * @deprecated
      */
     M_ROOM_MEMBERSHIP           = 'm.room.membership',
 

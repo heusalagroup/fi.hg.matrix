@@ -50,6 +50,10 @@ import { createRoomGuestAccessContentDTO } from "./types/event/roomGuestAccess/R
 import { MatrixStateEventOf } from "./types/core/MatrixStateEventOf";
 import { createRoomHistoryVisibilityStateEventDTO } from "./types/event/roomHistoryVisibility/RoomHistoryVisibilityStateEventDTO";
 import { createRoomHistoryVisibilityStateContentDTO } from "./types/event/roomHistoryVisibility/RoomHistoryVisibilityStateContentDTO";
+import { createRoomJoinRulesAllowConditionDTO, RoomJoinRulesAllowConditionDTO } from "./types/event/roomJoinRules/RoomJoinRulesAllowConditionDTO";
+import { RoomMembershipType } from "./types/event/roomJoinRules/RoomMembershipType";
+import { createRoomJoinRulesStateContentDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateContentDTO";
+import { createRoomJoinRulesStateEventDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateEventDTO";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -378,17 +382,17 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         // Allow members from these groups to access the item.
         // See also https://github.com/matrix-org/matrix-doc/blob/master/proposals/3083-restricted-rooms.md
         if (allowedGroups !== undefined) {
-            initialState.push({
-                type: MatrixType.M_ROOM_JOIN_RULES,
-                state_key: "",
-                content: {
-                    join_rule: MatrixJoinRule.RESTRICTED,
-                    allow: map(allowedGroups, (item : MatrixRoomId) => ({
-                        type: MatrixType.M_ROOM_MEMBERSHIP,
-                        room_id: item
-                    }))
-                }
-            });
+            initialState.push(
+                createRoomJoinRulesStateEventDTO(
+                    createRoomJoinRulesStateContentDTO(
+                        MatrixJoinRule.RESTRICTED,
+                        map(
+                            allowedGroups,
+                            (item : MatrixRoomId) : RoomJoinRulesAllowConditionDTO => createRoomJoinRulesAllowConditionDTO(RoomMembershipType.M_ROOM_MEMBERSHIP, item)
+                        )
+                    )
+                )
+            );
         }
 
         LOG.debug(`createItem: initialState = `, initialState);
