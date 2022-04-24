@@ -7,6 +7,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/17
      */
     M_TEXT                      = 'm.text',
 

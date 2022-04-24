@@ -3,6 +3,9 @@
 import { hasNoOtherKeys, isRegularObject, isString } from "../../../../core/modules/lodash";
 import { isMatrixType, MatrixType } from "../../core/MatrixType";
 
+/**
+ * @see https://github.com/heusalagroup/hghs/issues/17
+ */
 export interface MatrixTextMessageDTO {
     readonly msgtype : MatrixType;
     readonly body    : string;
