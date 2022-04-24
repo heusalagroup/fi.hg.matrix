@@ -6,6 +6,14 @@ export interface PutRoomStateWithEventTypeDTO {
     readonly event_id: string;
 }
 
+export function createPutRoomStateWithEventTypeDTO (
+    event_id: string
+) : PutRoomStateWithEventTypeDTO {
+    return {
+        event_id
+    };
+}
+
 export function isPutRoomStateWithEventTypeDTO (value: any): value is PutRoomStateWithEventTypeDTO {
     return (
         isRegularObject(value)

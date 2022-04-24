@@ -75,6 +75,7 @@ import { AuthorizationUtils } from "../core/AuthorizationUtils";
 import { isMatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIResponseDTO";
 import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIdentifierDTO";
 import { GetRoomStateByTypeResponseDTO, isGetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
+import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -784,9 +785,8 @@ export class SimpleMatrixClient {
         roomId    : string,
         eventType : string,
         stateKey  : string,
-        body      : JsonObject,
+        body      : SetRoomStateByTypeRequestDTO,
     ) : Promise<PutRoomStateWithEventTypeDTO> {
-
         try {
 
             const accessToken : string | undefined = this._accessToken;
@@ -796,7 +796,7 @@ export class SimpleMatrixClient {
 
             const response : JsonAny | undefined = await this._putJson(
                 this._homeServerUrl + MATRIX_ROOM_EVENT_STATE_UPDATE_URL(roomId, eventType, stateKey),
-                body,
+                body as unknown as JsonObject,
                 {
                     [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
