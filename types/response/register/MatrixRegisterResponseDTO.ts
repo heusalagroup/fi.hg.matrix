@@ -21,6 +21,20 @@ export interface MatrixRegisterResponseDTO {
 
 }
 
+export function createMatrixRegisterResponseDTO (
+    user_id        : string,
+    access_token  ?: string,
+    home_server   ?: string,
+    device_id     ?: string,
+) : MatrixRegisterResponseDTO {
+    return {
+        user_id,
+        access_token,
+        home_server,
+        device_id
+    };
+}
+
 export function isMatrixRegisterResponseDTO (value: any): value is MatrixRegisterResponseDTO {
     return (
         isRegularObject(value)

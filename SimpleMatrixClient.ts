@@ -44,7 +44,7 @@ import {
 import { PutRoomStateWithEventTypeDTO,  isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
 import { MatrixRoomJoinedMembersDTO,  isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import { MatrixRegisterKind } from "./types/request/register/types/MatrixRegisterKind";
-import { MatrixRegisterDTO } from "./types/request/register/MatrixRegisterDTO";
+import { MatrixRegisterRequestDTO } from "./types/request/register/MatrixRegisterRequestDTO";
 import { MatrixRegisterResponseDTO,  isMatrixRegisterResponseDTO } from "./types/response/register/MatrixRegisterResponseDTO";
 import { isMatrixErrorDTO } from "./types/response/error/MatrixErrorDTO";
 import { MatrixErrorCode } from "./types/response/error/types/MatrixErrorCode";
@@ -311,7 +311,7 @@ export class SimpleMatrixClient {
     }
 
     public async register (
-        requestBody  : MatrixRegisterDTO,
+        requestBody  : MatrixRegisterRequestDTO,
         kind         : MatrixRegisterKind | undefined = undefined,
         accessToken ?: string
     ) : Promise<MatrixRegisterResponseDTO> {
