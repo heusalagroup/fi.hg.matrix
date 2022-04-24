@@ -12,7 +12,7 @@ import { LogService } from "../core/LogService";
 import { JsonAny } from "../core/Json";
 import { JsonAny as Json, isJsonObject, JsonObject } from "../core/Json";
 import { MatrixPasswordLoginDTO } from "./types/request/passwordLogin/MatrixPasswordLoginDTO";
-import { MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
+import { createMatrixTextMessageDTO, MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
 import { MatrixType } from "./types/core/MatrixType";
 import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResponseDTO";
 import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
@@ -945,11 +945,7 @@ export class SimpleMatrixClient {
             throw new TypeError(`sendTextMessage: Client did not have access token`);
         }
 
-        const requestBody : MatrixTextMessageDTO = {
-            msgtype: MatrixType.M_TEXT,
-            body: body
-        };
-
+        const requestBody : MatrixTextMessageDTO = createMatrixTextMessageDTO(body);
         LOG.debug(`Sending message with body:`, requestBody);
 
         const response : Json | undefined = await this._postJson(
