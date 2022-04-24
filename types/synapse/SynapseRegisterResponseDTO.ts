@@ -13,6 +13,20 @@ export interface SynapseRegisterResponseDTO {
     readonly device_id    : string;
 }
 
+export function createSynapseRegisterResponseDTO (
+    access_token : string,
+    user_id      : string,
+    home_server  : string,
+    device_id    : string,
+) : SynapseRegisterResponseDTO {
+    return {
+        access_token,
+        user_id,
+        home_server,
+        device_id
+    };
+}
+
 export function isSynapseRegisterResponseDTO (value: any): value is SynapseRegisterResponseDTO {
     return (
         isRegularObject(value)
