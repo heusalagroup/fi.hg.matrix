@@ -74,6 +74,7 @@ import {
 import { AuthorizationUtils } from "../core/AuthorizationUtils";
 import { isMatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIResponseDTO";
 import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIdentifierDTO";
+import { GetRoomStateByTypeResponseDTO, isGetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -702,7 +703,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`getRoomStateByType: Client did not have access token`);
+            throw new TypeError(`getJoinedMembers: Client did not have access token`);
         }
 
         const response : any = await this._getJson(
@@ -734,7 +735,7 @@ export class SimpleMatrixClient {
         roomId    : string,
         eventType : string,
         stateKey  : string
-    ) : Promise<JsonObject | undefined> {
+    ) : Promise<GetRoomStateByTypeResponseDTO | undefined> {
 
         try {
 
@@ -750,9 +751,9 @@ export class SimpleMatrixClient {
                 }
             );
 
-            if (!isJsonObject(response)) {
-                LOG.debug(`getRoomStateByType: response was not JsonObject: `, response);
-                throw new TypeError(`Response was not JsonObject: ${JSON.stringify(response)}`);
+            if (!isGetRoomStateByTypeResponseDTO(response)) {
+                LOG.debug(`getRoomStateByType: response was not GetRoomStateByTypeResponseDTO: `, response);
+                throw new TypeError(`Response was not GetRoomStateByTypeResponseDTO: ${JSON.stringify(response)}`);
             }
 
             LOG.debug(`getRoomStateByType: received: `, response);
