@@ -116,7 +116,9 @@ export enum MatrixType {
     M_SPACE                     = 'm.space',
 
     /**
-     * Part of the login end point. See MatrixPasswordLoginDTO.
+     * Use `MatrixLoginType.M_LOGIN_PASSWORD` instead.
+     *
+     * @deprecated
      */
     M_LOGIN_PASSWORD            = 'm.login.password',
 
