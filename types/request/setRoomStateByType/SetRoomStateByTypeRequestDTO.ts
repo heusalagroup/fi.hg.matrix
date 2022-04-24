@@ -9,9 +9,9 @@ export interface SetRoomStateByTypeRequestDTO {
 }
 
 export function createSetRoomStateByTypeRequestDTO (
-    avatar_url,
-    displayname,
-    membership
+    avatar_url : string,
+    displayname : string,
+    membership : string
 ): SetRoomStateByTypeRequestDTO {
     return {
         avatar_url,
