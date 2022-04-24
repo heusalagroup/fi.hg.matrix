@@ -72,6 +72,7 @@ import {
     SYNAPSE_REGISTER_URL
 } from "./constants/matrix-routes";
 import { AuthorizationUtils } from "../core/AuthorizationUtils";
+import { isMatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIResponseDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -390,12 +391,12 @@ export class SimpleMatrixClient {
 
     public async whoami () : Promise<string | undefined> {
 
-        try {
+        const accessToken : string | undefined = this._accessToken;
+        if (!accessToken) {
+            throw new TypeError(`whoami: Client did not have access token`);
+        }
 
-            const accessToken : string | undefined = this._accessToken;
-            if (!accessToken) {
-                throw new TypeError(`whoami: Client did not have access token`);
-            }
+        try {
 
             LOG.debug(`whoami: Fetching account whoami... `);
 
@@ -406,6 +407,12 @@ export class SimpleMatrixClient {
                 }
             );
             LOG.debug(`whoami: response = `, response);
+
+            if (!isMatrixWhoAmIResponseDTO(response)) {
+                // @FIXME: This probably should result in an error promise
+                LOG.error(`whoami: Response was not MatrixWhoAmIResponseDTO: `, response);
+                return undefined;
+            }
 
             const user_id = response?.user_id ?? undefined;
             LOG.debug(`whoami: user_id = `, user_id);
