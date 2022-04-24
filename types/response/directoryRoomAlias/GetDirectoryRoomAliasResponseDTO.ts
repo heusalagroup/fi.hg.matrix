@@ -12,6 +12,16 @@ export interface GetDirectoryRoomAliasResponseDTO {
     readonly servers : string[];
 }
 
+export function createGetDirectoryRoomAliasResponseDTO (
+    room_id : string,
+    servers : string[]
+) : GetDirectoryRoomAliasResponseDTO {
+    return {
+        room_id,
+        servers
+    };
+}
+
 export function isGetDirectoryRoomAliasResponseDTO (value: any): value is GetDirectoryRoomAliasResponseDTO {
     return (
         isRegularObject(value)
