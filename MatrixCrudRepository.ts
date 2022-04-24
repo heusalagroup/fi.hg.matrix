@@ -30,12 +30,12 @@ import { MatrixSyncResponseJoinedRoomDTO }
     from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
 import { MatrixSyncResponseRoomEventDTO }
     from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
-import { MatrixType } from "./types/core/MatrixType";
+import { isMatrixType, MatrixType } from "./types/core/MatrixType";
 import { RequestError } from "../core/request/types/RequestError";
 import { PutRoomStateWithEventTypeDTO }
     from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
 import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
-import { MatrixStateEvent } from "./types/core/MatrixStateEvent";
+import { createMatrixStateEvent, MatrixStateEvent } from "./types/core/MatrixStateEvent";
 import { MatrixRoomCreateEventDTO } from "./types/event/roomCreate/MatrixRoomCreateEventDTO";
 import { MatrixUserId } from "./types/core/MatrixUserId";
 import { MatrixHistoryVisibility } from "./types/event/roomHistoryVisibility/MatrixHistoryVisibility";
@@ -45,6 +45,11 @@ import { MatrixRoomJoinedMembersDTO }
     from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import { RepositoryMember } from "../core/simpleRepository/types/RepositoryMember";
 import { LogLevel } from "../core/types/LogLevel";
+import { createRoomGuestAccessStateEventDTO } from "./types/event/roomGuestAccess/RoomGuestAccessStateEventDTO";
+import { createRoomGuestAccessContentDTO } from "./types/event/roomGuestAccess/RoomGuestAccessContentDTO";
+import { MatrixStateEventOf } from "./types/core/MatrixStateEventOf";
+import { createRoomHistoryVisibilityStateEventDTO } from "./types/event/roomHistoryVisibility/RoomHistoryVisibilityStateEventDTO";
+import { createRoomHistoryVisibilityStateContentDTO } from "./types/event/roomHistoryVisibility/RoomHistoryVisibilityStateContentDTO";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -63,7 +68,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     private readonly _client         : SimpleMatrixClient;
     private readonly _serviceAccount : SimpleMatrixClient | undefined;
-    private readonly _stateType      : string;
+    private readonly _stateType      : MatrixType;
     private readonly _stateKey       : string;
     private readonly _deletedType    : string;
     private readonly _deletedKey     : string;
@@ -107,6 +112,10 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         allowedGroups         : MatrixRoomId[]     | undefined = undefined,
         allowedEvents         : string[]           | undefined = undefined
     ) {
+
+        if (!isMatrixType(stateType)) {
+            throw new TypeError('MatrixCrudRepository: stateType invalid: ' + stateType);
+        }
 
         this._client         = client;
         this._stateType      = stateType;
@@ -342,33 +351,27 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             [MatrixType.M_FEDERATE]: false
         };
 
-        const initialState : MatrixStateEvent[] = [
+        const initialState : MatrixStateEventOf<any>[] = [
 
             // Set our own state which indicates this is a special group for our CRUD item,
             // including our CRUD item value.
-            {
-                type: this._stateType,
-                state_key: this._stateKey,
-                content: content
-            },
+            createMatrixStateEvent(
+                this._stateType,
+                this._stateKey,
+                content
+            ),
 
             // Allow visibility to older events
-            {
-                type: MatrixType.M_ROOM_HISTORY_VISIBILITY,
-                state_key: '',
-                content: {
-                    history_visibility: MatrixHistoryVisibility.SHARED
-                }
-            },
+            createRoomHistoryVisibilityStateEventDTO(
+                createRoomHistoryVisibilityStateContentDTO(
+                    MatrixHistoryVisibility.SHARED
+                )
+            ),
 
             // Disallow guest from joining
-            {
-                type: MatrixType.M_ROOM_GUEST_ACCESS,
-                state_key: '',
-                content: {
-                    guest_access: MatrixGuestAccess.FORBIDDEN
-                }
-            }
+            createRoomGuestAccessStateEventDTO(
+                createRoomGuestAccessContentDTO(MatrixGuestAccess.FORBIDDEN)
+            )
 
         ];
 

@@ -10,13 +10,11 @@ import { MatrixPreviousRoomDTO,  isMatrixPreviousRoomDTO } from "./types/MatrixP
 import { MatrixType } from "../../core/MatrixType";
 
 export interface MatrixRoomCreateEventDTO {
-
-    type           ?: string;
-    creator         : string;
-    [MatrixType.M_FEDERATE]   ?: boolean;
-    room_version   ?: string;
-    predecessor    ?: MatrixPreviousRoomDTO;
-
+    readonly type           ?: MatrixType;
+    readonly creator         : string;
+    readonly [MatrixType.M_FEDERATE]   ?: boolean;
+    readonly room_version   ?: string;
+    readonly predecessor    ?: MatrixPreviousRoomDTO;
 }
 
 export function isMatrixCreationContentDTO (value: any): value is MatrixRoomCreateEventDTO {

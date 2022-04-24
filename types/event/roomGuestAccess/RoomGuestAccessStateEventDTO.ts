@@ -12,7 +12,11 @@ import {
     isString
 } from "../../../../core/modules/lodash";
 
-export type RoomGuestAccessStateEventDTO = MatrixStateEventOf<RoomGuestAccessContentDTO>;
+export interface RoomGuestAccessStateEventDTO extends MatrixStateEventOf<RoomGuestAccessContentDTO> {
+    readonly type      : MatrixType.M_ROOM_GUEST_ACCESS;
+    readonly state_key : "";
+    readonly content   : RoomGuestAccessContentDTO;
+}
 
 export function createRoomGuestAccessStateEventDTO (
     content: RoomGuestAccessContentDTO
