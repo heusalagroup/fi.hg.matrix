@@ -56,7 +56,9 @@ export enum MatrixType {
     /**
      * Used as part of the MatrixType.M_ROOM_JOIN_RULES event.
      *
-     * This may be written in wrong syntax, see https://github.com/heusalagroup/hghs/issues/20
+     * This may be written in wrong syntax
+     *
+     * @see https://github.com/heusalagroup/hghs/issues/20
      */
     M_ROOM_MEMBERSHIP           = 'm.room.membership',
 
