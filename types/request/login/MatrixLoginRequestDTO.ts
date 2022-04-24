@@ -7,6 +7,7 @@ import { hasNoOtherKeysInDevelopment, isRegularObject, isString, isStringOrUndef
 import { MatrixUserId } from "../../core/MatrixUserId";
 
 export interface MatrixLoginRequestDTO {
+
     readonly type                         : MatrixLoginType;
     readonly identifier                  ?: MatrixIdentifierDTO;
 

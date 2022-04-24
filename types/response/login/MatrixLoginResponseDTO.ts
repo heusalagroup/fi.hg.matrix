@@ -1,6 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixDiscoveryInformationDTO, 
+import {
+    MatrixDiscoveryInformationDTO,
     isMatrixDiscoveryInformationDTO
 } from "./types/MatrixDiscoveryInformationDTO";
 import {
@@ -10,10 +11,11 @@ import {
     isStringOrUndefined,
     isUndefined
 } from "../../../../core/modules/lodash";
+import { MatrixUserId } from "../../core/MatrixUserId";
 
 export interface MatrixLoginResponseDTO {
 
-    readonly user_id      : string;
+    readonly user_id      : MatrixUserId | string;
     readonly access_token : string;
 
     /**
@@ -25,6 +27,22 @@ export interface MatrixLoginResponseDTO {
     readonly device_id     : string;
     readonly well_known   ?: MatrixDiscoveryInformationDTO;
 
+}
+
+export function createMatrixLoginResponseDTO (
+    user_id       : MatrixUserId | string,
+    access_token  : string,
+    home_server   : string | undefined,
+    device_id     : string,
+    well_known    : MatrixDiscoveryInformationDTO | undefined
+) : MatrixLoginResponseDTO {
+    return {
+        user_id,
+        access_token,
+        home_server,
+        device_id,
+        well_known
+    };
 }
 
 export function isMatrixLoginResponseDTO (value: any): value is MatrixLoginResponseDTO {

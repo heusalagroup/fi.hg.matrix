@@ -6,6 +6,14 @@ export interface MatrixHomeServerDTO {
     readonly base_url: string;
 }
 
+export function createMatrixHomeServerDTO (
+    base_url: string
+) : MatrixHomeServerDTO {
+    return {
+        base_url
+    };
+}
+
 export function isMatrixHomeServerDTO (value: any): value is MatrixHomeServerDTO {
     return (
         isRegularObject(value)

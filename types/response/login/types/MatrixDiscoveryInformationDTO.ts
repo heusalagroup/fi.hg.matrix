@@ -9,10 +9,18 @@ import { isMatrixHomeServerDTO, MatrixHomeServerDTO } from "./MatrixHomeServerDT
 import { MatrixType } from "../../../core/MatrixType";
 
 export interface MatrixDiscoveryInformationDTO {
-
     readonly [MatrixType.M_HOMESERVER]: MatrixHomeServerDTO;
     readonly [MatrixType.M_IDENTITY_SERVER]: MatrixIdentityServerInformationDTO;
+}
 
+export function createMatrixDiscoveryInformationDTO (
+    homeserverDto: MatrixHomeServerDTO,
+    identityServerDto: MatrixIdentityServerInformationDTO
+) : MatrixDiscoveryInformationDTO {
+    return {
+        [MatrixType.M_HOMESERVER]: homeserverDto,
+        [MatrixType.M_IDENTITY_SERVER]: identityServerDto
+    };
 }
 
 export function isMatrixDiscoveryInformationDTO (value: any): value is MatrixDiscoveryInformationDTO {
