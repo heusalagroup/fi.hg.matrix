@@ -72,6 +72,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/22
      */
     M_ROOM_GUEST_ACCESS         = 'm.room.guest_access',
 
