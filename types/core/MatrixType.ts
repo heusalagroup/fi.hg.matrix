@@ -50,6 +50,8 @@ export enum MatrixType {
 
     /**
      * Event
+     *
+     * @see https://github.com/heusalagroup/hghs/issues/20
      */
     M_ROOM_JOIN_RULES           = 'm.room.join_rules',
 
