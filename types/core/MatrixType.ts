@@ -106,6 +106,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/26
      */
     M_PRESENCE                  = 'm.presence',
 
