@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface MatrixPreviousRoomDTO {
     readonly room_id  : string;
@@ -10,7 +10,7 @@ export interface MatrixPreviousRoomDTO {
 export function isMatrixPreviousRoomDTO (value: any): value is MatrixPreviousRoomDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ['room_id', 'event_id'])
+        && hasNoOtherKeysInDevelopment(value, ['room_id', 'event_id'])
         && isString(value?.room_id)
         && isString(value?.event_id)
     );

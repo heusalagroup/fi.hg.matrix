@@ -2,7 +2,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString
 } from "../../../../../core/modules/lodash";
@@ -22,7 +22,7 @@ export function createMatrixIdentityServerInformationDTO (
 export function isMatrixIdentityServerInformationDTO (value: any): value is MatrixIdentityServerInformationDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ['base_url'])
+        && hasNoOtherKeysInDevelopment(value, ['base_url'])
         && isString(value?.base_url)
     );
 }

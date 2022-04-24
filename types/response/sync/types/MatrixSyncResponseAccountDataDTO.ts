@@ -2,7 +2,7 @@
 
 import {
     concat,
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isRegularObject
 } from "../../../../../core/modules/lodash";
@@ -21,7 +21,7 @@ export function getEventsFromMatrixSyncResponseAccountDataDTO (
 export function isMatrixSyncResponseAccountDataDTO (value: any): value is MatrixSyncResponseAccountDataDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
         && isArrayOf<MatrixSyncResponseEventDTO>(value?.events, isMatrixSyncResponseEventDTO)

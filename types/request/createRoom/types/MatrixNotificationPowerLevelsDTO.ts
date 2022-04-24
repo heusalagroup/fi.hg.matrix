@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isNumberOrUndefined,
     isRegularObject
 } from "../../../../../core/modules/lodash";
@@ -13,7 +13,7 @@ export interface MatrixNotificationPowerLevelsDTO {
 export function isMatrixNotificationPowerLevelsDTO (value: any): value is MatrixNotificationPowerLevelsDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'room'
         ])
         && isNumberOrUndefined(value?.room)

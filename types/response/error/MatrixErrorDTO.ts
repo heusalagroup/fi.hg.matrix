@@ -2,7 +2,7 @@
 
 import { MatrixErrorCode,  isMatrixErrorCode } from "./types/MatrixErrorCode";
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isNumberOrUndefined,
     isRegularObject,
     isString
@@ -17,7 +17,7 @@ export interface MatrixErrorDTO {
 export function isMatrixErrorDTO (value: any): value is MatrixErrorDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'errcode',
             'error',
             'retry_after_ms'

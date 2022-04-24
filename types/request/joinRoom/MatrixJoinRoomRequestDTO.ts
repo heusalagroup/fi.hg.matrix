@@ -2,7 +2,7 @@
 
 import { MatrixJoinRoomThirdPartySignedDTO,  isMatrixJoinRoomThirdPartySignedDTO } from "./types/MatrixJoinRoomThirdPartySignedDTO";
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isUndefined
 } from "../../../../core/modules/lodash";
@@ -16,7 +16,7 @@ export interface MatrixJoinRoomRequestDTO {
 export function isMatrixJoinRoomRequestDTO (value: any): value is MatrixJoinRoomRequestDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'third_party_signed'
         ])
         && ( isUndefined(value?.third_party_signed) || isMatrixJoinRoomThirdPartySignedDTO(value?.third_party_signed) )

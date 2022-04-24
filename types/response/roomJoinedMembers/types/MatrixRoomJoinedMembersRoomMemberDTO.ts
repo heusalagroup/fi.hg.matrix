@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isNull,
     isRegularObject,
     isString
@@ -25,7 +25,7 @@ export function createMatrixRoomJoinedMembersRoomMemberDTO (
 export function isMatrixRoomJoinedMembersRoomMemberDTO (value: any): value is MatrixRoomJoinedMembersRoomMemberDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'display_name',
             'avatar_url'
         ])

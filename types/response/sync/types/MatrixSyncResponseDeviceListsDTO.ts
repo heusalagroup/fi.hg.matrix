@@ -2,9 +2,10 @@
 
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
-    isRegularObject, isUndefined,
+    isRegularObject,
+    isUndefined,
     keys
 } from "../../../../../core/modules/lodash";
 
@@ -16,7 +17,7 @@ export interface MatrixSyncResponseDeviceListsDTO {
 export function isMatrixSyncResponseDeviceListsDTO (value: any): value is MatrixSyncResponseDeviceListsDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'changed',
             'left'
         ])
@@ -31,7 +32,7 @@ export function assertMatrixSyncResponseDeviceListsDTO (value: any) : void {
         throw new TypeError(`Value not regular object: ${value}`);
     }
 
-    if (! hasNoOtherKeys(value, [
+    if (! hasNoOtherKeysInDevelopment(value, [
         'changed',
         'left'
     ])) {

@@ -1,4 +1,4 @@
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface MatrixInvite3PidDTO {
 
@@ -12,7 +12,7 @@ export interface MatrixInvite3PidDTO {
 export function isMatrixInvite3PidDTO (value: any): value is MatrixInvite3PidDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'id_server',
             'id_access_token',
             'medium',

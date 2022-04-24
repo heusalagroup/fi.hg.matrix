@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isStringOrUndefined,
     isUndefined
@@ -38,7 +38,7 @@ export function createMatrixRegisterRequestDTO (
 export function isMatrixMatrixRegisterRequestDTO (value: any): value is MatrixRegisterRequestDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'auth',
             'username',
             'password',

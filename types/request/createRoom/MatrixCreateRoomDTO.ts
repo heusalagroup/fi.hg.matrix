@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isBooleanOrUndefined,
     isRegularObject,
@@ -37,7 +37,7 @@ export interface MatrixCreateRoomDTO {
 export function isMatrixCreateRoomDTO (value: any): value is MatrixCreateRoomDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'visibility',
             'room_alias_name',
             'name',

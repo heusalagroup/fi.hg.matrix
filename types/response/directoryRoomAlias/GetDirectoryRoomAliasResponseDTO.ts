@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringArray
@@ -25,7 +25,7 @@ export function createGetDirectoryRoomAliasResponseDTO (
 export function isGetDirectoryRoomAliasResponseDTO (value: any): value is GetDirectoryRoomAliasResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'room_id',
             'servers'
         ])

@@ -1,16 +1,18 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseRoomEventDTO, 
+import { MatrixSyncResponseRoomEventDTO,
     explainMatrixSyncResponseRoomEventDTO,
     isMatrixSyncResponseRoomEventDTO
 } from "./MatrixSyncResponseRoomEventDTO";
 import {
-    concat, find,
-    hasNoOtherKeys,
+    concat,
+    find,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isBoolean,
     isRegularObject,
-    isString, keys
+    isString,
+    keys
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseTimelineDTO {
@@ -28,7 +30,7 @@ export function getEventsFromMatrixSyncResponseTimelineDTO (
 export function isMatrixSyncResponseTimelineDTO (value: any): value is MatrixSyncResponseTimelineDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events',
             'limited',
             'prev_batch'
@@ -45,7 +47,7 @@ export function assertMatrixSyncResponseTimelineDTO (value: any): void {
         throw new TypeError(`value not object: ${value}`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'events',
         'limited',
         'prev_batch'

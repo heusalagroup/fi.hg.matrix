@@ -3,12 +3,12 @@
 import {
     concat,
     find,
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isRegularObject
 } from "../../../../../core/modules/lodash";
 
-import { MatrixSyncResponseStateEventDTO, 
+import { MatrixSyncResponseStateEventDTO,
     explainMatrixSyncResponseStateEventDTO,
     isMatrixSyncResponseStateEventDTO
 } from "./MatrixSyncResponseStateEventDTO";
@@ -26,7 +26,7 @@ export function getEventsFromMatrixSyncResponseStateDTO (
 export function isMatrixSyncResponseStateDTO (value: any): value is MatrixSyncResponseStateDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
         && isArrayOf<MatrixSyncResponseStateEventDTO>(value?.events, isMatrixSyncResponseStateEventDTO)
@@ -39,7 +39,7 @@ export function assertMatrixSyncResponseStateDTO (value: any): void {
         throw new TypeError(`value was not object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
             'events'
         ]))) {
         throw new TypeError(`value had extra keys`);

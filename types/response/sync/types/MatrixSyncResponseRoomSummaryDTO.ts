@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isIntegerOrUndefined,
     isRegularObject,
     isStringArrayOrUndefined
@@ -19,7 +19,7 @@ export interface MatrixSyncResponseRoomSummaryDTO {
 export function isMatrixSyncResponseRoomSummaryDTO (value: any): value is MatrixSyncResponseRoomSummaryDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             MatrixType.M_HEROES,
             MatrixType.M_JOINED_MEMBER_COUNT,
             MatrixType.M_INVITED_MEMBER_COUNT

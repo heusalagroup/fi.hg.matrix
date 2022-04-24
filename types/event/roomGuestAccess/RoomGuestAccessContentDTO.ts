@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject } from "../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { isMatrixGuestAccess, MatrixGuestAccess } from "./MatrixGuestAccess";
 
 export interface RoomGuestAccessContentDTO {
@@ -18,7 +18,7 @@ export function createRoomGuestAccessContentDTO (
 export function isRoomGuestAccessContentDTO (value: any): value is RoomGuestAccessContentDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'guest_access'
         ])
         && isMatrixGuestAccess(value?.guest_access)

@@ -1,18 +1,18 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseStateDTO, 
+import { MatrixSyncResponseStateDTO,
     getEventsFromMatrixSyncResponseStateDTO,
     isMatrixSyncResponseStateDTO
 } from "./MatrixSyncResponseStateDTO";
-import { MatrixSyncResponseTimelineDTO, 
+import { MatrixSyncResponseTimelineDTO,
     getEventsFromMatrixSyncResponseTimelineDTO,
     isMatrixSyncResponseTimelineDTO
 } from "./MatrixSyncResponseTimelineDTO";
-import { MatrixSyncResponseAccountDataDTO, 
+import { MatrixSyncResponseAccountDataDTO,
     getEventsFromMatrixSyncResponseAccountDataDTO,
     isMatrixSyncResponseAccountDataDTO
 } from "./MatrixSyncResponseAccountDataDTO";
-import { concat, hasNoOtherKeys, isRegularObject } from "../../../../../core/modules/lodash";
+import { concat, hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { MatrixSyncResponseRoomEventDTO } from "./MatrixSyncResponseRoomEventDTO";
 import { MatrixSyncResponseStateEventDTO } from "./MatrixSyncResponseStateEventDTO";
@@ -37,7 +37,7 @@ export function getEventsFromMatrixSyncResponseLeftRoomDTO (
 export function isMatrixSyncResponseLeftRoomDTO (value: any): value is MatrixSyncResponseLeftRoomDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'state',
             'timeline',
             'account_data'

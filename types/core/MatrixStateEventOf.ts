@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isStringOrUndefined,
     TestCallbackNonStandardOf
@@ -20,7 +20,7 @@ export function isMatrixStateEventOf<T> (
 ): value is MatrixStateEventOf<T> {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'type',
             'state_key',
             'content'

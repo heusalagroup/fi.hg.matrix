@@ -1,10 +1,13 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys, isNumberOrUndefined,
+    hasNoOtherKeysInDevelopment,
+    isNumberOrUndefined,
     isRegularObject,
     isString,
-    isStringOrUndefined, isUndefined, keys
+    isStringOrUndefined,
+    isUndefined,
+    keys
 } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseUnsignedDataDTO,  isMatrixSyncResponseUnsignedDataDTO } from "./MatrixSyncResponseUnsignedDataDTO";
 import { isJsonObject, JsonObject } from "../../../../../core/Json";
@@ -22,7 +25,7 @@ export interface MatrixSyncResponseStrippedStateDTO {
 export function isMatrixSyncResponseStrippedStateDTO (value: any): value is MatrixSyncResponseStrippedStateDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'content',
             'state_key',
             'type',
@@ -45,7 +48,7 @@ export function assertMatrixSyncResponseStrippedStateDTO (value: any): void {
     if(!( isRegularObject(value) )) {
         throw new TypeError(`invalid: ${value}`);
     }
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
             'content',
             'state_key',
             'type',

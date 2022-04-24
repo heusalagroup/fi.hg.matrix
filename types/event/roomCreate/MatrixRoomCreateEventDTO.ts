@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isBooleanOrUndefined,
     isRegularObject,
     isString, isStringOrUndefined, isUndefined
@@ -20,7 +20,7 @@ export interface MatrixRoomCreateEventDTO {
 export function isMatrixCreationContentDTO (value: any): value is MatrixRoomCreateEventDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'creator',
             MatrixType.M_FEDERATE,
             'room_version',
@@ -36,7 +36,7 @@ export function isMatrixCreationContentDTO (value: any): value is MatrixRoomCrea
 export function isPartialMatrixCreationContentDTO (value: any): value is Partial<MatrixRoomCreateEventDTO> {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'creator',
             MatrixType.M_FEDERATE,
             'room_version',

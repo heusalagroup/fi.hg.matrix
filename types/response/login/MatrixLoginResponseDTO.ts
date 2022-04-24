@@ -5,7 +5,7 @@ import {
     isMatrixDiscoveryInformationDTO
 } from "./types/MatrixDiscoveryInformationDTO";
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringOrUndefined,
@@ -48,7 +48,7 @@ export function createMatrixLoginResponseDTO (
 export function isMatrixLoginResponseDTO (value: any): value is MatrixLoginResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ['user_id', 'access_token', 'home_server', 'device_id', 'well_known'])
+        && hasNoOtherKeysInDevelopment(value, ['user_id', 'access_token', 'home_server', 'device_id', 'well_known'])
         && isString(value?.user_id)
         && isString(value?.access_token)
         && isStringOrUndefined(value?.home_server)

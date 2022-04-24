@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface MatrixHomeServerDTO {
     readonly base_url: string;
@@ -17,7 +17,7 @@ export function createMatrixHomeServerDTO (
 export function isMatrixHomeServerDTO (value: any): value is MatrixHomeServerDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ['base_url'])
+        && hasNoOtherKeysInDevelopment(value, ['base_url'])
         && isString(value?.base_url)
     );
 }

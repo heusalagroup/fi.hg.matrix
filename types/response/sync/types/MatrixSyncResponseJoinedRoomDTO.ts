@@ -32,7 +32,7 @@ import {
 } from "./MatrixSyncResponseUnreadNotificationCountsDTO";
 import {
     concat,
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isNumberOrUndefined,
     isRegularObject,
     isUndefined
@@ -68,7 +68,7 @@ export function getEventsFromMatrixSyncResponseJoinedRoomDTO (
 export function isMatrixSyncResponseJoinedRoomDTO (value: any): value is MatrixSyncResponseJoinedRoomDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'summary',
             'state',
             'timeline',
@@ -96,7 +96,7 @@ export function assertMatrixSyncResponseJoinedRoomDTO (value: any): void {
         throw new TypeError(`value was not object: ${value}`);
     }
 
-    if ( !(hasNoOtherKeys(value, [
+    if ( !(hasNoOtherKeysInDevelopment(value, [
         'summary',
         'state',
         'timeline',

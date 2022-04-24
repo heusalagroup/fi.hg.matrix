@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isRegularObjectOf } from "../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isRegularObjectOf } from "../../../../core/modules/lodash";
 import { MatrixUserId,  isMatrixUserId } from "../../core/MatrixUserId";
 import { MatrixRoomJoinedMembersRoomMemberDTO,  isMatrixRoomJoinedMembersRoomMemberDTO } from "./types/MatrixRoomJoinedMembersRoomMemberDTO";
 
@@ -19,7 +19,7 @@ export function createMatrixRoomJoinedMembersDTO (
 export function isMatrixRoomJoinedMembersDTO (value: any): value is MatrixRoomJoinedMembersDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'joined'
         ])
         && isRegularObjectOf<MatrixUserId, MatrixRoomJoinedMembersRoomMemberDTO>(value?.joined, isMatrixUserId, isMatrixRoomJoinedMembersRoomMemberDTO)

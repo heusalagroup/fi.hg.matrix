@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isUndefined } from "../../../../core/modules/lodash";
 import { MatrixRoomId,  isMatrixRoomId } from "../../core/MatrixRoomId";
 import { MatrixRoomAlias,  isMatrixRoomAlias } from "../../core/MatrixRoomAlias";
 
@@ -22,7 +22,7 @@ export function createMatrixCreateRoomResponseDTO (
 export function isMatrixCreateRoomResponseDTO (value: any): value is MatrixCreateRoomResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'room_id',
             'room_alias'
         ])

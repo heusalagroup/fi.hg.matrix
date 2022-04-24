@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isBoolean,
     isRegularObject,
     isString
@@ -24,7 +24,7 @@ export interface SynapseRegisterRequestDTO {
 export function isSynapseRegisterRequestDTO (value: any): value is SynapseRegisterRequestDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'nonce',
             'username',
             'displayname',

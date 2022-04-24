@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseUnsignedDataDTO, 
+import { MatrixSyncResponseUnsignedDataDTO,
     isMatrixSyncResponseUnsignedDataDTO
 } from "./MatrixSyncResponseUnsignedDataDTO";
 
@@ -10,7 +10,7 @@ import {
 } from "../../../../../core/Json";
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isInteger,
     isRegularObject,
     isString,
@@ -32,7 +32,7 @@ export interface MatrixSyncResponseStateEventDTO {
 export function isMatrixSyncResponseStateEventDTO (value: any): value is MatrixSyncResponseStateEventDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'content',
             'type',
             'event_id',
@@ -59,7 +59,7 @@ export function assertMatrixSyncResponseStateEventDTO (value: any) : void {
         throw new TypeError(`value was not regular object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'content',
         'type',
         'event_id',

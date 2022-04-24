@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
 import {
     isMatrixIdentityServerInformationDTO,
     MatrixIdentityServerInformationDTO
@@ -26,7 +26,7 @@ export function createMatrixDiscoveryInformationDTO (
 export function isMatrixDiscoveryInformationDTO (value: any): value is MatrixDiscoveryInformationDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [MatrixType.M_HOMESERVER, MatrixType.M_IDENTITY_SERVER])
+        && hasNoOtherKeysInDevelopment(value, [MatrixType.M_HOMESERVER, MatrixType.M_IDENTITY_SERVER])
         && isMatrixHomeServerDTO(value[MatrixType.M_HOMESERVER])
         && ( isUndefined(value[MatrixType.M_IDENTITY_SERVER]) || isMatrixIdentityServerInformationDTO(value[MatrixType.M_IDENTITY_SERVER]) )
     );

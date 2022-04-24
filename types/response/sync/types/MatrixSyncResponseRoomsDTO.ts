@@ -1,25 +1,27 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixRoomId,  explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
-import { MatrixSyncResponseJoinedRoomDTO, 
+import { MatrixRoomId, explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
+import { MatrixSyncResponseJoinedRoomDTO,
     explainMatrixSyncResponseJoinedRoomDTO,
     getEventsFromMatrixSyncResponseJoinedRoomDTO,
     isMatrixSyncResponseJoinedRoomDTO
 } from "./MatrixSyncResponseJoinedRoomDTO";
-import { MatrixSyncResponseInvitedRoomDTO, 
+import { MatrixSyncResponseInvitedRoomDTO,
     explainMatrixSyncResponseInvitedRoomDTO,
     getEventsFromMatrixSyncResponseInvitedRoomDTO,
     isMatrixSyncResponseInvitedRoomDTO
 } from "./MatrixSyncResponseInvitedRoomDTO";
-import { MatrixSyncResponseLeftRoomDTO, 
+import { MatrixSyncResponseLeftRoomDTO,
     getEventsFromMatrixSyncResponseLeftRoomDTO,
     isMatrixSyncResponseLeftRoomDTO
 } from "./MatrixSyncResponseLeftRoomDTO";
 import {
-    concat, explainRegularObjectOf,
-    hasNoOtherKeys,
+    concat,
+    explainRegularObjectOf,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
-    isRegularObjectOf, isUndefined,
+    isRegularObjectOf,
+    isUndefined,
     keys,
     reduce
 } from "../../../../../core/modules/lodash";
@@ -68,7 +70,7 @@ export function getEventsFromMatrixSyncResponseRoomsDTO (
 export function isMatrixSyncResponseRoomsDTO (value: any): value is MatrixSyncResponseRoomsDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'join',
             'invite',
             'leave'
@@ -85,7 +87,7 @@ export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
         throw new TypeError(`value was not regular object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'join',
         'invite',
         'leave'

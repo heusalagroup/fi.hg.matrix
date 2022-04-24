@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../core/modules/lodash";
 import { isMatrixType, MatrixType } from "../../core/MatrixType";
 
 /**
@@ -23,7 +23,7 @@ export function createMatrixTextMessageDTO (
 export function isMatrixTextMessageDTO (value: any): value is MatrixTextMessageDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'msgtype',
             'body'
         ])

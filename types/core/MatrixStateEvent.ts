@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringOrUndefined
@@ -31,7 +31,7 @@ export function createMatrixStateEvent (
 export function isMatrixStateEvent (value: any): value is MatrixStateEvent {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'type',
             'state_key',
             'content'

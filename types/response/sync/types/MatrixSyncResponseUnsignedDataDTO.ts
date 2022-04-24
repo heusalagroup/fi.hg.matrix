@@ -1,11 +1,12 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isInteger,
     isRegularObject,
     isStringOrUndefined,
-    isUndefined, keys
+    isUndefined,
+    keys
 } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { isJsonObjectOrUndefined, JsonObject } from "../../../../../core/Json";
@@ -35,7 +36,7 @@ export interface MatrixSyncResponseUnsignedDataDTO {
 export function isMatrixSyncResponseUnsignedDataDTO (value: any): value is MatrixSyncResponseUnsignedDataDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'age',
             'prev_content',
             'prev_sender',
@@ -58,7 +59,7 @@ export function assertMatrixSyncResponseUnsignedDataDTO (value: any) : void {
         throw new TypeError(`Value was not regular object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'age',
         'prev_content',
         'prev_sender',

@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString
 } from "../../../../core/modules/lodash";
@@ -21,7 +21,7 @@ export function createPutRoomStateWithEventTypeResponseDTO (
 export function isPutRoomStateWithEventTypeResponseDTO (value: any): value is PutRoomStateWithEventTypeResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'event_id'
         ])
         && isString(value?.event_id)

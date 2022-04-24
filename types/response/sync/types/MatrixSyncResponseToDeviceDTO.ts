@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
-import { hasNoOtherKeys, isArrayOf, isRegularObject } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isArrayOf, isRegularObject } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseToDeviceDTO {
 
@@ -18,7 +18,7 @@ export function getEventsFromMatrixSyncResponseToDeviceDTO (
 export function isMatrixSyncResponseToDeviceDTO (value: any): value is MatrixSyncResponseToDeviceDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
         && isArrayOf<MatrixSyncResponseEventDTO>(value?.events, isMatrixSyncResponseEventDTO)
