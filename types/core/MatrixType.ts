@@ -100,6 +100,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/25
      */
     M_PUSH_RULES                = 'm.push_rules',
 
