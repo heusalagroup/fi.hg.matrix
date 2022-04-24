@@ -36,7 +36,7 @@ import { MatrixSyncResponseInvitedRoomDTO,  getEventsFromMatrixSyncResponseInvit
 import { MatrixSyncResponseLeftRoomDTO,  getEventsFromMatrixSyncResponseLeftRoomDTO } from "./types/response/sync/types/MatrixSyncResponseLeftRoomDTO";
 import { MatrixUserId,  isMatrixUserId } from "./types/core/MatrixUserId";
 import { MatrixJoinRoomRequestDTO } from "./types/request/joinRoom/MatrixJoinRoomRequestDTO";
-import { MatrixJoinRoomResponseDTO,  isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/types/MatrixJoinRoomResponseDTO";
+import { MatrixJoinRoomResponseDTO,  isMatrixJoinRoomResponseDTO } from "./types/response/joinRoom/MatrixJoinRoomResponseDTO";
 import {
     SimpleMatrixClientState,
     stringifySimpleMatrixClientState
