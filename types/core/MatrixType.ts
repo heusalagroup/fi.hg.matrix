@@ -81,6 +81,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/23
      */
     M_ROOM_CREATE               = 'm.room.create',
 
