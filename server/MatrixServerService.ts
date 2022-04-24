@@ -16,8 +16,13 @@ export class MatrixServerService {
         this._repository = repository;
     }
 
+    /**
+     * Get a nonce for registration
+     *
+     * @see https://github.com/heusalagroup/hghs/issues/1
+     * @TODO
+     */
     public async createAdminRegisterNonce () : Promise<string> {
-        // @TODO: Implement https://github.com/heusalagroup/hghs/issues/1
         return 'nonce';
     }
 
