@@ -2,6 +2,9 @@
 
 import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../core/modules/lodash";
 
+/**
+ * @see https://github.com/heusalagroup/hghs/issues/1
+ */
 export interface SynapsePreRegisterResponseDTO {
     readonly nonce : string;
 }

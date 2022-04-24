@@ -6,6 +6,9 @@ import {
     isString
 } from "../../../core/modules/lodash";
 
+/**
+ * @see https://github.com/heusalagroup/hghs/issues/1
+ */
 export interface SynapseRegisterResponseDTO {
     readonly access_token : string;
     readonly user_id      : string;
