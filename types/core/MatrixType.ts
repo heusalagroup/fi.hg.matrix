@@ -64,6 +64,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/21
      */
     M_ROOM_HISTORY_VISIBILITY   = 'm.room.history_visibility',
 
