@@ -5,16 +5,16 @@ import { MatrixIdentifierDTO } from "../login/types/MatrixIdentifierDTO";
 import { MatrixLoginType } from "../login/MatrixLoginType";
 import { isMatrixLoginRequestDTO, MatrixLoginRequestDTO } from "../login/MatrixLoginRequestDTO";
 
-export interface MatrixPasswordLoginDTO extends MatrixLoginRequestDTO {
+export interface MatrixPasswordLoginRequestDTO extends MatrixLoginRequestDTO {
     readonly type       : MatrixLoginType.M_LOGIN_PASSWORD;
     readonly identifier : MatrixIdentifierDTO;
     readonly password   : string;
 }
 
-export function createMatrixPasswordLoginDTO (
+export function createMatrixPasswordLoginRequestDTO (
     identifier : MatrixIdentifierDTO,
     password   : string
-): MatrixPasswordLoginDTO {
+): MatrixPasswordLoginRequestDTO {
     return {
         type: MatrixLoginType.M_LOGIN_PASSWORD,
         identifier,
@@ -22,18 +22,18 @@ export function createMatrixPasswordLoginDTO (
     };
 }
 
-export function isMatrixPasswordLoginDTO (value: any): value is MatrixPasswordLoginDTO {
+export function isMatrixPasswordLoginRequestDTO (value: any): value is MatrixPasswordLoginRequestDTO {
     return (
         isMatrixLoginRequestDTO(value)
         && value?.type === MatrixLoginType.M_LOGIN_PASSWORD
     );
 }
 
-export function stringifyMatrixPasswordLoginDTO (value: MatrixPasswordLoginDTO): string {
+export function stringifyMatrixPasswordLoginRequestDTO (value: MatrixPasswordLoginRequestDTO): string {
     return `MatrixPasswordLoginDTO(${value})`;
 }
 
-export function parseMatrixPasswordLoginDTO (value: any): MatrixPasswordLoginDTO | undefined {
-    if ( isMatrixPasswordLoginDTO(value) ) return value;
+export function parseMatrixPasswordLoginRequestDTO (value: any): MatrixPasswordLoginRequestDTO | undefined {
+    if ( isMatrixPasswordLoginRequestDTO(value) ) return value;
     return undefined;
 }
