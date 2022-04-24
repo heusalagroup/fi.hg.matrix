@@ -38,6 +38,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/18
      */
     M_ROOM_MESSAGE              = 'm.room.message',
 
