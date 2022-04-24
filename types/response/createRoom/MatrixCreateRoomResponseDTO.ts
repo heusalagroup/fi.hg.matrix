@@ -9,6 +9,16 @@ export interface MatrixCreateRoomResponseDTO {
     readonly room_alias ?: MatrixRoomAlias;
 }
 
+export function createMatrixCreateRoomResponseDTO (
+    room_id     : MatrixRoomId,
+    room_alias ?: MatrixRoomAlias
+) {
+    return {
+        room_id,
+        room_alias
+    };
+}
+
 export function isMatrixCreateRoomResponseDTO (value: any): value is MatrixCreateRoomResponseDTO {
     return (
         isRegularObject(value)
