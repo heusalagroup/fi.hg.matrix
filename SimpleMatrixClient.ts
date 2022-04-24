@@ -11,7 +11,7 @@ import { RequestClient } from "../core/RequestClient";
 import { LogService } from "../core/LogService";
 import { JsonAny } from "../core/Json";
 import { JsonAny as Json, isJsonObject, JsonObject } from "../core/Json";
-import { MatrixPasswordLoginRequestDTO } from "./types/request/passwordLogin/MatrixPasswordLoginRequestDTO";
+import { createMatrixPasswordLoginRequestDTO, MatrixPasswordLoginRequestDTO } from "./types/request/passwordLogin/MatrixPasswordLoginRequestDTO";
 import { createMatrixTextMessageDTO, MatrixTextMessageDTO } from "./types/message/textMessage/MatrixTextMessageDTO";
 import { MatrixType } from "./types/core/MatrixType";
 import { isMatrixLoginResponseDTO } from "./types/response/login/MatrixLoginResponseDTO";
@@ -73,6 +73,7 @@ import {
 } from "./constants/matrix-routes";
 import { AuthorizationUtils } from "../core/AuthorizationUtils";
 import { isMatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIResponseDTO";
+import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIdentifierDTO";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -548,14 +549,10 @@ export class SimpleMatrixClient {
 
         try {
 
-            const requestBody : MatrixPasswordLoginRequestDTO = {
-                type: MatrixType.M_LOGIN_PASSWORD,
-                identifier: {
-                    type: MatrixType.M_ID_USER,
-                    user: userId
-                },
-                password: password
-            };
+            const requestBody : MatrixPasswordLoginRequestDTO = createMatrixPasswordLoginRequestDTO(
+                createMatrixIdentifierDTO(userId),
+                password
+            );
 
             LOG.debug(`Sending login with userId:`, userId);
 
