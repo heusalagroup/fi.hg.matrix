@@ -324,7 +324,7 @@ export class SimpleMatrixClient {
                 this._homeServerUrl + MATRIX_REGISTER_URL(kind),
                 requestBody as unknown as JsonAny,
                 access_token ? {
-                    'Authorization': `Bearer ${access_token}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 } : undefined
             );
 
@@ -402,7 +402,7 @@ export class SimpleMatrixClient {
             const response : any = await this._getJson(
                 this._homeServerUrl + MATRIX_WHOAMI_URL,
                 {
-                    'Authorization': `Bearer ${accessToken}`
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
             LOG.debug(`whoami: response = `, response);
