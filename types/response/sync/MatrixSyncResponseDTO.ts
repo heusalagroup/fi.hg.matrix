@@ -2,7 +2,6 @@
 
 import {
     concat,
-    hasNoOtherKeys,
     hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
@@ -41,13 +40,33 @@ import {
 import { MatrixSyncResponseAnyEventDTO } from "./types/MatrixSyncResponseAnyEventDTO";
 
 export interface MatrixSyncResponseDTO {
-    readonly next_batch: string;
-    readonly rooms?: MatrixSyncResponseRoomsDTO;
-    readonly presence?: MatrixSyncResponsePresenceDTO;
-    readonly account_data?: MatrixSyncResponseAccountDataDTO;
-    readonly to_device?: MatrixSyncResponseToDeviceDTO;
-    readonly device_lists?: MatrixSyncResponseDeviceListsDTO;
-    readonly device_one_time_keys_count?: MatrixSyncResponseDeviceOneTimeKeysCountDTO;
+    readonly next_batch                  : string;
+    readonly rooms                      ?: MatrixSyncResponseRoomsDTO;
+    readonly presence                   ?: MatrixSyncResponsePresenceDTO;
+    readonly account_data               ?: MatrixSyncResponseAccountDataDTO;
+    readonly to_device                  ?: MatrixSyncResponseToDeviceDTO;
+    readonly device_lists               ?: MatrixSyncResponseDeviceListsDTO;
+    readonly device_one_time_keys_count ?: MatrixSyncResponseDeviceOneTimeKeysCountDTO;
+}
+
+export function createMatrixSyncResponseDTO(
+    next_batch                  : string,
+    rooms                      ?: MatrixSyncResponseRoomsDTO,
+    presence                   ?: MatrixSyncResponsePresenceDTO,
+    account_data               ?: MatrixSyncResponseAccountDataDTO,
+    to_device                  ?: MatrixSyncResponseToDeviceDTO,
+    device_lists               ?: MatrixSyncResponseDeviceListsDTO,
+    device_one_time_keys_count ?: MatrixSyncResponseDeviceOneTimeKeysCountDTO,
+) : MatrixSyncResponseDTO {
+    return {
+        next_batch,
+        rooms,
+        presence,
+        account_data,
+        to_device,
+        device_lists,
+        device_one_time_keys_count
+    };
 }
 
 export function getEventsFromMatrixSyncResponseDTO (
