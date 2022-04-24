@@ -41,7 +41,7 @@ import {
     SimpleMatrixClientState,
     stringifySimpleMatrixClientState
 } from "./types/SimpleMatrixClientState";
-import { PutRoomStateWithEventTypeDTO,  isPutRoomStateWithEventTypeDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
+import { PutRoomStateWithEventTypeResponseDTO,  isPutRoomStateWithEventTypeResponseDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeResponseDTO";
 import { MatrixRoomJoinedMembersDTO,  isMatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import { MatrixRegisterKind } from "./types/request/register/types/MatrixRegisterKind";
 import { MatrixRegisterRequestDTO } from "./types/request/register/MatrixRegisterRequestDTO";
@@ -786,7 +786,7 @@ export class SimpleMatrixClient {
         eventType : string,
         stateKey  : string,
         body      : SetRoomStateByTypeRequestDTO,
-    ) : Promise<PutRoomStateWithEventTypeDTO> {
+    ) : Promise<PutRoomStateWithEventTypeResponseDTO> {
         try {
 
             const accessToken : string | undefined = this._accessToken;
@@ -802,7 +802,7 @@ export class SimpleMatrixClient {
                 }
             );
 
-            if (!isPutRoomStateWithEventTypeDTO(response)) {
+            if (!isPutRoomStateWithEventTypeResponseDTO(response)) {
                 LOG.debug(`setRoomStateByType: response was not PutRoomStateWithEventTypeDTO: `, response);
                 throw new TypeError(`Response was not PutRoomStateWithEventTypeDTO: ${JSON.stringify(response)}`);
             }

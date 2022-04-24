@@ -32,8 +32,8 @@ import { MatrixSyncResponseRoomEventDTO }
     from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
 import { isMatrixType, MatrixType } from "./types/core/MatrixType";
 import { RequestError } from "../core/request/types/RequestError";
-import { PutRoomStateWithEventTypeDTO }
-    from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeDTO";
+import { PutRoomStateWithEventTypeResponseDTO }
+    from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeResponseDTO";
 import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
 import { createMatrixStateEvent, MatrixStateEvent } from "./types/core/MatrixStateEvent";
 import { MatrixRoomCreateEventDTO } from "./types/event/roomCreate/MatrixRoomCreateEventDTO";
@@ -540,7 +540,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             version : newVersion
         };
 
-        const response : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+        const response : PutRoomStateWithEventTypeResponseDTO = await this._client.setRoomStateByType(
             id,
             this._stateType,
             this._stateKey,
@@ -598,14 +598,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 deleted : true
             };
 
-            const response : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+            const response : PutRoomStateWithEventTypeResponseDTO = await this._client.setRoomStateByType(
                 id,
                 this._stateType,
                 this._stateKey,
                 content
             );
 
-            const deletedResponse : PutRoomStateWithEventTypeDTO = await this._client.setRoomStateByType(
+            const deletedResponse : PutRoomStateWithEventTypeResponseDTO = await this._client.setRoomStateByType(
                 id,
                 this._deletedType,
                 this._deletedKey,
