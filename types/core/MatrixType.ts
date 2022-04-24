@@ -44,6 +44,7 @@ export enum MatrixType {
 
     /**
      * Event
+     * @see https://github.com/heusalagroup/hghs/issues/19
      */
     M_ROOM_POWER_LEVELS         = 'm.room.power_levels',
 
