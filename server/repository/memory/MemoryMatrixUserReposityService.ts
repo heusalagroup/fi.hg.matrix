@@ -3,7 +3,8 @@ import {
     concat,
     map,
     find,
-    uniq
+    uniq,
+    findIndex
 } from "../../../../core/modules/lodash";
 
 import { randomBytes } from "crypto";
@@ -12,6 +13,7 @@ import { UserReposityEntry } from "./UserReposityEntryDTO";
 import { UserModel } from "../../types/UserModel";
 import { DeviceModel } from "../../types/DeviceModel";
 import { MatrixUserRepositoryService } from "../../types/MatrixUserReposityService";
+import { update } from "lodash";
 
 export interface UserMemoryItem {
     readonly id: string;
@@ -48,6 +50,22 @@ export class MemoryMatrixUserRepositoryService {
         }));
     }
 
+    public static async IfUsernameExist(
+        username: string,
+    ): Promise<boolean> {
+
+        const item = find(this.items, form => form.username === username);
+
+        console.log("FIND : ", JSON.stringify(item));
+
+        let userExist: boolean = true;
+
+        item === undefined ? userExist = false : userExist = true;
+
+        return userExist;
+
+    }
+
     public static async findByUsername(
         username: string,
         devices: DeviceModel[] = []
@@ -80,14 +98,47 @@ export class MemoryMatrixUserRepositoryService {
 
         console.log("koko ", koko, JSON.stringify(loginUser.devices))
 
-        return {
+
+
+        /*return {
             id: loginUser.id,
             username: loginUser.username,
             displayname: loginUser.displayname,
             password: loginUser.password,
             homeserver: loginUser.homeserver,
             devices: loginUser.devices
+
+
+        };*/
+
+        let updatedUser = this.updateDevices(loginUser.id, loginUser);
+
+        return updatedUser;
+    }
+
+    public static async updateDevices(id: string, loginUser: UserModel): Promise<UserReposityEntry> {
+
+        const itemIndex = findIndex(this.items, item => item.id === id);
+        if (itemIndex < 0) throw new TypeError(`No item found: ${id}`);
+
+        const prevItem = this.items[itemIndex];
+
+        const nextItem = {
+            ...prevItem,
+            devices: loginUser.devices,
         };
+
+        this.items[itemIndex] = nextItem;
+
+        return {
+            id: nextItem.id,
+            username: nextItem.username,
+            displayname: nextItem.displayname,
+            password: nextItem.password,
+            homeserver: nextItem.homeserver,
+            devices: nextItem.devices
+        };
+
     }
 
     public static async createItem(
