@@ -2,7 +2,10 @@
 
 import { MatrixRepositoryService } from "./types/MatrixRepositoryService";
 import { randomBytes, scryptSync, createHmac } from "crypto";
+import { isBoolean, isString } from "../../core/modules/lodash";
 import * as jwt from 'jsonwebtoken';
+import { Algorithm, decode as jwsDecode, sign as jwsSign, verify as jwsVerify } from "jws";
+import { JsonObject } from "../../core/Json";
 
 export class MatrixServerService {
 
@@ -109,14 +112,48 @@ export class MatrixServerService {
      * return token
      * @TODO
      */
-    public async createToken(user_id: string, shared_secret: string): Promise<string> {
+    public async createToken(user_id: string, device_id: string, shared_secret: string): Promise<string> {
 
         let token: string = jwt.sign({
             exp: Math.floor(Date.now() / 1000) + (60 * 60),
-            data: user_id
+            user_id: user_id,
+            device_id: device_id
         }, shared_secret)
 
         return token;
+    }
+
+    /**
+     * @param user_id (matrixId), 
+     * @param shared_secret, 
+     * Create token
+     * return token
+     * @TODO
+     */
+    public async whoami(giventoken: string): Promise<JsonObject> | undefined {
+
+        const payload = jwsDecode(giventoken);
+
+        const userId = payload?.payload.user_id;
+        if (!isString(userId)) {
+            console.log(`payload: `, payload);
+            throw new TypeError(`decodePayloadAudience: Payload "user_id" not string: ` + giventoken);
+        }
+
+        const deviceId = payload?.payload.device_id;
+        if (!isString(deviceId)) {
+            console.log(`payload: `, payload);
+            throw new TypeError(`decodePayloadAudience: Payload "device_id" not string: ` + giventoken);
+        }
+
+        console.log(" whoami ", payload);
+
+        let whoami = {
+            "device_id": deviceId,
+            "user_id": userId
+        }
+
+        return whoami;
     }
 
 
