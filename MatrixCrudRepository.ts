@@ -6,9 +6,10 @@ import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { MatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { MatrixCreateRoomPreset }
     from "./types/request/createRoom/types/MatrixCreateRoomPreset";
-import { JsonAny,
+import {
+    JsonAny,
     isJsonObject,
-    JsonObject
+    JsonObject, ReadonlyJsonObject
 } from "../core/Json";
 import { MatrixSyncResponseDTO } from "./types/response/sync/MatrixSyncResponseDTO";
 import { LogService } from "../core/LogService";
@@ -54,6 +55,8 @@ import { createRoomJoinRulesAllowConditionDTO, RoomJoinRulesAllowConditionDTO } 
 import { RoomMembershipType } from "./types/event/roomJoinRules/RoomMembershipType";
 import { createRoomJoinRulesStateContentDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateContentDTO";
 import { createRoomJoinRulesStateEventDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateEventDTO";
+import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
+import { GetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -462,7 +465,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         includeMembers ?: boolean
     ) : Promise<RepositoryEntry<T> | undefined> {
 
-        const response : JsonObject | undefined = await this._client.getRoomStateByType(
+        const response : GetRoomStateByTypeResponseDTO | undefined = await this._client.getRoomStateByType(
             id,
             this._stateType,
             this._stateKey
@@ -534,7 +537,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             throw new TypeError(`newVersion was not integer: ${newVersion}`);
         }
 
-        const content : JsonObject = {
+        const content : SetRoomStateByTypeRequestDTO = {
             // @ts-ignore
             data    : jsonData,
             version : newVersion
@@ -575,7 +578,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      */
     public async deleteById (id: string) : Promise<RepositoryEntry<T>> {
 
-        let record;
+        let record : RepositoryEntry<T> | undefined;
 
         try {
 
@@ -591,9 +594,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 throw new TypeError(`newVersion was not integer: ${newVersion}`);
             }
 
-            const content : JsonObject = {
-                // @ts-ignore
-                data    : record.data,
+            const content : SetRoomStateByTypeRequestDTO = {
+                data    : record.data as unknown as ReadonlyJsonObject,
                 version : newVersion,
                 deleted : true
             };

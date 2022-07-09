@@ -1,22 +1,32 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isBooleanOrUndefined, isNumberOrUndefined, isRegularObject, isString, isStringOrUndefined, isUndefined } from "../../../../core/modules/lodash";
+import { isReadonlyJsonObject, ReadonlyJsonObject } from "../../../../core/Json";
 
 export interface SetRoomStateByTypeRequestDTO {
-    readonly avatar_url  : string;
-    readonly displayname : string;
-    readonly membership  : string;
+    readonly avatar_url  ?: string;
+    readonly displayname ?: string;
+    readonly membership  ?: string;
+    readonly version     ?: number;
+    readonly data        ?: ReadonlyJsonObject;
+    readonly deleted     ?: boolean;
 }
 
 export function createSetRoomStateByTypeRequestDTO (
-    avatar_url : string,
-    displayname : string,
-    membership : string
+    avatar_url  ?: string,
+    displayname ?: string,
+    membership  ?: string,
+    version ?: number,
+    data ?: ReadonlyJsonObject,
+    deleted ?: boolean
 ): SetRoomStateByTypeRequestDTO {
     return {
         avatar_url,
         displayname,
-        membership
+        membership,
+        version,
+        data,
+        deleted
     };
 }
 
@@ -26,11 +36,17 @@ export function isSetRoomStateByTypeRequestDTO (value: any): value is SetRoomSta
         && hasNoOtherKeysInDevelopment(value, [
             'avatar_url',
             'displayname',
-            'membership'
+            'membership',
+            'version',
+            'data',
+            'deleted'
         ])
-        && isString(value?.avatar_url)
-        && isString(value?.displayname)
-        && isString(value?.membership)
+        && isStringOrUndefined(value?.avatar_url)
+        && isStringOrUndefined(value?.displayname)
+        && isStringOrUndefined(value?.membership)
+        && isNumberOrUndefined(value?.version)
+        && (isUndefined(value?.data) || isReadonlyJsonObject(value?.data))
+        && isBooleanOrUndefined(value?.deleted)
     );
 }
 

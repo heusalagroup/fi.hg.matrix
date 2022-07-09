@@ -1,16 +1,23 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isNumberOrUndefined, isRegularObject, isString, isStringOrUndefined, isUndefined } from "../../../../core/modules/lodash";
+import { isReadonlyJsonObject, ReadonlyJsonObject } from "../../../../core/Json";
 
 export interface GetRoomStateByTypeResponseDTO {
-    readonly name : string;
+    readonly name  : string;
+    readonly version ?: number;
+    readonly data    ?: ReadonlyJsonObject;
 }
 
 export function createGetRoomStateByTypeResponseDTO (
-    name : string
+    name : string,
+    version ?: number,
+    data ?: ReadonlyJsonObject
 ): GetRoomStateByTypeResponseDTO {
     return {
-        name
+        name,
+        version,
+        data
     };
 }
 
@@ -18,9 +25,13 @@ export function isGetRoomStateByTypeResponseDTO (value: any): value is GetRoomSt
     return (
         isRegularObject(value)
         && hasNoOtherKeysInDevelopment(value, [
-            'name'
+            'name',
+            'version',
+            'data'
         ])
         && isString(value?.name)
+        && isNumberOrUndefined(value?.version)
+        && (isUndefined(value?.data) || isReadonlyJsonObject(value?.data))
     );
 }
 
