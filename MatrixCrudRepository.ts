@@ -583,6 +583,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         try {
 
             record = await this.findById(id);
+            LOG.debug(`deleteById: record = `, record);
 
             if (record === undefined) {
                 // FIXME: Create our own errors. HTTP error is wrong here.
@@ -593,12 +594,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             if (!isInteger(newVersion)) {
                 throw new TypeError(`newVersion was not integer: ${newVersion}`);
             }
+            LOG.debug(`deleteById: newVersion = `, newVersion);
 
             const content : SetRoomStateByTypeRequestDTO = {
                 data    : record.data as unknown as ReadonlyJsonObject,
                 version : newVersion,
                 deleted : true
             };
+            LOG.debug(`deleteById: content = `, content);
 
             const response : PutRoomStateWithEventTypeResponseDTO = await this._client.setRoomStateByType(
                 id,
@@ -606,6 +609,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 this._stateKey,
                 content
             );
+            LOG.debug(`deleteById: response = `, response);
 
             const deletedResponse : PutRoomStateWithEventTypeResponseDTO = await this._client.setRoomStateByType(
                 id,
@@ -613,16 +617,19 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 this._deletedKey,
                 {}
             );
+            LOG.debug(`deleteById: deletedResponse = `, deletedResponse);
 
             if (this._serviceAccount) {
 
                 try {
+                    LOG.debug(`Leaving from room "${id}" as service account`);
                     await this._serviceAccount.leaveRoom(id);
                 } catch (err : any) {
                     LOG.warn(`Warning! Service account could not leave from the room ${id}: `, err);
                 }
 
                 try {
+                    LOG.debug(`Forgetting room "${id}" as service account`);
                     await this._serviceAccount.forgetRoom(id);
                 } catch (err : any) {
                     LOG.warn(`Warning! Service account could not forget the room ${id}: `, err);
@@ -630,12 +637,13 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
             }
 
+            LOG.debug(`Leaving from room "${id}"`);
             await this._client.leaveRoom(id);
 
+            LOG.debug(`Forgetting room "${id}"`);
             await this._client.forgetRoom(id);
 
             LOG.debug(`response = `, JSON.stringify(response, null, 2));
-
             return {
                 data: record.data,
                 id: id,

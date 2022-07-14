@@ -4,15 +4,15 @@ import { hasNoOtherKeysInDevelopment, isNumberOrUndefined, isRegularObject, isSt
 import { isReadonlyJsonObject, ReadonlyJsonObject } from "../../../../core/Json";
 
 export interface GetRoomStateByTypeResponseDTO {
-    readonly name  : string;
+    readonly name    ?: string;
     readonly version ?: number;
     readonly data    ?: ReadonlyJsonObject;
 }
 
 export function createGetRoomStateByTypeResponseDTO (
-    name : string,
+    name    ?: string,
     version ?: number,
-    data ?: ReadonlyJsonObject
+    data    ?: ReadonlyJsonObject
 ): GetRoomStateByTypeResponseDTO {
     return {
         name,
@@ -29,7 +29,7 @@ export function isGetRoomStateByTypeResponseDTO (value: any): value is GetRoomSt
             'version',
             'data'
         ])
-        && isString(value?.name)
+        && isStringOrUndefined(value?.name)
         && isNumberOrUndefined(value?.version)
         && (isUndefined(value?.data) || isReadonlyJsonObject(value?.data))
     );

@@ -745,6 +745,8 @@ export class SimpleMatrixClient {
                 throw new TypeError(`getRoomStateByType: Client did not have access token`);
             }
 
+            LOG.debug(`getRoomStateByType: roomId="${roomId}", eventType="${eventType}", stateKey="${stateKey}" `);
+
             const response : any = await this._getJson(
                 this._homeServerUrl + MATRIX_ROOM_EVENT_STATE_FETCH_URL(roomId, eventType, stateKey),
                 {
@@ -759,7 +761,6 @@ export class SimpleMatrixClient {
 
             LOG.debug(`getRoomStateByType: received: `, response);
 
-            // @ts-ignore
             return response;
 
         } catch (err : any) {
