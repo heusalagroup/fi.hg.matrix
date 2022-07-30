@@ -9,7 +9,7 @@ import {
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponseEphemeralDTO {
-    readonly events : MatrixSyncResponseEventDTO[];
+    readonly events : readonly sMatrixSyncResponseEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseEphemeralDTO (

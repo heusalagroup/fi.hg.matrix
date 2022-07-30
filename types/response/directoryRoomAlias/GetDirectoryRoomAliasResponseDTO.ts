@@ -9,12 +9,12 @@ import {
 
 export interface GetDirectoryRoomAliasResponseDTO {
     readonly room_id : string;
-    readonly servers : string[];
+    readonly servers : readonly string[];
 }
 
 export function createGetDirectoryRoomAliasResponseDTO (
     room_id : string,
-    servers : string[]
+    servers : readonly string[]
 ) : GetDirectoryRoomAliasResponseDTO {
     return {
         room_id,

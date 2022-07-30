@@ -16,7 +16,7 @@ import {
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseTimelineDTO {
-    readonly events     : MatrixSyncResponseRoomEventDTO[];
+    readonly events     : readonly MatrixSyncResponseRoomEventDTO[];
     readonly limited    : boolean;
     readonly prev_batch : string;
 }

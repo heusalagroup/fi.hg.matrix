@@ -10,8 +10,8 @@ import {
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseDeviceListsDTO {
-    readonly changed : MatrixUserId[];
-    readonly left    : MatrixUserId[] | undefined;
+    readonly changed : readonly MatrixUserId[];
+    readonly left    : readonly MatrixUserId[] | undefined;
 }
 
 export function isMatrixSyncResponseDeviceListsDTO (value: any): value is MatrixSyncResponseDeviceListsDTO {

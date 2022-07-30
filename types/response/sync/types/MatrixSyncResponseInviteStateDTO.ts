@@ -13,12 +13,12 @@ import {
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseInviteStateDTO {
-    readonly events: MatrixSyncResponseStrippedStateDTO[];
+    readonly events: readonly MatrixSyncResponseStrippedStateDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseInviteStateDTO (
     value: MatrixSyncResponseInviteStateDTO
-) : MatrixSyncResponseStrippedStateDTO[] {
+) : readonly MatrixSyncResponseStrippedStateDTO[] {
     return value?.events ?? [];
 }
 

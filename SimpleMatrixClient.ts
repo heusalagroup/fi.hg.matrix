@@ -334,7 +334,7 @@ export class SimpleMatrixClient {
 
             if (!isMatrixRegisterResponseDTO(response)) {
                 LOG.debug(`Invalid response received: `, response);
-                throw new TypeError(`register: Response was invalid`);
+                throw new TypeError(`${this._observer.getName()}.register: Response was invalid`);
             }
 
             LOG.debug(`register: RegisterResponseDTO received: `, response);
@@ -396,7 +396,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`whoami: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}.whoami: Client did not have access token`);
         }
 
         try {
@@ -432,26 +432,16 @@ export class SimpleMatrixClient {
     }
 
     public async getRegisterNonce () : Promise<string> {
-
         try {
-
             LOG.debug(`Fetching nonce for registration...`);
-
             const nonceResponse : any = await this._getJson(this._homeServerUrl + SYNAPSE_REGISTER_URL);
-
             const nonce = nonceResponse?.nonce ?? undefined;
-            if (!nonce) throw new TypeError(`No nonce detected`);
-
+            if (!nonce) throw new TypeError(`${this._observer.getName()}.getRegisterNonce: No nonce detected`);
             return nonce;
-
         } catch (err : any) {
-
             LOG.debug(`Could not fetch nonce for registration: `, err);
-
-            throw new TypeError(`Could not fetch nonce for the register request. Is it Synapse?`);
-
+            throw new TypeError(`${this._observer.getName()}.getRegisterNonce: Could not fetch nonce for the register request. Is it Synapse?`);
         }
-
     }
 
     /**
@@ -478,7 +468,7 @@ export class SimpleMatrixClient {
 
             if (!isSynapseRegisterResponseDTO(response)) {
                 LOG.debug(`registerWithSharedSecret: Invalid response received: `, response);
-                throw new TypeError(`registerWithSharedSecret: Response was invalid`);
+                throw new TypeError(`${this._observer.getName()}.registerWithSharedSecret: Response was invalid`);
             }
 
             LOG.debug(`registerWithSharedSecret: RegisterResponseDTO received: `, response);
@@ -565,7 +555,7 @@ export class SimpleMatrixClient {
 
             if (!isMatrixLoginResponseDTO(response)) {
                 LOG.debug(`Invalid response received: `, response);
-                throw new TypeError(`login: Response was invalid`);
+                throw new TypeError(`${this._observer.getName()}.login: Response was invalid`);
             }
 
             LOG.debug(`Login response received: `, response);
@@ -597,12 +587,12 @@ export class SimpleMatrixClient {
 
             const access_token = response?.access_token;
             if (!access_token) {
-                throw new TypeError(`Response did not have access_token`);
+                throw new TypeError(`${this._observer.getName()}.login: Response did not have access_token`);
             }
 
             const user_id = response?.user_id;
             if (!user_id) {
-                throw new TypeError(`Response did not have user_id`);
+                throw new TypeError(`${this._observer.getName()}.login: Response did not have user_id`);
             }
 
             return new SimpleMatrixClient(
@@ -677,7 +667,7 @@ export class SimpleMatrixClient {
 
             if (!isGetDirectoryRoomAliasResponseDTO(response)) {
                 LOG.debug(`resolveRoomId: response was not GetDirectoryRoomAliasResponseDTO: `, response);
-                throw new TypeError(`Response was not GetDirectoryRoomAliasResponseDTO: ${response}`);
+                throw new TypeError(`${this._observer.getName()}.resolveRoomId: Response was not GetDirectoryRoomAliasResponseDTO: ${response}`);
             }
 
             LOG.debug(`resolveRoomId: received: `, response);
@@ -704,7 +694,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`getJoinedMembers: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}.getJoinedMembers: Client did not have access token`);
         }
 
         const response : any = await this._getJson(
@@ -716,7 +706,7 @@ export class SimpleMatrixClient {
 
         if (!isMatrixRoomJoinedMembersDTO(response)) {
             LOG.debug(`getJoinedMembers: response was not MatrixRoomJoinedMembersDTO: `, response);
-            throw new TypeError(`Response was not MatrixRoomJoinedMembersDTO: ${response}`);
+            throw new TypeError(`${this._observer.getName()}.getJoinedMembers: Response was not MatrixRoomJoinedMembersDTO: ${response}`);
         }
 
         LOG.debug(`getJoinedMembers: received: `, response);
@@ -742,7 +732,7 @@ export class SimpleMatrixClient {
 
             const accessToken : string | undefined = this._accessToken;
             if (!accessToken) {
-                throw new TypeError(`getRoomStateByType: Client did not have access token`);
+                throw new TypeError(`${this._observer.getName()}.getRoomStateByType: Client did not have access token`);
             }
 
             LOG.debug(`getRoomStateByType: roomId="${roomId}", eventType="${eventType}", stateKey="${stateKey}" `);
@@ -756,7 +746,7 @@ export class SimpleMatrixClient {
 
             if (!isGetRoomStateByTypeResponseDTO(response)) {
                 LOG.debug(`getRoomStateByType: response was not GetRoomStateByTypeResponseDTO: `, response);
-                throw new TypeError(`Response was not GetRoomStateByTypeResponseDTO: ${JSON.stringify(response)}`);
+                throw new TypeError(`${this._observer.getName()}.getRoomStateByType: Response was not GetRoomStateByTypeResponseDTO: ${JSON.stringify(response)}`);
             }
 
             LOG.debug(`getRoomStateByType: received: `, response);
@@ -792,7 +782,7 @@ export class SimpleMatrixClient {
 
             const accessToken : string | undefined = this._accessToken;
             if (!accessToken) {
-                throw new TypeError(`setRoomStateByType: Client did not have access token`);
+                throw new TypeError(`${this._observer.getName()}.setRoomStateByType: Client did not have access token`);
             }
 
             const response : JsonAny | undefined = await this._putJson(
@@ -805,7 +795,7 @@ export class SimpleMatrixClient {
 
             if (!isPutRoomStateWithEventTypeResponseDTO(response)) {
                 LOG.debug(`setRoomStateByType: response was not PutRoomStateWithEventTypeDTO: `, response);
-                throw new TypeError(`Response was not PutRoomStateWithEventTypeDTO: ${JSON.stringify(response)}`);
+                throw new TypeError(`${this._observer.getName()}.setRoomStateByType: Response was not PutRoomStateWithEventTypeDTO: ${JSON.stringify(response)}`);
             }
 
             LOG.debug(`setRoomStateByType: received: `, response);
@@ -835,7 +825,7 @@ export class SimpleMatrixClient {
 
             const accessToken : string | undefined = this._accessToken;
             if (!accessToken) {
-                throw new TypeError(`forgetRoom: Client did not have access token`);
+                throw new TypeError(`${this._observer.getName()}.forgetRoom: Client did not have access token`);
             }
 
             const response : JsonAny | undefined = await this._postJson(
@@ -868,7 +858,7 @@ export class SimpleMatrixClient {
 
             const accessToken : string | undefined = this._accessToken;
             if (!accessToken) {
-                throw new TypeError(`leaveRoom: Client did not have access token`);
+                throw new TypeError(`${this._observer.getName()}.leaveRoom: Client did not have access token`);
             }
 
             const response : JsonAny | undefined = await this._postJson(
@@ -902,18 +892,18 @@ export class SimpleMatrixClient {
         try {
 
             if (!isMatrixRoomId(roomId)) {
-                throw new TypeError(`inviteToRoom: roomId invalid: ${roomId}`);
+                throw new TypeError(`${this._observer.getName()}.inviteToRoom: roomId invalid: ${roomId}`);
             }
 
             if (!isMatrixUserId(userId)) {
-                throw new TypeError(`inviteToRoom: userId invalid: ${userId}`);
+                throw new TypeError(`${this._observer.getName()}.inviteToRoom: userId invalid: ${userId}`);
             }
 
             LOG.info(`Inviting user ${userId} to ${roomId}`);
 
             const accessToken : string | undefined = this._accessToken;
             if (!accessToken) {
-                throw new TypeError(`inviteToRoom: Client did not have access token`);
+                throw new TypeError(`${this._observer.getName()}.inviteToRoom: Client did not have access token`);
             }
 
             const response : JsonAny | undefined = await this._postJson(
@@ -948,7 +938,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`sendTextMessage: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}.sendTextMessage: Client did not have access token`);
         }
 
         const requestBody : MatrixTextMessageDTO = createMatrixTextMessageDTO(body);
@@ -977,7 +967,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`createRoom: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}.createRoom: Client did not have access token`);
         }
 
         LOG.debug(`Creating room with body:`, body);
@@ -992,7 +982,7 @@ export class SimpleMatrixClient {
 
         if (!isMatrixCreateRoomResponseDTO(response)) {
             LOG.debug(`response = `, response);
-            throw new TypeError(`Response was not MatrixCreateRoomResponseDTO: ` + response);
+            throw new TypeError(`${this._observer.getName()}.createRoom: Response was not MatrixCreateRoomResponseDTO: ` + response);
         }
 
         LOG.debug(`Create room response received: `, response);
@@ -1016,7 +1006,7 @@ export class SimpleMatrixClient {
 
             const accessToken : string | undefined = this._accessToken;
             if (!accessToken) {
-                throw new TypeError(`createRoom: Client did not have access token`);
+                throw new TypeError(`${this._observer.getName()}.joinRoom: Client did not have access token`);
             }
 
             LOG.debug(`joinRoom: Joining to room "${roomId}" with body:`, body);
@@ -1031,7 +1021,7 @@ export class SimpleMatrixClient {
 
             if (!isMatrixJoinRoomResponseDTO(response)) {
                 LOG.debug(`response = `, response);
-                throw new TypeError(`Could not join to "${roomId}": Response was not MatrixJoinRoomResponseDTO: ` + response);
+                throw new TypeError(`${this._observer.getName()}.joinRoom: Could not join to "${roomId}": Response was not MatrixJoinRoomResponseDTO: ` + response);
             }
 
             LOG.debug(`joinRoom: Joined to room "${roomId}": `, response);
@@ -1079,7 +1069,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`sync: Client ${this._userId} did not have access token`);
+            throw new TypeError(`${this._observer.getName()}.sync: Client ${this._userId} did not have access token`);
         }
 
         const {
@@ -1098,7 +1088,7 @@ export class SimpleMatrixClient {
             } else if (isJsonObject(filter)) {
                 queryParams.filter = JSON.stringify(filter);
             } else {
-                throw new TypeError(`Invalid value for filter option: ${filter}`);
+                throw new TypeError(`${this._observer.getName()}.sync: Invalid value for filter option: ${filter}`);
             }
         }
 
@@ -1127,7 +1117,7 @@ export class SimpleMatrixClient {
 
         if (!isMatrixSyncResponseDTO(response)) {
             LOG.debug(`_sync: response not MatrixSyncResponseDTO: `, JSON.stringify(response, null ,2));
-            throw new TypeError(`Response was not MatrixSyncResponseDTO: ${explainMatrixSyncResponseDTO(response)}`);
+            throw new TypeError(`${this._observer.getName()}.sync: Response was not MatrixSyncResponseDTO: ${explainMatrixSyncResponseDTO(response)}`);
         }
 
         return response;
@@ -1142,8 +1132,8 @@ export class SimpleMatrixClient {
      * @param triggerEvents Optional. If true, events from the first sync call are triggered.
      */
     public async waitForEvents (
-        events      : string[],
-        onlyInRooms : string[] | undefined = undefined,
+        events      : readonly string[],
+        onlyInRooms : readonly string[] | undefined = undefined,
         timeout     : number | undefined = undefined,
         triggerEvents : boolean = true
     ) : Promise<boolean> {
@@ -1382,7 +1372,7 @@ export class SimpleMatrixClient {
     private _normalizeRoomName (name : string) {
 
         if ( !name || !isString(name) ) {
-            throw new TypeError(`_normalizeRoomName: name is invalid: ${name}`);
+            throw new TypeError(`${this._observer.getName()}._normalizeRoomName: name is invalid: ${name}`);
         }
 
         if (name[0] !== '#') {
@@ -1448,7 +1438,7 @@ export class SimpleMatrixClient {
             default:
             case SimpleMatrixClientState.UNAUTHENTICATED:
             case SimpleMatrixClientState.AUTHENTICATING:
-                throw new TypeError(`_startSyncing: Client was ${stringifySimpleMatrixClientState(this._state)}`);
+                throw new TypeError(`${this._observer.getName()}._startSyncing: Client was ${stringifySimpleMatrixClientState(this._state)}`);
 
         }
 
@@ -1521,7 +1511,7 @@ export class SimpleMatrixClient {
     private _startSyncAgainTimer () {
 
         if ( this._state !== SimpleMatrixClientState.AUTHENTICATED_AND_STARTED ) {
-            throw new TypeError(`_startSyncRetryTimer: Client was not AUTHENTICATED_AND_STARTED (was ${stringifySimpleMatrixClientState(this._state)})`);
+            throw new TypeError(`${this._observer.getName()}._startSyncAgainTimer: Client was not AUTHENTICATED_AND_STARTED (was ${stringifySimpleMatrixClientState(this._state)})`);
         }
 
         this._clearSyncAgainTimer();
@@ -1540,7 +1530,7 @@ export class SimpleMatrixClient {
     private _startInitSyncAgainLater () {
 
         if ( this._state !== SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING ) {
-            throw new TypeError(`_startSyncRetryTimer: Client was not AUTHENTICATED_AND_RESTARTING (${stringifySimpleMatrixClientState(this._state)})`);
+            throw new TypeError(`${this._observer.getName()}._startInitSyncAgainLater: Client was not AUTHENTICATED_AND_RESTARTING (${stringifySimpleMatrixClientState(this._state)})`);
         }
 
         this._clearInitSyncAgainTimer();
@@ -1652,12 +1642,12 @@ export class SimpleMatrixClient {
             case SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING:
             case SimpleMatrixClientState.AUTHENTICATED_AND_STARTING:
             case SimpleMatrixClientState.AUTHENTICATED_AND_SYNCING:
-                throw new TypeError(`_syncNextBatch: State was ${stringifySimpleMatrixClientState(this._state)}`);
+                throw new TypeError(`${this._observer.getName()}._syncNextBatch: State was ${stringifySimpleMatrixClientState(this._state)}`);
 
         }
 
         const nextBatch = this._nextSyncBatch;
-        if (!nextBatch) throw new TypeError(`_onTimeout: No previous nextBatch defined`);
+        if (!nextBatch) throw new TypeError(`${this._observer.getName()}._syncNextBatch: No previous nextBatch defined`);
 
         const restartTimer = () => {
 
@@ -1703,12 +1693,12 @@ export class SimpleMatrixClient {
     ) {
 
         if ( this._state !== SimpleMatrixClientState.AUTHENTICATED ) {
-            throw new TypeError(`_initSync: Client was not authenticated (${stringifySimpleMatrixClientState(this._state)})`);
+            throw new TypeError(`${this._observer.getName()}._initSync: Client was not authenticated (${stringifySimpleMatrixClientState(this._state)})`);
         }
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`_initSync: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}._initSync: Client did not have access token`);
         }
 
         LOG.info(`_initSync: Initial sync request started`);
@@ -1771,7 +1761,7 @@ export class SimpleMatrixClient {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`_syncSince: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}._syncSinceBatch: Client did not have access token`);
         }
 
         const response : MatrixSyncResponseDTO = await this.sync({

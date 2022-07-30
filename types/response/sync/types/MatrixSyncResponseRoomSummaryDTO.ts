@@ -9,11 +9,9 @@ import {
 import { MatrixType } from "../../../core/MatrixType";
 
 export interface MatrixSyncResponseRoomSummaryDTO {
-
-    readonly [MatrixType.M_HEROES]               ?: string[];
+    readonly [MatrixType.M_HEROES]               ?: readonly string[];
     readonly [MatrixType.M_JOINED_MEMBER_COUNT]  ?: number;
     readonly [MatrixType.M_INVITED_MEMBER_COUNT] ?: number;
-
 }
 
 export function isMatrixSyncResponseRoomSummaryDTO (value: any): value is MatrixSyncResponseRoomSummaryDTO {

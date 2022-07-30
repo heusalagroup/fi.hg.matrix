@@ -5,13 +5,13 @@ import { isRoomJoinRulesAllowConditionDTO, RoomJoinRulesAllowConditionDTO } from
 import { hasNoOtherKeysInDevelopment, isArrayOf, isRegularObject } from "../../../../core/modules/lodash";
 
 export interface RoomJoinRulesStateContentDTO {
-    readonly allow     : RoomJoinRulesAllowConditionDTO[];
+    readonly allow     : readonly RoomJoinRulesAllowConditionDTO[];
     readonly join_rule : MatrixJoinRule;
 }
 
 export function createRoomJoinRulesStateContentDTO (
     join_rule : MatrixJoinRule,
-    allow     : RoomJoinRulesAllowConditionDTO[]
+    allow     : readonly RoomJoinRulesAllowConditionDTO[]
 ): RoomJoinRulesStateContentDTO {
     return {
         join_rule,

@@ -23,11 +23,11 @@ export interface MatrixCreateRoomDTO {
     readonly room_alias_name              ?: string;
     readonly name                         ?: string;
     readonly topic                        ?: string;
-    readonly invite                       ?: MatrixUserId[];
-    readonly invite_3pid                  ?: MatrixInvite3PidDTO[];
+    readonly invite                       ?: readonly MatrixUserId[];
+    readonly invite_3pid                  ?: readonly MatrixInvite3PidDTO[];
     readonly room_version                 ?: string;
     readonly creation_content             ?: Partial<MatrixRoomCreateEventDTO>;
-    readonly initial_state                ?: MatrixStateEvent[];
+    readonly initial_state                ?: readonly MatrixStateEvent[];
     readonly preset                       ?: MatrixCreateRoomPreset;
     readonly is_direct                    ?: boolean;
     readonly power_level_content_override ?: MatrixRoomPowerLevelsEventDTO;

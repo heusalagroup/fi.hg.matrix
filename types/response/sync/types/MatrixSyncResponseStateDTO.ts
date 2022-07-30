@@ -14,7 +14,7 @@ import { MatrixSyncResponseStateEventDTO,
 } from "./MatrixSyncResponseStateEventDTO";
 
 export interface MatrixSyncResponseStateDTO {
-    readonly events : MatrixSyncResponseStateEventDTO[];
+    readonly events : readonly MatrixSyncResponseStateEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseStateDTO (

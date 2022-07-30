@@ -36,7 +36,7 @@ import { RequestError } from "../core/request/types/RequestError";
 import { PutRoomStateWithEventTypeResponseDTO }
     from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeResponseDTO";
 import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
-import { createMatrixStateEvent, MatrixStateEvent } from "./types/core/MatrixStateEvent";
+import { createMatrixStateEvent } from "./types/core/MatrixStateEvent";
 import { MatrixRoomCreateEventDTO } from "./types/event/roomCreate/MatrixRoomCreateEventDTO";
 import { MatrixUserId } from "./types/core/MatrixUserId";
 import { MatrixHistoryVisibility } from "./types/event/roomHistoryVisibility/MatrixHistoryVisibility";
@@ -72,15 +72,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         LOG.setLogLevel(level);
     }
 
-
     private readonly _client         : SimpleMatrixClient;
     private readonly _serviceAccount : SimpleMatrixClient | undefined;
     private readonly _stateType      : MatrixType;
     private readonly _stateKey       : string;
     private readonly _deletedType    : string;
     private readonly _deletedKey     : string;
-    private readonly _allowedGroups  : MatrixRoomId[] | undefined;
-    private readonly _allowedEvents  : string[] | undefined;
+    private readonly _allowedGroups  : readonly MatrixRoomId[] | undefined;
+    private readonly _allowedEvents  : readonly string[] | undefined;
 
     /**
      * Creates an instance of MatrixCrudRepository.
@@ -116,8 +115,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         serviceAccount        : SimpleMatrixClient | undefined = undefined,
         deletedType           : string             | undefined = undefined,
         deletedKey            : string             | undefined = undefined,
-        allowedGroups         : MatrixRoomId[]     | undefined = undefined,
-        allowedEvents         : string[]           | undefined = undefined
+        allowedGroups         : readonly MatrixRoomId[]     | undefined = undefined,
+        allowedEvents         : readonly string[]           | undefined = undefined
     ) {
 
         if (!isMatrixType(stateType)) {
@@ -145,7 +144,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      *
      * @returns Array of resources
      */
-    public async getAll () : Promise<RepositoryEntry<T>[]> {
+    public async getAll () : Promise<readonly RepositoryEntry<T>[]> {
 
         const response : MatrixSyncResponseDTO = await this._client.sync({
             filter: {
@@ -185,13 +184,13 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         const joinObject = response?.rooms?.join ?? {};
         const inviteObject = response?.rooms?.invite ?? {};
 
-        const joinedRooms  : MatrixRoomId[] = keys(joinObject);
+        const joinedRooms  : readonly MatrixRoomId[] = keys(joinObject);
         LOG.debug(`joinedRooms = `, joinedRooms);
 
-        const invitedRooms : MatrixRoomId[] = keys(inviteObject);
+        const invitedRooms : readonly MatrixRoomId[] = keys(inviteObject);
         LOG.debug(`invitedRooms = `, invitedRooms);
 
-        const roomsNotYetJoined : MatrixRoomId[] = filter(
+        const roomsNotYetJoined : readonly MatrixRoomId[] = filter(
             invitedRooms,
             (item : MatrixRoomId) : boolean => !joinedRooms.includes(item)
         );
@@ -232,11 +231,9 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
         return reduce(
             joinedRooms,
-            (result : RepositoryEntry<T>[], roomId: MatrixRoomId) : RepositoryEntry<T>[] => {
-
+            (result : readonly RepositoryEntry<T>[], roomId: MatrixRoomId) : readonly RepositoryEntry<T>[] => {
                 const value : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
-
-                const events : MatrixSyncResponseRoomEventDTO[] = filter(
+                const events : readonly MatrixSyncResponseRoomEventDTO[] = filter(
                     value?.state?.events ?? [],
                     (item : MatrixSyncResponseRoomEventDTO) : boolean => {
                         return (
@@ -246,8 +243,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                         );
                     }
                 );
-
-                let entries : RepositoryEntry<T>[] = concat(
+                return concat(
                     result,
                     map(
                         events,
@@ -272,9 +268,6 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                         }
                     )
                 );
-
-                return entries;
-
             },
             []
         );
@@ -294,10 +287,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     public async getAllByProperty (
         propertyName  : string,
         propertyValue : any
-    ): Promise<RepositoryEntry<T>[]> {
-
+    ): Promise<readonly RepositoryEntry<T>[]> {
         const items = await this.getAll();
-
         return map(
             filter(
                 items,
@@ -309,7 +300,6 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 data     : item.data
             })
         );
-
     }
 
     /**
@@ -322,7 +312,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      */
     public async createItem (
         data    : T,
-        members ?: string[]
+        members ?: readonly string[]
     ) : Promise<RepositoryEntry<T>> {
 
         const clientUserId : string | undefined = this._client.getUserId();
@@ -340,7 +330,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         const serviceAccountId = this._serviceAccount?.getUserId();
         LOG.debug(`createItem: serviceAccountId = `, serviceAccountId);
 
-        const invitedMembers : MatrixUserId[] = (
+        const invitedMembers : readonly MatrixUserId[] = (
             filter(
                 uniq(concat(
                     serviceAccountId ? [ serviceAccountId ]: [],
@@ -351,14 +341,14 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         );
         LOG.debug(`createItem: invitedMembers = `, invitedMembers);
 
-        const allowedGroups : MatrixRoomId[] | undefined = this._allowedGroups;
+        const allowedGroups : readonly MatrixRoomId[] | undefined = this._allowedGroups;
         LOG.debug(`createItem: allowedGroups = `, allowedGroups);
 
         const creationContent : Partial<MatrixRoomCreateEventDTO> = {
             [MatrixType.M_FEDERATE]: false
         };
 
-        const initialState : MatrixStateEventOf<any>[] = [
+        let initialState : readonly MatrixStateEventOf<any>[] = [
 
             // Set our own state which indicates this is a special group for our CRUD item,
             // including our CRUD item value.
@@ -385,17 +375,20 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         // Allow members from these groups to access the item.
         // See also https://github.com/matrix-org/matrix-doc/blob/master/proposals/3083-restricted-rooms.md
         if (allowedGroups !== undefined) {
-            initialState.push(
-                createRoomJoinRulesStateEventDTO(
-                    createRoomJoinRulesStateContentDTO(
-                        MatrixJoinRule.RESTRICTED,
-                        map(
-                            allowedGroups,
-                            (item : MatrixRoomId) : RoomJoinRulesAllowConditionDTO => createRoomJoinRulesAllowConditionDTO(RoomMembershipType.M_ROOM_MEMBERSHIP, item)
+            initialState = [
+                ...initialState,
+                ...[
+                    createRoomJoinRulesStateEventDTO(
+                        createRoomJoinRulesStateContentDTO(
+                            MatrixJoinRule.RESTRICTED,
+                            map(
+                                allowedGroups,
+                                (item : MatrixRoomId) : RoomJoinRulesAllowConditionDTO => createRoomJoinRulesAllowConditionDTO(RoomMembershipType.M_ROOM_MEMBERSHIP, item)
+                            )
                         )
                     )
-                )
-            );
+                ]
+            ];
         }
 
         LOG.debug(`createItem: initialState = `, initialState);
@@ -480,15 +473,15 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
         const data = response?.data;
         if (!isJsonObject(data)) {
-            throw new TypeError(`findById: data was not JsonObject: ${data}`);
+            throw new TypeError(`MatrixCrudRepository.findById: data was not JsonObject: ${data}`);
         }
 
         const version = response?.version;
         if (!isInteger(version)) {
-            throw new TypeError(`findById: version was not integer: ${version}`);
+            throw new TypeError(`MatrixCrudRepository.findById: version was not integer: ${version}`);
         }
 
-        let members : RepositoryMember[] | undefined = undefined;
+        let members : readonly RepositoryMember[] | undefined = undefined;
         if (includeMembers) {
             const dto : MatrixRoomJoinedMembersDTO = await this._client.getJoinedMembers(id);
             members = map(keys(dto.joined), (memberId: string) : RepositoryMember => {
@@ -523,7 +516,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     public async update (id: string, jsonData: T) : Promise<RepositoryEntry<T>> {
 
         if (!isJsonObject(jsonData)) {
-            throw new TypeError(`jsonData was not JsonObject: ${jsonData}`);
+            throw new TypeError(`MatrixCrudRepository.update: jsonData was not JsonObject: ${jsonData}`);
         }
 
         const record = await this.findById(id);
@@ -534,7 +527,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
         const newVersion : number = record.version + 1;
         if (!isInteger(newVersion)) {
-            throw new TypeError(`newVersion was not integer: ${newVersion}`);
+            throw new TypeError(`MatrixCrudRepository.update: newVersion was not integer: ${newVersion}`);
         }
 
         const content : SetRoomStateByTypeRequestDTO = {
@@ -592,7 +585,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
             const newVersion : number = record.version + 1;
             if (!isInteger(newVersion)) {
-                throw new TypeError(`newVersion was not integer: ${newVersion}`);
+                throw new TypeError(`MatrixCrudRepository.deleteById: newVersion was not integer: ${newVersion}`);
             }
             LOG.debug(`deleteById: newVersion = `, newVersion);
 
@@ -668,7 +661,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     public async inviteToItem (
         id      : string,
-        members : string[]
+        members : readonly string[]
     ): Promise<void> {
 
         let serviceAccountUserId : string | undefined;
@@ -726,7 +719,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         timeout        ?: number
     ) : Promise< RepositoryEntry<T> | undefined > {
 
-        if (!id) throw new TypeError(`id is required: ${id}`);
+        if (!id) throw new TypeError(`MatrixCrudRepository.waitById: id is required: ${id}`);
 
         const isNotTimeout : boolean = await this._client.waitForEvents(
             [
@@ -746,5 +739,3 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     }
 
 }
-
-

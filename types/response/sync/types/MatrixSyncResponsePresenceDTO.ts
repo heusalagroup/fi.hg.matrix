@@ -4,12 +4,12 @@ import { hasNoOtherKeysInDevelopment, isArrayOf, isRegularObject } from "../../.
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponsePresenceDTO {
-    readonly events: MatrixSyncResponseEventDTO[];
+    readonly events: readonly MatrixSyncResponseEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponsePresenceDTO (
     value: MatrixSyncResponsePresenceDTO
-) : MatrixSyncResponseEventDTO[] {
+) : readonly MatrixSyncResponseEventDTO[] {
     return value?.events ?? [];
 }
 

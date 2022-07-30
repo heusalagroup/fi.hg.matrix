@@ -71,7 +71,7 @@ export function createMatrixSyncResponseDTO(
 
 export function getEventsFromMatrixSyncResponseDTO (
     value: MatrixSyncResponseDTO
-): MatrixSyncResponseAnyEventDTO[] {
+): readonly MatrixSyncResponseAnyEventDTO[] {
     return concat(
         value?.rooms ? getEventsFromMatrixSyncResponseRoomsDTO(value?.rooms) : [],
         value?.presence ? getEventsFromMatrixSyncResponsePresenceDTO(value?.presence) : [],

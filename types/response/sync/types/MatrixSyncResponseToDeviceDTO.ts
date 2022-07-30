@@ -4,14 +4,12 @@ import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./Mat
 import { hasNoOtherKeysInDevelopment, isArrayOf, isRegularObject } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseToDeviceDTO {
-
-    readonly events : MatrixSyncResponseEventDTO[];
-
+    readonly events : readonly MatrixSyncResponseEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseToDeviceDTO (
     value: MatrixSyncResponseToDeviceDTO
-) : MatrixSyncResponseEventDTO[] {
+) : readonly MatrixSyncResponseEventDTO[] {
     return value?.events ?? [];
 }
 

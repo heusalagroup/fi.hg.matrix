@@ -41,17 +41,14 @@ function getEventsFromObject<T> (
     value    : {[K in MatrixRoomId]: T},
     callback : getEventsCallback<T>
 ) : readonly MatrixSyncResponseAnyEventDTO[] {
-
-    const propertyKeys : string[] = keys(value);
-
+    const propertyKeys : readonly string[] = keys(value);
     return reduce(
         propertyKeys,
-        (arr : MatrixSyncResponseAnyEventDTO[], key: string) : MatrixSyncResponseAnyEventDTO[] => {
+        (arr : readonly MatrixSyncResponseAnyEventDTO[], key: string) : readonly MatrixSyncResponseAnyEventDTO[] => {
             return concat(arr, callback(value[key]));
         },
         []
     );
-
 }
 
 export function getEventsFromMatrixSyncResponseRoomsDTO (
