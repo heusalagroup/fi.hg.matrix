@@ -97,7 +97,9 @@ export class SharedMatrixClientService {
         LOG.info(`Logged in to "${hostname}" as "${username}"`);
         this._loginInProgress = false;
         this._client = client;
-        this._observer.triggerEvent(SharedMatrixClientServiceEvent.LOGGED_IN);
+        if (this._observer.hasCallbacks(SharedMatrixClientServiceEvent.LOGGED_IN)) {
+            this._observer.triggerEvent(SharedMatrixClientServiceEvent.LOGGED_IN);
+        }
     }
 
     /**
@@ -112,7 +114,9 @@ export class SharedMatrixClientService {
         await this.login(url);
         LOG.debug(`Initialization finished: `, url);
         this._initInProgress = false;
-        this._observer.triggerEvent(SharedMatrixClientServiceEvent.INITIALIZED);
+        if(this._observer.hasCallbacks(SharedMatrixClientServiceEvent.INITIALIZED)) {
+            this._observer.triggerEvent(SharedMatrixClientServiceEvent.INITIALIZED);
+        }
     }
 
     /**

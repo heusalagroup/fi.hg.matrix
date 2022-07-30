@@ -3,9 +3,9 @@
 import { SharedMatrixClientService } from "./SharedMatrixClientService";
 import { MatrixCrudRepository } from "./MatrixCrudRepository";
 import { isRepositoryEntry, RepositoryEntry } from "../core/simpleRepository/types/RepositoryEntry";
-import { isArrayOf, TestCallbackNonStandard } from "../core/modules/lodash";
+import { filter, isArrayOf, TestCallbackNonStandard } from "../core/modules/lodash";
 import { Observer } from "../core/Observer";
-import { StoredRepositoryItem } from "./types/repository/StoredRepositoryItem";
+import { StoredRepositoryItem } from "../core/simpleRepository/types/StoredRepositoryItem";
 import { RepositoryServiceEvent } from "./types/repository/RepositoryServiceEvent";
 
 export class MatrixRepositoryService<T extends StoredRepositoryItem, EventT extends RepositoryServiceEvent> {
@@ -60,6 +60,55 @@ export class MatrixRepositoryService<T extends StoredRepositoryItem, EventT exte
         await this._sharedClientService.waitForInitialization();
     }
 
+    /**
+     * Get all records
+     *
+     * @param isT
+     * @protected
+     */
+    protected async _getAll (
+        isT : TestCallbackNonStandard
+    ) : Promise<readonly RepositoryEntry<T>[]> {
+        const list : readonly RepositoryEntry<T>[] = await this._repository.getAll();
+        if (!isArrayOf(
+            list,
+            (item : RepositoryEntry<T>) : boolean => isRepositoryEntry<T>(
+                item,
+                isT
+            )
+        )) {
+            throw new TypeError(`${this._observer.getName()}._getAll: Illegal data from database`);
+        }
+        return list;
+    }
+
+    /**
+     * Get some records which are part of the `idList`
+     *
+     * @param idList
+     * @param isT
+     * @protected
+     */
+    protected async _getSome (
+        idList : readonly string[],
+        isT : TestCallbackNonStandard
+    ) : Promise<readonly RepositoryEntry<T>[]> {
+        const allList : readonly RepositoryEntry<T>[] = await this._repository.getAll();
+        const list : RepositoryEntry<T>[] = filter(
+            allList,
+            (item : RepositoryEntry<T>) : boolean => item?.id && idList.includes(item?.id)
+        );
+        if (!isArrayOf(
+            list,
+            (item : RepositoryEntry<T>) : boolean => isRepositoryEntry<T>(
+                item,
+                isT
+            )
+        )) {
+            throw new TypeError(`${this._observer.getName()}._getAll: Illegal data from database`);
+        }
+        return list;
+    }
 
     /**
      * Get all records by a property name
