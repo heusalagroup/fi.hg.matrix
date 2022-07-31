@@ -2,7 +2,7 @@
 
 import {
     hasNoOtherKeysInDevelopment,
-    isInteger,
+    isInteger, isIntegerOrUndefined,
     isRegularObject,
     isStringOrUndefined,
     isUndefined,
@@ -24,7 +24,7 @@ import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
  */
 export interface MatrixSyncResponseUnsignedDataDTO {
 
-    readonly age               : number;
+    readonly age              ?: number;
     readonly prev_content     ?: JsonObject;
     readonly prev_sender      ?: MatrixUserId;
     readonly redacted_because ?: MatrixSyncResponseEventDTO;
@@ -44,7 +44,7 @@ export function isMatrixSyncResponseUnsignedDataDTO (value: any): value is Matri
             'replaces_state',
             'transaction_id'
         ])
-        && isInteger(value?.age)
+        && isIntegerOrUndefined(value?.age)
         && isJsonObjectOrUndefined(value?.prev_content)
         && ( isUndefined(value?.prev_sender) || isMatrixUserId(value?.prev_sender) )
         && ( isUndefined(value?.redacted_because) || isMatrixSyncResponseEventDTO(value?.redacted_because) )
@@ -70,7 +70,7 @@ export function assertMatrixSyncResponseUnsignedDataDTO (value: any) : void {
         throw new TypeError(`Value had extra properties: All keys: ${keys(value)}`);
     }
 
-    if(!( isInteger(value?.age) )) {
+    if(!( isIntegerOrUndefined(value?.age) )) {
         throw new TypeError(`Property "age" was not valid: ${value?.age}`);
     }
 

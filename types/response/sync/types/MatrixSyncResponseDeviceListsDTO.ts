@@ -3,15 +3,15 @@
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 import {
     hasNoOtherKeysInDevelopment,
-    isArrayOf,
+    isArrayOf, isArrayOfOrUndefined,
     isRegularObject,
     isUndefined,
     keys
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseDeviceListsDTO {
-    readonly changed : readonly MatrixUserId[];
-    readonly left    : readonly MatrixUserId[] | undefined;
+    readonly changed ?: readonly MatrixUserId[];
+    readonly left    ?: readonly MatrixUserId[] | undefined;
 }
 
 export function isMatrixSyncResponseDeviceListsDTO (value: any): value is MatrixSyncResponseDeviceListsDTO {
@@ -21,7 +21,7 @@ export function isMatrixSyncResponseDeviceListsDTO (value: any): value is Matrix
             'changed',
             'left'
         ])
-        && isArrayOf<MatrixUserId>(value?.changed, isMatrixUserId)
+        && isArrayOfOrUndefined<MatrixUserId>(value?.changed, isMatrixUserId)
         && ( isUndefined(value?.left) || isArrayOf<MatrixUserId>(value?.left, isMatrixUserId) )
     );
 }

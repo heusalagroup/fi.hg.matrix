@@ -11,14 +11,14 @@ import {
     isArrayOf,
     isBoolean,
     isRegularObject,
-    isString,
+    isString, isStringOrUndefined,
     keys
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseTimelineDTO {
-    readonly events     : readonly MatrixSyncResponseRoomEventDTO[];
-    readonly limited    : boolean;
-    readonly prev_batch : string;
+    readonly events      : readonly MatrixSyncResponseRoomEventDTO[];
+    readonly limited     : boolean;
+    readonly prev_batch ?: string;
 }
 
 export function getEventsFromMatrixSyncResponseTimelineDTO (
@@ -37,7 +37,7 @@ export function isMatrixSyncResponseTimelineDTO (value: any): value is MatrixSyn
         ])
         && isArrayOf(value?.events, isMatrixSyncResponseRoomEventDTO)
         && isBoolean(value?.limited)
-        && isString(value?.prev_batch)
+        && isStringOrUndefined(value?.prev_batch)
     );
 }
 

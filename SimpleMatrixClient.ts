@@ -1117,7 +1117,7 @@ export class SimpleMatrixClient implements RepositoryClient {
         );
 
         if (!isMatrixSyncResponseDTO(response)) {
-            LOG.debug(`_sync: response not MatrixSyncResponseDTO: `, JSON.stringify(response, null ,2));
+            LOG.debug(`sync: response not MatrixSyncResponseDTO: `, JSON.stringify(response, null ,2));
             throw new TypeError(`${this._observer.getName()}.sync: Response was not MatrixSyncResponseDTO: ${explainMatrixSyncResponseDTO(response)}`);
         }
 

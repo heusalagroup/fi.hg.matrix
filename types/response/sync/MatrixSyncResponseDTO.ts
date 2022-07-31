@@ -101,11 +101,11 @@ export function isMatrixSyncResponseDTO (value: any): value is MatrixSyncRespons
         && (isUndefined(value?.account_data) || isMatrixSyncResponseAccountDataDTO(
             value?.account_data))
         && (isUndefined(value?.to_device) || isMatrixSyncResponseToDeviceDTO(value?.to_device))
-        && (isUndefined(value?.device_lists) || isMatrixSyncResponseDeviceListsDTO(
-            value?.device_lists))
-        && (isUndefined(
-            value?.device_one_time_keys_count) || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(
-            value?.device_one_time_keys_count))
+        && (isUndefined(value?.device_lists) || isMatrixSyncResponseDeviceListsDTO(value?.device_lists))
+        && (
+            isUndefined(value?.device_one_time_keys_count)
+            || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(value?.device_one_time_keys_count)
+        )
     );
 }
 
@@ -158,9 +158,9 @@ export function assertMatrixSyncResponseDTO (value: any): void {
                 value?.device_lists)}`);
     }
 
-    if ( !(isUndefined(
-        value?.device_one_time_keys_count) || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(
-        value?.device_one_time_keys_count)) ) {
+    if ( !(
+        isUndefined(value?.device_one_time_keys_count)
+        || isMatrixSyncResponseDeviceOneTimeKeysCountDTO(value?.device_one_time_keys_count)) ) {
         throw new TypeError('Property "device_one_time_keys_count" was invalid');
     }
 

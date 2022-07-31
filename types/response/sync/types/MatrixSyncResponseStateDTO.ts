@@ -12,6 +12,9 @@ import { MatrixSyncResponseStateEventDTO,
     explainMatrixSyncResponseStateEventDTO,
     isMatrixSyncResponseStateEventDTO
 } from "./MatrixSyncResponseStateEventDTO";
+import { LogService } from "../../../../../core/LogService";
+
+const LOG = LogService.createLogger('MatrixSyncResponseStateDTO');
 
 export interface MatrixSyncResponseStateDTO {
     readonly events : readonly MatrixSyncResponseStateEventDTO[];
@@ -46,8 +49,12 @@ export function assertMatrixSyncResponseStateDTO (value: any): void {
     }
 
     if(!( isArrayOf<MatrixSyncResponseStateEventDTO>(value?.events, isMatrixSyncResponseStateEventDTO) )) {
+        if (!value?.events) {
+            LOG.debug(`Not a MatrixSyncResponseStateDTO: ${JSON.stringify(value, null, 2)}`);
+            throw new TypeError(`Property "events": Not array of MatrixSyncResponseStateEventDTO: Not an array: ${value?.events}`);
+        }
         const item = find(value?.events, item => !isMatrixSyncResponseStateEventDTO(item));
-        throw new TypeError(`Not array of MatrixSyncResponseStateEventDTO: ${explainMatrixSyncResponseStateEventDTO(item)}`);
+        throw new TypeError(`Property "events": Not array of MatrixSyncResponseStateEventDTO: ${explainMatrixSyncResponseStateEventDTO(item)}`);
     }
 
 }

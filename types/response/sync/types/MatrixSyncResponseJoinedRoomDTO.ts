@@ -114,13 +114,12 @@ export function assertMatrixSyncResponseJoinedRoomDTO (value: any): void {
 
     if ( !((isUndefined(value?.state) || isMatrixSyncResponseStateDTO(value?.state))) ) {
         throw new TypeError(
-            `Property "state" was invalid: ${explainMatrixSyncResponseStateDTO(value)}`);
+            `Property "state" was invalid: ${explainMatrixSyncResponseStateDTO(value?.state)}`);
     }
 
     if ( !((isUndefined(value?.timeline) || isMatrixSyncResponseTimelineDTO(value?.timeline))) ) {
         throw new TypeError(
-            `Property "timeline" was invalid: ${explainMatrixSyncResponseTimelineDTO(
-                value?.timeline)}`);
+            `Property "timeline" was invalid: ${explainMatrixSyncResponseTimelineDTO(value?.timeline)}`);
     }
 
     if ( !((isUndefined(value?.ephemeral) || isMatrixSyncResponseEphemeralDTO(
