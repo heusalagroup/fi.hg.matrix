@@ -76,6 +76,7 @@ import { isMatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIR
 import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIdentifierDTO";
 import { GetRoomStateByTypeResponseDTO, isGetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
+import { RepositoryClient } from "../core/simpleRepository/types/RepositoryClient";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 
@@ -97,7 +98,7 @@ interface SyncAgainCallback {
  * Far from perfect, but works both on browser and on OpenWRT with NodeJS 8 and full POC takes only
  * 50k as compiled single bundle file (including all the dependencies) :)
  */
-export class SimpleMatrixClient {
+export class SimpleMatrixClient implements RepositoryClient {
 
     public static Event = SimpleMatrixClientEvent;
 

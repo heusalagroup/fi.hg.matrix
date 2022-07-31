@@ -1,7 +1,7 @@
 // Copyright (c) 2021-2022. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { RepositoryEntry } from "../core/simpleRepository/types/RepositoryEntry";
-import { Repository } from "../core/simpleRepository/types/Repository";
+import { Repository, REPOSITORY_NEW_IDENTIFIER } from "../core/simpleRepository/types/Repository";
 import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { MatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { MatrixCreateRoomPreset }
@@ -57,6 +57,8 @@ import { createRoomJoinRulesStateContentDTO } from "./types/event/roomJoinRules/
 import { createRoomJoinRulesStateEventDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateEventDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
 import { GetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
+import { isStoredRepositoryItem, StoredRepositoryItem, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
+import { RepositoryUtils } from "../core/simpleRepository/RepositoryUtils";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -66,7 +68,7 @@ const LOG = LogService.createLogger('MatrixCrudRepository');
  *
  * See also [MemoryRepository](https://github.com/sendanor/typescript/tree/main/simpleRepository)
  */
-export class MatrixCrudRepository<T> implements Repository<T> {
+export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Repository<T> {
 
     public static setLogLevel (level: LogLevel) {
         LOG.setLogLevel(level);
@@ -80,6 +82,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     private readonly _deletedKey     : string;
     private readonly _allowedGroups  : readonly MatrixRoomId[] | undefined;
     private readonly _allowedEvents  : readonly string[] | undefined;
+    private readonly _isT            : StoredRepositoryItemTestCallback;
 
     /**
      * Creates an instance of MatrixCrudRepository.
@@ -107,6 +110,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      *
      * @param allowedEvents  Optional. List of allowed event IDs in the room.
      *
+     * @param isT            Optional. Test function to check if the type really is T.
+     *
      */
     public constructor (
         client                : SimpleMatrixClient,
@@ -115,8 +120,9 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         serviceAccount        : SimpleMatrixClient | undefined = undefined,
         deletedType           : string             | undefined = undefined,
         deletedKey            : string             | undefined = undefined,
-        allowedGroups         : readonly MatrixRoomId[]     | undefined = undefined,
-        allowedEvents         : readonly string[]           | undefined = undefined
+        allowedGroups         : readonly MatrixRoomId[]          | undefined = undefined,
+        allowedEvents         : readonly string[]                | undefined = undefined,
+        isT                   : StoredRepositoryItemTestCallback | undefined = undefined
     ) {
 
         if (!isMatrixType(stateType)) {
@@ -130,6 +136,7 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         this._deletedType    = parseNonEmptyString(deletedType)  ?? MatrixType.FI_NOR_DELETED;
         this._deletedKey     = deletedKey                        ?? '';
         this._allowedEvents  = allowedEvents;
+        this._isT            = isT ?? isStoredRepositoryItem;
 
         if (allowedGroups === undefined) {
             this._allowedGroups = undefined;
@@ -145,133 +152,28 @@ export class MatrixCrudRepository<T> implements Repository<T> {
      * @returns Array of resources
      */
     public async getAll () : Promise<readonly RepositoryEntry<T>[]> {
-
-        const response : MatrixSyncResponseDTO = await this._client.sync({
-            filter: {
-                presence: {
-                    limit: 0,
-                    // types: [ this._stateType ]
-                },
-                account_data: {
-                    limit: 0,
-                    // types: [ this._stateType ]
-                },
-                room: {
-                    account_data: {
-                        limit: 0,
-                        // types: [ this._stateType ]
-                    },
-                    ephemeral: {
-                        limit: 0,
-                    },
-                    timeline: {
-                        limit: 0,
-                        // types: [ this._stateType ]
-                    },
-                    state: {
-                        limit: 1,
-                        include_redundant_members: true,
-                        types: [ this._stateType ],
-                        not_types: [ this._deletedType ]
-                    }
-                }
-            },
-            full_state: true
-        });
-
-        LOG.debug(`getAll: response = `, JSON.stringify(response, null, 2));
-
-        const joinObject = response?.rooms?.join ?? {};
-        const inviteObject = response?.rooms?.invite ?? {};
-
-        const joinedRooms  : readonly MatrixRoomId[] = keys(joinObject);
-        LOG.debug(`joinedRooms = `, joinedRooms);
-
-        const invitedRooms : readonly MatrixRoomId[] = keys(inviteObject);
-        LOG.debug(`invitedRooms = `, invitedRooms);
-
-        const roomsNotYetJoined : readonly MatrixRoomId[] = filter(
-            invitedRooms,
-            (item : MatrixRoomId) : boolean => !joinedRooms.includes(item)
-        );
-
-        if (roomsNotYetJoined.length) {
-
-            LOG.debug("Joining to rooms = ", roomsNotYetJoined);
-
-            let joinedRooms : number = 0;
-
-            await reduce(
-                roomsNotYetJoined,
-                async (p, roomId : MatrixRoomId) : Promise<void> => {
-
-                    await p;
-
-                    try {
-
-                        LOG.debug("Joining to room = ", roomId);
-                        await this._client.joinRoom(roomId);
-
-                        joinedRooms += 1;
-
-                    } catch (err : any) {
-                        LOG.warn(`Warning! Could not join client "${this._client.getUserId()}" to room: ${roomId}`);
-                    }
-
-                },
-                Promise.resolve()
-            )
-
-            if (joinedRooms >= 1) {
-                LOG.debug("Fetching results again after joining");
-                return await this.getAll();
-            }
-
+        const list = this._getAll();
+        if (!this.isRepositoryEntryList(list)) {
+            throw new TypeError(`MatrixCrudRepository.getAll: Illegal data from database`);
         }
+        return list;
+    }
 
-        return reduce(
-            joinedRooms,
-            (result : readonly RepositoryEntry<T>[], roomId: MatrixRoomId) : readonly RepositoryEntry<T>[] => {
-                const value : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
-                const events : readonly MatrixSyncResponseRoomEventDTO[] = filter(
-                    value?.state?.events ?? [],
-                    (item : MatrixSyncResponseRoomEventDTO) : boolean => {
-                        return (
-                            (item?.type === this._stateType)
-                            && (item?.state_key === this._stateKey)
-                            && isNumber(item?.content?.version)
-                        );
-                    }
-                );
-                return concat(
-                    result,
-                    map(
-                        events,
-                        (item : MatrixSyncResponseRoomEventDTO) : RepositoryEntry<T> => {
-
-                            // @ts-ignore
-                            const data    : T       = item?.content?.data ?? {};
-
-                            // @ts-ignore
-                            const version : number  = item?.content?.version;
-
-                            // @ts-ignore
-                            const deleted : boolean = !!(item?.content?.deleted);
-
-                            return {
-                                data: data,
-                                id: roomId,
-                                version: version,
-                                deleted: deleted
-                            };
-
-                        }
-                    )
-                );
-            },
-            []
+    /**
+     * Returns all resources (eg. Matrix rooms) from the repository which are of this type.
+     *
+     * @returns Array of resources
+     */
+    public async getSome (idList : readonly string[]) : Promise<readonly RepositoryEntry<T>[]> {
+        const allList : readonly RepositoryEntry<T>[] = await this._getAll();
+        const list = filter(
+            allList,
+            (item : RepositoryEntry<T>) : boolean => item?.id && idList.includes(item?.id)
         );
-
+        if (!this.isRepositoryEntryList(list)) {
+            throw new TypeError(`MatrixCrudRepository.getSome: Illegal data from database`);
+        }
+        return list;
     }
 
     /**
@@ -288,8 +190,8 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         propertyName  : string,
         propertyValue : any
     ): Promise<readonly RepositoryEntry<T>[]> {
-        const items = await this.getAll();
-        return map(
+        const items = await this._getAll();
+        const list = map(
             filter(
                 items,
                 (item: RepositoryEntry<T>) : boolean => get(item?.data, propertyName) === propertyValue
@@ -300,6 +202,10 @@ export class MatrixCrudRepository<T> implements Repository<T> {
                 data     : item.data
             })
         );
+        if (!this.isRepositoryEntryList(list)) {
+            throw new TypeError(`MatrixCrudRepository.getAllByProperty: Illegal data from database`);
+        }
+        return list;
     }
 
     /**
@@ -505,6 +411,22 @@ export class MatrixCrudRepository<T> implements Repository<T> {
     }
 
     /**
+     * Find a record by an ID and update it.
+     *
+     * @param id
+     * @param item
+     * @protected
+     */
+    public async findByIdAndUpdate (
+        id: string,
+        item: T
+    ) : Promise<RepositoryEntry<T>> {
+        const rItem : RepositoryEntry<T> | undefined = await this.findById(id);
+        if (rItem === undefined) throw new TypeError(`findByIdAndUpdate: Could not find item for "${id}"`);
+        return await this.update(rItem.id, item);
+    }
+
+    /**
      * Update the state of a resource located by this ID.
      *
      * It will set the state of the Matrix room to `jsonData` with a newer version number.
@@ -552,6 +474,26 @@ export class MatrixCrudRepository<T> implements Repository<T> {
             deleted: false
         };
 
+    }
+
+    /**
+     * Update the state of a resource located by this ID.
+     *
+     * It will set the state of the Matrix room to `jsonData` with a newer version number.
+     *
+     * @param item New data
+     */
+    public async updateOrCreateItem (item: T) : Promise<RepositoryEntry<T>> {
+        if (!isJsonObject(item)) {
+            throw new TypeError(`MatrixCrudRepository.updateOrCreateItem: jsonData was not JsonObject: ${item}`);
+        }
+        const id = item.id;
+        const foundItem : RepositoryEntry<T> | undefined = id !== REPOSITORY_NEW_IDENTIFIER ? await this.findById(id) : undefined;
+        if (foundItem) {
+            return await this.update(foundItem.id, item);
+        } else {
+            return await this.createItem(item);
+        }
     }
 
     /**
@@ -659,6 +601,33 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     *
+     * @param list
+     */
+    public async deleteByIdList (list: readonly string[]) : Promise<readonly RepositoryEntry<T>[]> {
+        const results = [];
+        let i = 0;
+        for (; i < list.length; i += 1) {
+            results.push( await this.deleteById(list[i]) );
+        }
+        return results;
+    }
+
+    /**
+     * Delete by item list
+     *
+     * @param list
+     */
+    public async deleteByList (list: readonly RepositoryEntry<T>[]) : Promise<readonly RepositoryEntry<T>[]> {
+        return this.deleteByIdList( map(list, item => item.id) );
+    }
+
+    /**
+     *
+     * @param id
+     * @param members
+     */
     public async inviteToItem (
         id      : string,
         members : readonly string[]
@@ -699,6 +668,10 @@ export class MatrixCrudRepository<T> implements Repository<T> {
 
     }
 
+    /**
+     *
+     * @param id
+     */
     public async subscribeToItem (
         id : string
     ): Promise<void> {
@@ -735,6 +708,152 @@ export class MatrixCrudRepository<T> implements Repository<T> {
         }
 
         return await this.findById(id, includeMembers);
+
+    }
+
+    /**
+     * Returns true if the list is in correct format.
+     *
+     * @param list
+     * @private
+     */
+    public isRepositoryEntryList (list: any) : list is RepositoryEntry<T>[] {
+        return RepositoryUtils.isRepositoryEntryList(list, this._isT);
+    }
+
+
+    /**
+     * Returns all resources (eg. Matrix rooms) from the repository which are of this type.
+     *
+     * @returns Array of resources
+     */
+    private async _getAll () : Promise<readonly RepositoryEntry<T>[]> {
+
+        const response : MatrixSyncResponseDTO = await this._client.sync({
+                                                                             filter: {
+                                                                                 presence: {
+                                                                                     limit: 0,
+                                                                                     // types: [ this._stateType ]
+                                                                                 },
+                                                                                 account_data: {
+                                                                                     limit: 0,
+                                                                                     // types: [ this._stateType ]
+                                                                                 },
+                                                                                 room: {
+                                                                                     account_data: {
+                                                                                         limit: 0,
+                                                                                         // types: [ this._stateType ]
+                                                                                     },
+                                                                                     ephemeral: {
+                                                                                         limit: 0,
+                                                                                     },
+                                                                                     timeline: {
+                                                                                         limit: 0,
+                                                                                         // types: [ this._stateType ]
+                                                                                     },
+                                                                                     state: {
+                                                                                         limit: 1,
+                                                                                         include_redundant_members: true,
+                                                                                         types: [ this._stateType ],
+                                                                                         not_types: [ this._deletedType ]
+                                                                                     }
+                                                                                 }
+                                                                             },
+                                                                             full_state: true
+                                                                         });
+
+        LOG.debug(`getAll: response = `, JSON.stringify(response, null, 2));
+
+        const joinObject = response?.rooms?.join ?? {};
+        const inviteObject = response?.rooms?.invite ?? {};
+
+        const joinedRooms  : readonly MatrixRoomId[] = keys(joinObject);
+        LOG.debug(`joinedRooms = `, joinedRooms);
+
+        const invitedRooms : readonly MatrixRoomId[] = keys(inviteObject);
+        LOG.debug(`invitedRooms = `, invitedRooms);
+
+        const roomsNotYetJoined : readonly MatrixRoomId[] = filter(
+            invitedRooms,
+            (item : MatrixRoomId) : boolean => !joinedRooms.includes(item)
+        );
+
+        if (roomsNotYetJoined.length) {
+
+            LOG.debug("Joining to rooms = ", roomsNotYetJoined);
+
+            let joinedRooms : number = 0;
+
+            await reduce(
+                roomsNotYetJoined,
+                async (p, roomId : MatrixRoomId) : Promise<void> => {
+
+                    await p;
+
+                    try {
+
+                        LOG.debug("Joining to room = ", roomId);
+                        await this._client.joinRoom(roomId);
+
+                        joinedRooms += 1;
+
+                    } catch (err : any) {
+                        LOG.warn(`Warning! Could not join client "${this._client.getUserId()}" to room: ${roomId}`);
+                    }
+
+                },
+                Promise.resolve()
+            )
+
+            if (joinedRooms >= 1) {
+                LOG.debug("Fetching results again after joining");
+                return await this._getAll();
+            }
+
+        }
+
+        return reduce(
+            joinedRooms,
+            (result : readonly RepositoryEntry<T>[], roomId: MatrixRoomId) : readonly RepositoryEntry<T>[] => {
+                const value : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
+                const events : readonly MatrixSyncResponseRoomEventDTO[] = filter(
+                    value?.state?.events ?? [],
+                    (item : MatrixSyncResponseRoomEventDTO) : boolean => {
+                        return (
+                            (item?.type === this._stateType)
+                            && (item?.state_key === this._stateKey)
+                            && isNumber(item?.content?.version)
+                        );
+                    }
+                );
+                return concat(
+                    result,
+                    map(
+                        events,
+                        (item : MatrixSyncResponseRoomEventDTO) : RepositoryEntry<T> => {
+
+                            // @ts-ignore
+                            const data    : T       = item?.content?.data ?? {};
+
+                            // @ts-ignore
+                            const version : number  = item?.content?.version;
+
+                            // @ts-ignore
+                            const deleted : boolean = !!(item?.content?.deleted);
+
+                            return {
+                                data: data,
+                                id: roomId,
+                                version: version,
+                                deleted: deleted
+                            };
+
+                        }
+                    )
+                );
+            },
+            []
+        );
 
     }
 

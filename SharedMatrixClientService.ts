@@ -2,34 +2,29 @@
 
 import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { LogService } from "../core/LogService";
-import { Observer, ObserverCallback, ObserverDestructor } from "../core/Observer";
+import { Observer, ObserverCallback } from "../core/Observer";
 import { DEFAULT_IO_SERVER_HOSTNAME } from "./constants/matrix-backend";
+import { SharedClientService, SharedClientServiceDestructor} from "../core/simpleRepository/types/SharedClientService";
+import { SharedClientServiceEvent } from "../core/simpleRepository/types/SharedClientServiceEvent";
 
 const LOG = LogService.createLogger('SharedMatrixClientService');
-
-export enum SharedMatrixClientServiceEvent {
-    LOGGED_IN   = "SharedMatrixClientService:loggedIn",
-    INITIALIZED = "SharedMatrixClientService:initialized"
-}
-
-export type SharedMatrixClientServiceDestructor = ObserverDestructor;
 
 /**
  * This service can be used to offer shared access to SimpleMatrixClient
  * instance. We use it for our services using MatrixCrudRepository.
  */
-export class SharedMatrixClientService {
+export class SharedMatrixClientService implements SharedClientService {
 
-    public Event = SharedMatrixClientServiceEvent;
+    public Event = SharedClientServiceEvent;
 
-    private _observer           : Observer<SharedMatrixClientServiceEvent>;
+    private _observer           : Observer<SharedClientServiceEvent>;
     private _client             : SimpleMatrixClient | undefined;
     private _initInProgress     : boolean;
     private _loginInProgress    : boolean;
     private _defaultServer      : string;
 
     public constructor () {
-        this._observer = new Observer<SharedMatrixClientServiceEvent>("SharedMatrixClientService");
+        this._observer = new Observer<SharedClientServiceEvent>("SharedMatrixClientService");
         this._client = undefined;
         this._initInProgress = true;
         this._loginInProgress = false;
@@ -48,19 +43,15 @@ export class SharedMatrixClientService {
         return this._initInProgress;
     }
 
-    public isLoggingIn () : boolean {
-        return this._loginInProgress;
-    }
-
     /**
      *
      * @param name
      * @param callback
      */
     public on (
-        name: SharedMatrixClientServiceEvent,
-        callback: ObserverCallback<SharedMatrixClientServiceEvent>
-    ): SharedMatrixClientServiceDestructor {
+        name: SharedClientServiceEvent,
+        callback: ObserverCallback<SharedClientServiceEvent>
+    ): SharedClientServiceDestructor {
         return this._observer.listenEvent(name, callback);
     }
 
@@ -77,7 +68,7 @@ export class SharedMatrixClientService {
      */
     public async login (
         url: string
-    ) {
+    ) : Promise<void> {
         if (this._loginInProgress) {
             throw new TypeError('Another login already in progress');
         }
@@ -97,8 +88,8 @@ export class SharedMatrixClientService {
         LOG.info(`Logged in to "${hostname}" as "${username}"`);
         this._loginInProgress = false;
         this._client = client;
-        if (this._observer.hasCallbacks(SharedMatrixClientServiceEvent.LOGGED_IN)) {
-            this._observer.triggerEvent(SharedMatrixClientServiceEvent.LOGGED_IN);
+        if (this._observer.hasCallbacks(SharedClientServiceEvent.LOGGED_IN)) {
+            this._observer.triggerEvent(SharedClientServiceEvent.LOGGED_IN);
         }
     }
 
@@ -108,14 +99,14 @@ export class SharedMatrixClientService {
      */
     public async initialize (
         url      : string
-    ) {
+    ) : Promise<void> {
         LOG.debug(`Initialization started: `, url);
         this._initInProgress = true;
         await this.login(url);
         LOG.debug(`Initialization finished: `, url);
         this._initInProgress = false;
-        if(this._observer.hasCallbacks(SharedMatrixClientServiceEvent.INITIALIZED)) {
-            this._observer.triggerEvent(SharedMatrixClientServiceEvent.INITIALIZED);
+        if(this._observer.hasCallbacks(SharedClientServiceEvent.INITIALIZED)) {
+            this._observer.triggerEvent(SharedClientServiceEvent.INITIALIZED);
         }
     }
 
@@ -129,7 +120,7 @@ export class SharedMatrixClientService {
                 await new Promise<void>((resolve, reject) => {
                     try {
                         listener = this._observer.listenEvent(
-                            SharedMatrixClientServiceEvent.INITIALIZED,
+                            SharedClientServiceEvent.INITIALIZED,
                             () => {
                                 try {
                                     if (listener) {
