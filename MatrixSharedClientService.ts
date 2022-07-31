@@ -7,13 +7,13 @@ import { DEFAULT_IO_SERVER_HOSTNAME } from "./constants/matrix-backend";
 import { SharedClientService, SharedClientServiceDestructor} from "../core/simpleRepository/types/SharedClientService";
 import { SharedClientServiceEvent } from "../core/simpleRepository/types/SharedClientServiceEvent";
 
-const LOG = LogService.createLogger('SharedMatrixClientService');
+const LOG = LogService.createLogger('MatrixSharedClientService');
 
 /**
  * This service can be used to offer shared access to SimpleMatrixClient
  * instance. We use it for our services using MatrixCrudRepository.
  */
-export class SharedMatrixClientService implements SharedClientService {
+export class MatrixSharedClientService implements SharedClientService {
 
     public Event = SharedClientServiceEvent;
 
@@ -24,11 +24,15 @@ export class SharedMatrixClientService implements SharedClientService {
     private _defaultServer      : string;
 
     public constructor () {
-        this._observer = new Observer<SharedClientServiceEvent>("SharedMatrixClientService");
+        this._observer = new Observer<SharedClientServiceEvent>("MatrixSharedClientService");
         this._client = undefined;
         this._initInProgress = true;
         this._loginInProgress = false;
         this._defaultServer = DEFAULT_IO_SERVER_HOSTNAME;
+    }
+
+    public destroy (): void {
+        this._observer.destroy();
     }
 
     public getClient () : SimpleMatrixClient | undefined {
@@ -53,13 +57,6 @@ export class SharedMatrixClientService implements SharedClientService {
         callback: ObserverCallback<SharedClientServiceEvent>
     ): SharedClientServiceDestructor {
         return this._observer.listenEvent(name, callback);
-    }
-
-    /**
-     *
-     */
-    public destroy (): void {
-        this._observer.destroy();
     }
 
     /**
