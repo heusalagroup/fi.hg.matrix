@@ -168,7 +168,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         const allList : readonly RepositoryEntry<T>[] = await this._getAll();
         const list = filter(
             allList,
-            (item : RepositoryEntry<T>) : boolean => item?.id && idList.includes(item?.id)
+            (item : RepositoryEntry<T>) : boolean => !!item?.id && idList.includes(item?.id)
         );
         if (!this.isRepositoryEntryList(list)) {
             throw new TypeError(`MatrixCrudRepository.getSome: Illegal data from database`);
