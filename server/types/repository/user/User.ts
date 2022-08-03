@@ -1,16 +1,25 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isString, isStringOrUndefined } from "../../../../../core/modules/lodash";
 
 export interface User {
-    readonly id : string;
+    readonly id        : string;
+    readonly username  : string;
+    readonly password  : string;
+    readonly email    ?: string;
 }
 
 export function createUser (
-    id: string
+    id        : string,
+    username  : string,
+    password  : string,
+    email    ?: string
 ): User {
     return {
-        id
+        id,
+        username,
+        password,
+        email
     };
 }
 
@@ -18,9 +27,15 @@ export function isUser (value: any): value is User {
     return (
         isRegularObject(value)
         && hasNoOtherKeys(value, [
-            'id'
+            'id',
+            'username',
+            'password',
+            'email'
         ])
         && isString(value?.id)
+        && isString(value?.username)
+        && isString(value?.password)
+        && isStringOrUndefined(value?.email)
     );
 }
 

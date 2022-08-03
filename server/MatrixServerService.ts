@@ -4,6 +4,7 @@ import { DeviceRepositoryService } from "./types/repository/device/DeviceReposit
 import { RoomRepositoryService } from "./types/repository/room/RoomRepositoryService";
 import { UserRepositoryService } from "./types/repository/user/UserRepositoryService";
 import { EventRepositoryService } from "./types/repository/event/EventRepositoryService";
+import { UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
 
 export class MatrixServerService {
 
@@ -40,6 +41,13 @@ export class MatrixServerService {
     }
 
     /**
+     * Called once after every member has been initialized
+     */
+    public async initialize () : Promise<void> {
+
+    }
+
+    /**
      * Get a nonce for registration
      *
      * @see https://github.com/heusalagroup/hghs/issues/1
@@ -47,6 +55,25 @@ export class MatrixServerService {
      */
     public async createAdminRegisterNonce () : Promise<string> {
         return 'nonce';
+    }
+
+    /**
+     *
+     * @param username
+     * @param password
+     * @see https://github.com/heusalagroup/hghs/issues/28
+     */
+    public async loginWithPassword (
+        deviceId: string,
+        username: string,
+        password: string
+    ) : Promise<string | undefined> {
+        const item : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
+        if (!item) return undefined;
+        if (password !== item.target.password) {
+            return undefined;
+        }
+
     }
 
 }
