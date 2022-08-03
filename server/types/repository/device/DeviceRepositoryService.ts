@@ -1,24 +1,22 @@
 // Copyright (c) 2021-2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { LogService } from "../../../core/LogService";
-import { Observer, ObserverCallback, ObserverDestructor } from "../../../core/Observer";
-import { RepositoryService } from "../../../core/simpleRepository/types/RepositoryService";
-import { RepositoryServiceEvent } from "../../../core/simpleRepository/types/RepositoryServiceEvent";
-import { SharedClientService } from "../../../core/simpleRepository/types/SharedClientService";
-import { Repository } from "../../../core/simpleRepository/types/Repository";
-import { RepositoryInitializer } from "../../../core/simpleRepository/types/RepositoryInitializer";
-import { RepositoryEntry } from "../../../core/simpleRepository/types/RepositoryEntry";
-import { StoredDeviceRepositoryItem } from "./repository/device/StoredDeviceRepositoryItem";
-import { createDeviceRepositoryItem, DeviceRepositoryItem, parseDeviceRepositoryItem, toStoredDeviceRepositoryItem } from "./repository/device/DeviceRepositoryItem";
-import { map } from "../../../core/modules/lodash";
-import { parseJson } from "../../../core/Json";
-import { isDevice } from "./repository/device/Device";
+import { LogService } from "../../../../../core/LogService";
+import { Observer, ObserverCallback, ObserverDestructor } from "../../../../../core/Observer";
+import { RepositoryService } from "../../../../../core/simpleRepository/types/RepositoryService";
+import { StoredDeviceRepositoryItem } from "./StoredDeviceRepositoryItem";
+import { RepositoryServiceEvent } from "../../../../../core/simpleRepository/types/RepositoryServiceEvent";
+import { SharedClientService } from "../../../../../core/simpleRepository/types/SharedClientService";
+import { Repository } from "../../../../../core/simpleRepository/types/Repository";
+import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
+import { DeviceRepositoryItem, parseDeviceRepositoryItem, toStoredDeviceRepositoryItem } from "./DeviceRepositoryItem";
+import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
+import { map } from "../../../../../core/modules/lodash";
 
-const LOG = LogService.createLogger('HgHsDeviceRepositoryService');
+const LOG = LogService.createLogger('DeviceRepositoryService');
 
-export type HgHsDeviceRepositoryServiceDestructor = ObserverDestructor;
+export type DeviceRepositoryServiceDestructor = ObserverDestructor;
 
-export class HgHsDeviceRepositoryService implements RepositoryService<StoredDeviceRepositoryItem> {
+export class DeviceRepositoryService implements RepositoryService<StoredDeviceRepositoryItem> {
 
     public Event = RepositoryServiceEvent;
 
@@ -31,7 +29,7 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
         sharedClientService   : SharedClientService,
         repositoryInitializer : RepositoryInitializer<StoredDeviceRepositoryItem>
     ) {
-        this._observer = new Observer<RepositoryServiceEvent>("HgHsDeviceRepositoryService");
+        this._observer = new Observer<RepositoryServiceEvent>("DeviceRepositoryService");
         this._sharedClientService = sharedClientService;
         this._repositoryInitializer = repositoryInitializer;
         this._repository = undefined;
@@ -40,7 +38,7 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
     public on (
         name: RepositoryServiceEvent,
         callback: ObserverCallback<RepositoryServiceEvent>
-    ): HgHsDeviceRepositoryServiceDestructor {
+    ): DeviceRepositoryServiceDestructor {
         return this._observer.listenEvent(name, callback);
     }
 
@@ -61,11 +59,9 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
     public async getAllDevices () : Promise<readonly DeviceRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
         return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
-            const data = parseJson(item.data);
-            if (!isDevice(data)) throw new TypeError(`MatrixRepositoryService: Could not parse data: ${item.data}`);
-            return createDeviceRepositoryItem(
+            return parseDeviceRepositoryItem(
                 item.id,
-                data
+                item.data
             );
         });
     }
@@ -75,11 +71,9 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
     ) : Promise<readonly DeviceRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
         return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
-            const data = parseJson(item.data);
-            if (!isDevice(data)) throw new TypeError(`MatrixRepositoryService: Could not parse data: ${item.data}`);
             return parseDeviceRepositoryItem(
                 item.id,
-                data
+                item.data
             );
         });
     }
