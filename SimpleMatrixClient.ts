@@ -116,7 +116,6 @@ export class SimpleMatrixClient implements RepositoryClient {
     private readonly _syncAgainTimeMs          : number;
     private readonly _syncRequestTimeoutMs     : number;
     private readonly _syncAgainTimeoutCallback : VoidCallback;
-    private readonly _initSyncAgainTimeoutCallback : SyncAgainCallback;
 
     private _state              : SimpleMatrixClientState;
     private _userId             : string | undefined;
@@ -166,7 +165,6 @@ export class SimpleMatrixClient implements RepositoryClient {
         this._syncAgainTimeMs               = pollWaitTime;
         this._observer                      = new Observer<SimpleMatrixClientEvent>("SimpleMatrixClient");
         this._syncAgainTimeoutCallback      = this._onSyncAgainTimeout.bind(this);
-        this._initSyncAgainTimeoutCallback  = this._onInitSyncAgain.bind(this);
 
     }
 
@@ -313,6 +311,12 @@ export class SimpleMatrixClient implements RepositoryClient {
         this._stopSyncing();
     }
 
+    /**
+     *
+     * @param requestBody
+     * @param kind
+     * @param accessToken
+     */
     public async register (
         requestBody  : MatrixRegisterRequestDTO,
         kind         : MatrixRegisterKind | undefined = undefined,
@@ -329,7 +333,7 @@ export class SimpleMatrixClient implements RepositoryClient {
                 this._homeServerUrl + MATRIX_REGISTER_URL(kind),
                 requestBody as unknown as JsonAny,
                 access_token ? {
-                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
+                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(access_token)
                 } : undefined
             );
 
@@ -1528,7 +1532,7 @@ export class SimpleMatrixClient implements RepositoryClient {
      *
      * @private
      */
-    private _startInitSyncAgainLater () {
+    private _startInitSyncAgainLater (triggerEvents: boolean) {
 
         if ( this._state !== SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING ) {
             throw new TypeError(`${this._observer.getName()}._startInitSyncAgainLater: Client was not AUTHENTICATED_AND_RESTARTING (${stringifySimpleMatrixClientState(this._state)})`);
@@ -1536,7 +1540,10 @@ export class SimpleMatrixClient implements RepositoryClient {
 
         this._clearInitSyncAgainTimer();
 
-        this._initSyncAgainTimer = setTimeout(this._initSyncAgainTimeoutCallback, this._syncAgainTimeMs);
+        this._initSyncAgainTimer = setTimeout(
+            () => this._onInitSyncAgain(triggerEvents),
+            this._syncAgainTimeMs
+        );
 
     }
 
@@ -1733,8 +1740,8 @@ export class SimpleMatrixClient implements RepositoryClient {
             if ( !next_batch ) {
                 LOG.warn(`_initSync: Warning! No next_batch in the response: `, response);
                 this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING);
-                this._startInitSyncAgainLater();
-                if (triggerEvents) this._triggerSyncEvents(response);
+                this._startInitSyncAgainLater(triggerEvents);
+                // if (triggerEvents) this._triggerSyncEvents(response);
                 return;
             }
 
@@ -1752,7 +1759,7 @@ export class SimpleMatrixClient implements RepositoryClient {
                 this._setState(SimpleMatrixClientState.AUTHENTICATED);
             } else {
                 this._setState(SimpleMatrixClientState.AUTHENTICATED_AND_RESTARTING);
-                this._startInitSyncAgainLater();
+                this._startInitSyncAgainLater(triggerEvents);
             }
         }
 
