@@ -3,14 +3,33 @@
 import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface Device {
+
+    /**
+     * The internal database ID, which cannot be changed.
+     */
     readonly id : string;
+
+    /**
+     * The user ID who this device belongs to
+     */
+    readonly userId : string;
+
+    /**
+     * The ID which may be provided by the client
+     */
+    readonly deviceId : string;
+
 }
 
 export function createDevice (
-    id: string
+    id: string,
+    userId: string,
+    deviceId: string
 ): Device {
     return {
-        id
+        id,
+        userId,
+        deviceId
     };
 }
 
@@ -18,9 +37,13 @@ export function isDevice (value: any): value is Device {
     return (
         isRegularObject(value)
         && hasNoOtherKeys(value, [
-            'id'
+            'id',
+            'userId',
+            'deviceId'
         ])
         && isString(value?.id)
+        && isString(value?.userId)
+        && isString(value?.deviceId)
     );
 }
 

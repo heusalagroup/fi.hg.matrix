@@ -8,6 +8,8 @@ import { createStoredDeviceRepositoryItem, StoredDeviceRepositoryItem } from "./
 
 export interface DeviceRepositoryItem extends RepositoryItem<Device> {
     readonly id: string;
+    readonly userId: string;
+    readonly deviceId: string;
     readonly target: Device;
 }
 
@@ -17,6 +19,8 @@ export function createDeviceRepositoryItem (
 ): DeviceRepositoryItem {
     return {
         id,
+        userId: target?.userId,
+        deviceId: target?.deviceId,
         target
     };
 }
@@ -26,9 +30,13 @@ export function isDeviceRepositoryItem (value: any): value is DeviceRepositoryIt
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'id',
+            'userId',
+            'deviceId',
             'target'
         ])
         && isString(value?.id)
+        && isString(value?.userId)
+        && isString(value?.deviceId)
         && isDevice(value?.target)
     );
 }
@@ -51,6 +59,8 @@ export function toStoredDeviceRepositoryItem (
 ) : StoredDeviceRepositoryItem | undefined {
     return createStoredDeviceRepositoryItem(
         item.id,
+        item?.target?.userId,
+        item?.target?.deviceId,
         JSON.stringify(item.target)
     );
 }

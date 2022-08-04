@@ -5,6 +5,15 @@ import { RoomRepositoryService } from "./types/repository/room/RoomRepositorySer
 import { UserRepositoryService } from "./types/repository/user/UserRepositoryService";
 import { EventRepositoryService } from "./types/repository/event/EventRepositoryService";
 import { UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
+import { JwtEngine } from "../../backend/JwtEngine";
+import { createDeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
+import { createDevice } from "./types/repository/device/Device";
+import { JwtUtils } from "../../backend/JwtUtils";
+
+/**
+ * Default expiration time in minutes
+ */
+const DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME = 300;
 
 export class MatrixServerService {
 
@@ -13,6 +22,8 @@ export class MatrixServerService {
     private readonly _userService   : UserRepositoryService;
     private readonly _roomService   : RoomRepositoryService;
     private readonly _eventService  : EventRepositoryService;
+    private readonly _jwtEngine     : JwtEngine;
+    private readonly _accessTokenExpirationTime : number;
 
     /**
      *
@@ -21,19 +32,25 @@ export class MatrixServerService {
      * @param userService
      * @param roomService
      * @param eventService
+     * @param jwtEngine
+     * @param accessTokenExpirationTime Expiration time in minutes for access tokens
      */
     public constructor (
         hostname: string,
         deviceService: DeviceRepositoryService,
         userService: UserRepositoryService,
         roomService: RoomRepositoryService,
-        eventService: EventRepositoryService
+        eventService: EventRepositoryService,
+        jwtEngine: JwtEngine,
+        accessTokenExpirationTime : number = DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME
     ) {
         this._hostname = hostname;
         this._deviceService = deviceService;
         this._userService = userService;
         this._roomService = roomService;
         this._eventService = eventService;
+        this._jwtEngine = jwtEngine;
+        this._accessTokenExpirationTime = accessTokenExpirationTime;
     }
 
     public getHostName () : string {
@@ -61,18 +78,53 @@ export class MatrixServerService {
      *
      * @param username
      * @param password
+     * @param deviceId This is the optional device ID provided by the client
      * @see https://github.com/heusalagroup/hghs/issues/28
      */
     public async loginWithPassword (
-        deviceId: string,
-        username: string,
-        password: string
+        username  : string,
+        password  : string,
+        deviceId ?: string | undefined
     ) : Promise<string | undefined> {
-        const item : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
-        if (!item) return undefined;
-        if (password !== item.target.password) {
+
+        const user : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
+        if ( !user || !password || password !== user?.target?.password) {
             return undefined;
         }
+
+        let foundDevice = undefined;
+        if ( deviceId ) {
+            foundDevice = await this._deviceService.getDeviceByDeviceId(deviceId);
+            if ( !foundDevice ) {
+                foundDevice = await this._deviceService.getDeviceById(deviceId);
+            }
+            if ( foundDevice ) {
+                if ( foundDevice.userId !== user.id ) {
+                    return undefined;
+                }
+            }
+        }
+
+        if (!foundDevice) {
+            foundDevice = await this._deviceService.saveDevice(
+                createDeviceRepositoryItem(
+                    'new',
+                    createDevice(
+                        'new',
+                        user.id,
+                        deviceId
+                    )
+                )
+            );
+        }
+
+        if (!foundDevice.id) {
+            throw new TypeError('MatrixServerService: Could not create or find device ID');
+        }
+
+        return this._jwtEngine.sign(
+            JwtUtils.createSubPayloadExpiringInMinutes(foundDevice.id, this._accessTokenExpirationTime)
+        );
 
     }
 
