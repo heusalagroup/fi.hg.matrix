@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isString, isStringOrUndefined } from "../../../../../core/modules/lodash";
 
 export interface Device {
 
@@ -17,14 +17,14 @@ export interface Device {
     /**
      * The ID which may be provided by the client
      */
-    readonly deviceId : string;
+    readonly deviceId ?: string;
 
 }
 
 export function createDevice (
     id: string,
     userId: string,
-    deviceId: string
+    deviceId ?: string | undefined
 ): Device {
     return {
         id,
@@ -43,7 +43,7 @@ export function isDevice (value: any): value is Device {
         ])
         && isString(value?.id)
         && isString(value?.userId)
-        && isString(value?.deviceId)
+        && isStringOrUndefined(value?.deviceId)
     );
 }
 

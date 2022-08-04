@@ -4,11 +4,16 @@ import { DeviceRepositoryService } from "./types/repository/device/DeviceReposit
 import { RoomRepositoryService } from "./types/repository/room/RoomRepositoryService";
 import { UserRepositoryService } from "./types/repository/user/UserRepositoryService";
 import { EventRepositoryService } from "./types/repository/event/EventRepositoryService";
-import { UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
+import { createUserRepositoryItem, UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
 import { JwtEngine } from "../../backend/JwtEngine";
 import { createDeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
 import { createDevice } from "./types/repository/device/Device";
 import { JwtUtils } from "../../backend/JwtUtils";
+import { LogService } from "../../core/LogService";
+import { createUser, User } from "./types/repository/user/User";
+import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/Repository";
+
+const LOG = LogService.createLogger('MatrixServerService');
 
 /**
  * Default expiration time in minutes
@@ -65,6 +70,39 @@ export class MatrixServerService {
     }
 
     /**
+     *
+     * @param username
+     * @param password
+     * @param email
+     */
+    public async createUser (
+        username  : string,
+        password  : string,
+        email    ?: string
+    ) : Promise<User> {
+        const createdUser = await this._userService.createUser(
+            createUserRepositoryItem(
+                REPOSITORY_NEW_IDENTIFIER,
+                createUser(
+                    REPOSITORY_NEW_IDENTIFIER,
+                    username,
+                    password,
+                    email
+                ),
+                username,
+                email
+            )
+        );
+        if (!createdUser) throw new TypeError(`MatrixServerService.createUser: Could not create user: ${username}`);
+        return createUser(
+            createdUser?.id,
+            createdUser?.target?.username,
+            createdUser?.target?.password,
+            createdUser?.target?.email
+        );
+    }
+
+    /**
      * Get a nonce for registration
      *
      * @see https://github.com/heusalagroup/hghs/issues/1
@@ -87,8 +125,23 @@ export class MatrixServerService {
         deviceId ?: string | undefined
     ) : Promise<string | undefined> {
 
+        if (!username) {
+            LOG.debug(`loginWithPassword: Username is required`);
+            return undefined;
+        }
+
+        if (!password) {
+            LOG.debug(`loginWithPassword: Password is required for user "${username}"`);
+            return undefined;
+        }
+
         const user : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
-        if ( !user || !password || password !== user?.target?.password) {
+        if ( !user || password !== user?.target?.password ) {
+            if ( !user ) {
+                LOG.debug(`loginWithPassword: User not found: "${username}"`);
+            } else {
+                LOG.debug(`loginWithPassword: Password mismatch for: "${username}"`);
+            }
             return undefined;
         }
 
@@ -98,14 +151,9 @@ export class MatrixServerService {
             if ( !foundDevice ) {
                 foundDevice = await this._deviceService.getDeviceById(deviceId);
             }
-            if ( foundDevice ) {
-                if ( foundDevice.userId !== user.id ) {
-                    return undefined;
-                }
-            }
         }
 
-        if (!foundDevice) {
+        if ( !foundDevice ) {
             foundDevice = await this._deviceService.saveDevice(
                 createDeviceRepositoryItem(
                     'new',
@@ -118,10 +166,17 @@ export class MatrixServerService {
             );
         }
 
-        if (!foundDevice.id) {
-            throw new TypeError('MatrixServerService: Could not create or find device ID');
+        if ( foundDevice.userId !== user.id ) {
+            LOG.warn(`loginWithPassword: Device was found/created but belong to different user than: "${username}"`);
+            return undefined;
         }
 
+        if ( !foundDevice?.id ) {
+            LOG.warn(`Could not create or find device ID "${deviceId}" for user "${username}"`);
+            return undefined;
+        }
+
+        LOG.debug(`Login successful for device "${deviceId}" and user "${username}", generating access key`);
         return this._jwtEngine.sign(
             JwtUtils.createSubPayloadExpiringInMinutes(foundDevice.id, this._accessTokenExpirationTime)
         );

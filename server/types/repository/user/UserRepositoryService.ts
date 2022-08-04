@@ -10,7 +10,7 @@ import { Repository } from "../../../../../core/simpleRepository/types/Repositor
 import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
 import { UserRepositoryItem, parseUserRepositoryItem, toStoredUserRepositoryItem } from "./UserRepositoryItem";
 import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
-import { map } from "../../../../../core/modules/lodash";
+import { map, toLower } from "../../../../../core/modules/lodash";
 
 const LOG = LogService.createLogger('UserRepositoryService');
 
@@ -59,10 +59,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
     public async getAllUsers () : Promise<readonly UserRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredUserRepositoryItem>[] = await this._getAllUsers();
         return map(list, (item: RepositoryEntry<StoredUserRepositoryItem>) : UserRepositoryItem => {
-            return parseUserRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toUserRepositoryItem(item);
         });
     }
 
@@ -71,10 +68,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
     ) : Promise<readonly UserRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredUserRepositoryItem>[] = await this._getSomeUsers(idList);
         return map(list, (item: RepositoryEntry<StoredUserRepositoryItem>) : UserRepositoryItem => {
-            return parseUserRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toUserRepositoryItem(item);
         });
     }
 
@@ -82,20 +76,14 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredUserRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
-        return parseUserRepositoryItem(
-            foundItem.id,
-            foundItem.data
-        );
+        return this._toUserRepositoryItem(foundItem);
     }
 
     public async findByUsername (username: string) : Promise<UserRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
-        const foundItem : RepositoryEntry<StoredUserRepositoryItem> | undefined = await this._repository.findByProperty("username", username);
+        const foundItem : RepositoryEntry<StoredUserRepositoryItem> | undefined = await this._repository.findByProperty("username", toLower(username));
         if (!foundItem) return undefined;
-        return parseUserRepositoryItem(
-            foundItem.id,
-            foundItem.data
-        );
+        return this._toUserRepositoryItem(foundItem);
     }
 
     public async deleteAllUsers () : Promise<void> {
@@ -112,12 +100,21 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         await this._repository.deleteByList(list);
     }
 
+    public async createUser (
+        item : UserRepositoryItem
+    ) : Promise<UserRepositoryItem> {
+        await this._sharedClientService.waitForInitialization();
+        LOG.debug(`Creating user using: `, item);
+        const createdStoredItem : RepositoryEntry<StoredUserRepositoryItem> = await this._repository.createItem(toStoredUserRepositoryItem(item));
+        return this._toUserRepositoryItem(createdStoredItem);
+    }
+
     public async saveUser (
         item : UserRepositoryItem
     ) : Promise<UserRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
         const foundItem = await this._repository.updateOrCreateItem(toStoredUserRepositoryItem(item));
-        return parseUserRepositoryItem(foundItem.id, foundItem.data);
+        return this._toUserRepositoryItem(foundItem);
     }
 
     // PRIVATE METHODS
@@ -130,6 +127,21 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredUserRepositoryItem>[]> {
         return await this._repository.getSome(idList);
+    }
+
+    private _toUserRepositoryItem (storedItem: RepositoryEntry<StoredUserRepositoryItem>) : UserRepositoryItem {
+        const id = storedItem.id;
+        const target = storedItem.data?.target;
+        LOG.debug(`User with id "${id}": `, storedItem, target);
+        const item = parseUserRepositoryItem(
+            id,
+            target
+        );
+        LOG.debug(`User "${id}" as: `, item);
+        if (!item) {
+            throw new TypeError(`UserRepositoryService: Could not parse "${storedItem.id}" and ${JSON.stringify(target)}`);
+        }
+        return item;
     }
 
 }

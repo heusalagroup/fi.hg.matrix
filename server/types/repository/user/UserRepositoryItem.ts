@@ -2,9 +2,9 @@
 
 import { hasNoOtherKeys, isRegularObject, isString, isStringOrUndefined, toLower } from "../../../../../core/modules/lodash";
 import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
-import { User, isUser } from "./User";
+import { User, isUser, createUser } from "./User";
 import { parseJson } from "../../../../../core/Json";
-import { createStoredUserRepositoryItem, StoredUserRepositoryItem } from "./StoredUserRepositoryItem";
+import { createStoredUserRepositoryItem, isStoredUserRepositoryItem, StoredUserRepositoryItem } from "./StoredUserRepositoryItem";
 
 export interface UserRepositoryItem extends RepositoryItem<User> {
 
@@ -60,15 +60,21 @@ export function stringifyUserRepositoryItem (value: UserRepositoryItem): string 
 
 export function parseUserRepositoryItem (
     id: string,
-    unparsedData: any
+    unparsedTarget: any
 ) : UserRepositoryItem | undefined {
-    const data = parseJson(unparsedData);
-    if ( !isUser(data) ) return undefined;
+    const target = parseJson(unparsedTarget);
+    if ( !isUser(target) ) return undefined;
+    const email = target?.email;
     return createUserRepositoryItem(
         id,
-        data,
-        toLower(data?.username),
-        toLower(data?.email)
+        createUser(
+            id,
+            target.username,
+            target.password,
+            email
+        ),
+        toLower(target?.username),
+        email ? toLower(email) : undefined
     );
 }
 

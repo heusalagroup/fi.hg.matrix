@@ -13,7 +13,7 @@ export function createUser (
     id        : string,
     username  : string,
     password  : string,
-    email    ?: string
+    email    ?: string | undefined
 ): User {
     return {
         id,
