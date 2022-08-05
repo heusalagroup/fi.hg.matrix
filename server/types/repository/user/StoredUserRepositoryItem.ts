@@ -1,14 +1,24 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeys, isRegularObject, isString, isStringOrUndefined } from "../../../../../core/modules/lodash";
 import { StoredRepositoryItem } from "../../../../../core/simpleRepository/types/StoredRepositoryItem";
 
 export interface StoredUserRepositoryItem extends StoredRepositoryItem {
 
     /**
-     * Unique ID
+     * Unique ID in the database
      */
     readonly id : string;
+
+    /**
+     * Unique username
+     */
+    readonly username : string;
+
+    /**
+     * Email address
+     */
+    readonly email ?: string;
 
     /** Current item data as JSON string
      */
@@ -18,10 +28,14 @@ export interface StoredUserRepositoryItem extends StoredRepositoryItem {
 
 export function createStoredUserRepositoryItem (
     id: string,
-    target: string
+    target: string,
+    username: string,
+    email ?: string | undefined
 ): StoredUserRepositoryItem {
     return {
         id,
+        username,
+        email,
         target
     };
 }
@@ -31,9 +45,13 @@ export function isStoredUserRepositoryItem (value: any): value is StoredUserRepo
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'id',
+            'username',
+            'email',
             'target'
         ])
         && isString(value?.id)
+        && isString(value?.username)
+        && isStringOrUndefined(value?.email)
         && isString(value?.target)
     );
 }

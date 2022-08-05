@@ -411,6 +411,30 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     }
 
     /**
+     * Returns one resource (eg. Matrix room) which have this property defined in their state.
+     *
+     * If no resource found, returns `undefined`.
+     *
+     * @param propertyName This may also be a path to value inside the model,
+     *                     eg. `user.id` to match `{user: {id: 123}}`.
+     *
+     * @param propertyValue The value to find
+     *
+     * @throws TypeError if multiple values found
+     *
+     */
+    public async findByProperty (
+        propertyName  : string,
+        propertyValue : any
+    ) : Promise<RepositoryEntry<T> | undefined> {
+        const result = await this.getAllByProperty(propertyName, propertyValue);
+        const resultCount : number = result?.length ?? 0;
+        if (resultCount === 0) return undefined;
+        if (resultCount !== 1) throw new TypeError(`MemoryRepository.findByProperty: Multiple items found by property "${propertyName}" as: ${propertyValue}`);
+        return result[0];
+    }
+
+    /**
      * Find a record by an ID and update it.
      *
      * @param id

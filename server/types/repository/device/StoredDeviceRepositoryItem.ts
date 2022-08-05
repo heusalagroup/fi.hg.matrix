@@ -6,9 +6,19 @@ import { StoredRepositoryItem } from "../../../../../core/simpleRepository/types
 export interface StoredDeviceRepositoryItem extends StoredRepositoryItem {
 
     /**
-     * Unique ID
+     * Unique internal ID
      */
     readonly id : string;
+
+    /**
+     * The user who this device belongs to
+     */
+    readonly userId : string;
+
+    /**
+     * Unique device ID which may be provided by the client
+     */
+    readonly deviceId : string;
 
     /** Current item data as JSON string
      */
@@ -18,10 +28,14 @@ export interface StoredDeviceRepositoryItem extends StoredRepositoryItem {
 
 export function createStoredDeviceRepositoryItem (
     id: string,
+    userId: string,
+    deviceId: string,
     target: string
 ): StoredDeviceRepositoryItem {
     return {
         id,
+        userId,
+        deviceId,
         target
     };
 }
@@ -31,9 +45,13 @@ export function isStoredDeviceRepositoryItem (value: any): value is StoredDevice
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'id',
+            'userId',
+            'deviceId',
             'target'
         ])
         && isString(value?.id)
+        && isString(value?.userId)
+        && isString(value?.deviceId)
         && isString(value?.target)
     );
 }

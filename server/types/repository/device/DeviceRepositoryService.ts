@@ -59,10 +59,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     public async getAllDevices () : Promise<readonly DeviceRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
         return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
-            return parseDeviceRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toDeviceRepositoryItem(item);
         });
     }
 
@@ -71,21 +68,32 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     ) : Promise<readonly DeviceRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
         return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
-            return parseDeviceRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toDeviceRepositoryItem(item);
         });
     }
 
+    /**
+     * Find by the internal repository device ID
+     *
+     * @param id
+     */
     public async getDeviceById (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
-        return parseDeviceRepositoryItem(
-            foundItem.id,
-            foundItem.data
-        );
+        return this._toDeviceRepositoryItem(foundItem);
+    }
+
+    /**
+     * Find using the possibly user defined device id
+     *
+     * @param id
+     */
+    public async getDeviceByDeviceId (id: string) : Promise<DeviceRepositoryItem | undefined> {
+        await this._sharedClientService.waitForInitialization();
+        const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findByProperty("deviceId", id);
+        if (!foundItem) return undefined;
+        return this._toDeviceRepositoryItem(foundItem);
     }
 
     public async deleteAllDevices () : Promise<void> {
@@ -107,7 +115,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     ) : Promise<DeviceRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
         const foundItem = await this._repository.updateOrCreateItem(toStoredDeviceRepositoryItem(item));
-        return parseDeviceRepositoryItem(foundItem.id, foundItem.data);
+        return this._toDeviceRepositoryItem(foundItem);
     }
 
     // PRIVATE METHODS
@@ -120,6 +128,21 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
         return await this._repository.getSome(idList);
+    }
+
+    private _toDeviceRepositoryItem (storedItem: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem {
+        const id = storedItem.id;
+        const target = storedItem.data?.target;
+        LOG.debug(`Device with id "${id}": `, storedItem, target);
+        const item = parseDeviceRepositoryItem(
+            id,
+            target
+        );
+        LOG.debug(`Device "${id}" parsed as: `, item);
+        if (!item) {
+            throw new TypeError(`DeviceRepositoryService: Could not parse "${storedItem.id}" and ${JSON.stringify(target)}`);
+        }
+        return item;
     }
 
 }
