@@ -11,13 +11,13 @@ import { MatrixStateEventOf } from "./MatrixStateEventOf";
 import { MatrixType } from "./MatrixType";
 
 export interface MatrixStateEvent extends MatrixStateEventOf<JsonObject> {
-    readonly type       : MatrixType;
+    readonly type       : MatrixType | string;
     readonly state_key ?: string;
     readonly content    : JsonObject;
 }
 
 export function createMatrixStateEvent (
-    type      : MatrixType,
+    type      : MatrixType | string,
     state_key : string,
     content   : JsonObject
 ) : MatrixStateEvent {
