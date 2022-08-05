@@ -1,31 +1,30 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isIntegerOrUndefined,
     isRegularObject,
     isStringArrayOrUndefined
 } from "../../../../../core/modules/lodash";
+import { MatrixType } from "../../../core/MatrixType";
 
 export interface MatrixSyncResponseRoomSummaryDTO {
-
-    readonly "m.heroes"               ?: string[];
-    readonly "m.joined_member_count"  ?: number;
-    readonly "m.invited_member_count" ?: number;
-
+    readonly [MatrixType.M_HEROES]               ?: readonly string[];
+    readonly [MatrixType.M_JOINED_MEMBER_COUNT]  ?: number;
+    readonly [MatrixType.M_INVITED_MEMBER_COUNT] ?: number;
 }
 
 export function isMatrixSyncResponseRoomSummaryDTO (value: any): value is MatrixSyncResponseRoomSummaryDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
-            "m.heroes",
-            "m.joined_member_count",
-            "m.invited_member_count"
+        && hasNoOtherKeysInDevelopment(value, [
+            MatrixType.M_HEROES,
+            MatrixType.M_JOINED_MEMBER_COUNT,
+            MatrixType.M_INVITED_MEMBER_COUNT
         ])
-        && isStringArrayOrUndefined(value["m.heroes"])
-        && isIntegerOrUndefined(value["m.joined_member_count"])
-        && isIntegerOrUndefined(value["m.invited_member_count"])
+        && isStringArrayOrUndefined(value[MatrixType.M_HEROES])
+        && isIntegerOrUndefined(value[MatrixType.M_JOINED_MEMBER_COUNT])
+        && isIntegerOrUndefined(value[MatrixType.M_INVITED_MEMBER_COUNT])
     );
 }
 

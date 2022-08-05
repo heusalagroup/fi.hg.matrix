@@ -3,18 +3,21 @@
 import {
     concat,
     find,
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isRegularObject
 } from "../../../../../core/modules/lodash";
 
-import { MatrixSyncResponseStateEventDTO, 
+import { MatrixSyncResponseStateEventDTO,
     explainMatrixSyncResponseStateEventDTO,
     isMatrixSyncResponseStateEventDTO
 } from "./MatrixSyncResponseStateEventDTO";
+import { LogService } from "../../../../../core/LogService";
+
+const LOG = LogService.createLogger('MatrixSyncResponseStateDTO');
 
 export interface MatrixSyncResponseStateDTO {
-    readonly events : MatrixSyncResponseStateEventDTO[];
+    readonly events : readonly MatrixSyncResponseStateEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseStateDTO (
@@ -26,7 +29,7 @@ export function getEventsFromMatrixSyncResponseStateDTO (
 export function isMatrixSyncResponseStateDTO (value: any): value is MatrixSyncResponseStateDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
         && isArrayOf<MatrixSyncResponseStateEventDTO>(value?.events, isMatrixSyncResponseStateEventDTO)
@@ -39,15 +42,19 @@ export function assertMatrixSyncResponseStateDTO (value: any): void {
         throw new TypeError(`value was not object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
             'events'
         ]))) {
         throw new TypeError(`value had extra keys`);
     }
 
     if(!( isArrayOf<MatrixSyncResponseStateEventDTO>(value?.events, isMatrixSyncResponseStateEventDTO) )) {
+        if (!value?.events) {
+            LOG.debug(`Not a MatrixSyncResponseStateDTO: ${JSON.stringify(value, null, 2)}`);
+            throw new TypeError(`Property "events": Not array of MatrixSyncResponseStateEventDTO: Not an array: ${value?.events}`);
+        }
         const item = find(value?.events, item => !isMatrixSyncResponseStateEventDTO(item));
-        throw new TypeError(`Not array of MatrixSyncResponseStateEventDTO: ${explainMatrixSyncResponseStateEventDTO(item)}`);
+        throw new TypeError(`Property "events": Not array of MatrixSyncResponseStateEventDTO: ${explainMatrixSyncResponseStateEventDTO(item)}`);
     }
 
 }

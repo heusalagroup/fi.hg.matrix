@@ -1,31 +1,31 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseStrippedStateDTO, 
+import { MatrixSyncResponseStrippedStateDTO,
     explainMatrixSyncResponseStrippedStateDTO,
     isMatrixSyncResponseStrippedStateDTO
 } from "./MatrixSyncResponseStrippedStateDTO";
 import {
     find,
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isRegularObject,
     keys
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseInviteStateDTO {
-    readonly events: MatrixSyncResponseStrippedStateDTO[];
+    readonly events: readonly MatrixSyncResponseStrippedStateDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseInviteStateDTO (
     value: MatrixSyncResponseInviteStateDTO
-) : MatrixSyncResponseStrippedStateDTO[] {
+) : readonly MatrixSyncResponseStrippedStateDTO[] {
     return value?.events ?? [];
 }
 
 export function isMatrixSyncResponseInviteStateDTO (value: any): value is MatrixSyncResponseInviteStateDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
         && isArrayOf(value?.events, isMatrixSyncResponseStrippedStateDTO)
@@ -36,7 +36,7 @@ export function assertMatrixSyncResponseInviteStateDTO (value: any): void {
     if(!( isRegularObject(value) )) {
         throw new TypeError(`value invalid: ${value}`);
     }
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
             'events'
         ]) )) {
         throw new TypeError(`value has extra keys: all keys: ${keys(value)}`);

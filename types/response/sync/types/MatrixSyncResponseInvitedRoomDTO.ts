@@ -1,11 +1,11 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseInviteStateDTO, 
+import { MatrixSyncResponseInviteStateDTO,
     explainMatrixSyncResponseInviteStateDTO,
     getEventsFromMatrixSyncResponseInviteStateDTO,
     isMatrixSyncResponseInviteStateDTO
 } from "./MatrixSyncResponseInviteStateDTO";
-import { hasNoOtherKeys, isRegularObject, keys } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, keys } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseStrippedStateDTO } from "./MatrixSyncResponseStrippedStateDTO";
 
 export interface MatrixSyncResponseInvitedRoomDTO {
@@ -21,7 +21,7 @@ export function getEventsFromMatrixSyncResponseInvitedRoomDTO (
 export function isMatrixSyncResponseInvitedRoomDTO (value: any): value is MatrixSyncResponseInvitedRoomDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'invite_state'
         ])
         && isMatrixSyncResponseInviteStateDTO(value?.invite_state)
@@ -34,7 +34,7 @@ export function assertMatrixSyncResponseInvitedRoomDTO (value: any): void {
         throw new TypeError(`Value not object: ${value}`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
             'invite_state'
         ]) )) {
         throw new TypeError(`Object has extra keys: all keys: ${keys(value)}`);

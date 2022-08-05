@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringOrUndefined
@@ -21,10 +21,24 @@ export interface MatrixRegisterResponseDTO {
 
 }
 
+export function createMatrixRegisterResponseDTO (
+    user_id        : string,
+    access_token  ?: string,
+    home_server   ?: string,
+    device_id     ?: string,
+) : MatrixRegisterResponseDTO {
+    return {
+        user_id,
+        access_token,
+        home_server,
+        device_id
+    };
+}
+
 export function isMatrixRegisterResponseDTO (value: any): value is MatrixRegisterResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'user_id',
             'access_token',
             'home_server',

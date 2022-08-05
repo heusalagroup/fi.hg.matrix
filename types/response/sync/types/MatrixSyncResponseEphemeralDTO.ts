@@ -2,14 +2,14 @@
 
 import {
     concat,
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isRegularObject
 } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponseEphemeralDTO {
-    readonly events : MatrixSyncResponseEventDTO[];
+    readonly events : readonly MatrixSyncResponseEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseEphemeralDTO (
@@ -21,7 +21,7 @@ export function getEventsFromMatrixSyncResponseEphemeralDTO (
 export function isMatrixSyncResponseEphemeralDTO (value: any): value is MatrixSyncResponseEphemeralDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
         && isArrayOf(value?.events, isMatrixSyncResponseEventDTO)

@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringOrUndefined
@@ -15,7 +15,7 @@ export interface MatrixRegisterAuthenticationData {
 export function isMatrixRegisterAuthenticationData (value: any): value is MatrixRegisterAuthenticationData {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'type',
             'session'
         ])

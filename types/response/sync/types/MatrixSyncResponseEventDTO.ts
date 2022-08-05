@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { isJsonObject, JsonObject } from "../../../../../core/Json";
-import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
 import { MatrixType,  isMatrixType } from "../../../core/MatrixType";
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 
@@ -14,7 +14,7 @@ export interface MatrixSyncResponseEventDTO {
 export function isMatrixSyncResponseEventDTO (value: any): value is MatrixSyncResponseEventDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'content',
             'type',
             'sender'

@@ -1,11 +1,12 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
-    isInteger,
+    hasNoOtherKeysInDevelopment,
+    isInteger, isIntegerOrUndefined,
     isRegularObject,
     isStringOrUndefined,
-    isUndefined, keys
+    isUndefined,
+    keys
 } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { isJsonObjectOrUndefined, JsonObject } from "../../../../../core/Json";
@@ -23,7 +24,7 @@ import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
  */
 export interface MatrixSyncResponseUnsignedDataDTO {
 
-    readonly age               : number;
+    readonly age              ?: number;
     readonly prev_content     ?: JsonObject;
     readonly prev_sender      ?: MatrixUserId;
     readonly redacted_because ?: MatrixSyncResponseEventDTO;
@@ -35,7 +36,7 @@ export interface MatrixSyncResponseUnsignedDataDTO {
 export function isMatrixSyncResponseUnsignedDataDTO (value: any): value is MatrixSyncResponseUnsignedDataDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'age',
             'prev_content',
             'prev_sender',
@@ -43,7 +44,7 @@ export function isMatrixSyncResponseUnsignedDataDTO (value: any): value is Matri
             'replaces_state',
             'transaction_id'
         ])
-        && isInteger(value?.age)
+        && isIntegerOrUndefined(value?.age)
         && isJsonObjectOrUndefined(value?.prev_content)
         && ( isUndefined(value?.prev_sender) || isMatrixUserId(value?.prev_sender) )
         && ( isUndefined(value?.redacted_because) || isMatrixSyncResponseEventDTO(value?.redacted_because) )
@@ -58,7 +59,7 @@ export function assertMatrixSyncResponseUnsignedDataDTO (value: any) : void {
         throw new TypeError(`Value was not regular object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'age',
         'prev_content',
         'prev_sender',
@@ -69,7 +70,7 @@ export function assertMatrixSyncResponseUnsignedDataDTO (value: any) : void {
         throw new TypeError(`Value had extra properties: All keys: ${keys(value)}`);
     }
 
-    if(!( isInteger(value?.age) )) {
+    if(!( isIntegerOrUndefined(value?.age) )) {
         throw new TypeError(`Property "age" was not valid: ${value?.age}`);
     }
 

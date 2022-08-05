@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isNull,
     isRegularObject,
     isString
@@ -12,10 +12,20 @@ export interface MatrixRoomJoinedMembersRoomMemberDTO {
     readonly avatar_url   : string | null;
 }
 
+export function createMatrixRoomJoinedMembersRoomMemberDTO (
+    display_name : string,
+    avatar_url : string | null
+) : MatrixRoomJoinedMembersRoomMemberDTO {
+    return {
+        display_name,
+        avatar_url
+    };
+}
+
 export function isMatrixRoomJoinedMembersRoomMemberDTO (value: any): value is MatrixRoomJoinedMembersRoomMemberDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'display_name',
             'avatar_url'
         ])

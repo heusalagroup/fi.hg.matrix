@@ -1,25 +1,34 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
+import { hasNoOtherKeysInDevelopment, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
 import {
     isMatrixIdentityServerInformationDTO,
     MatrixIdentityServerInformationDTO
 } from "./MatrixIdentityServerInformationDTO";
 import { isMatrixHomeServerDTO, MatrixHomeServerDTO } from "./MatrixHomeServerDTO";
+import { MatrixType } from "../../../core/MatrixType";
 
 export interface MatrixDiscoveryInformationDTO {
+    readonly [MatrixType.M_HOMESERVER]: MatrixHomeServerDTO;
+    readonly [MatrixType.M_IDENTITY_SERVER]: MatrixIdentityServerInformationDTO;
+}
 
-    readonly "m.homeserver": MatrixHomeServerDTO;
-    readonly "m.identity_server": MatrixIdentityServerInformationDTO;
-
+export function createMatrixDiscoveryInformationDTO (
+    homeserverDto: MatrixHomeServerDTO,
+    identityServerDto: MatrixIdentityServerInformationDTO
+) : MatrixDiscoveryInformationDTO {
+    return {
+        [MatrixType.M_HOMESERVER]: homeserverDto,
+        [MatrixType.M_IDENTITY_SERVER]: identityServerDto
+    };
 }
 
 export function isMatrixDiscoveryInformationDTO (value: any): value is MatrixDiscoveryInformationDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ["m.homeserver", "m.identity_server"])
-        && isMatrixHomeServerDTO(value["m.homeserver"])
-        && ( isUndefined(value["m.identity_server"]) || isMatrixIdentityServerInformationDTO(value["m.identity_server"]) )
+        && hasNoOtherKeysInDevelopment(value, [MatrixType.M_HOMESERVER, MatrixType.M_IDENTITY_SERVER])
+        && isMatrixHomeServerDTO(value[MatrixType.M_HOMESERVER])
+        && ( isUndefined(value[MatrixType.M_IDENTITY_SERVER]) || isMatrixIdentityServerInformationDTO(value[MatrixType.M_IDENTITY_SERVER]) )
     );
 }
 

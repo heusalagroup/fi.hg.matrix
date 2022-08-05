@@ -1,22 +1,24 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseRoomEventDTO, 
+import { MatrixSyncResponseRoomEventDTO,
     explainMatrixSyncResponseRoomEventDTO,
     isMatrixSyncResponseRoomEventDTO
 } from "./MatrixSyncResponseRoomEventDTO";
 import {
-    concat, find,
-    hasNoOtherKeys,
+    concat,
+    find,
+    hasNoOtherKeysInDevelopment,
     isArrayOf,
     isBoolean,
     isRegularObject,
-    isString, keys
+    isString, isStringOrUndefined,
+    keys
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseTimelineDTO {
-    readonly events     : MatrixSyncResponseRoomEventDTO[];
-    readonly limited    : boolean;
-    readonly prev_batch : string;
+    readonly events      : readonly MatrixSyncResponseRoomEventDTO[];
+    readonly limited     : boolean;
+    readonly prev_batch ?: string;
 }
 
 export function getEventsFromMatrixSyncResponseTimelineDTO (
@@ -28,14 +30,14 @@ export function getEventsFromMatrixSyncResponseTimelineDTO (
 export function isMatrixSyncResponseTimelineDTO (value: any): value is MatrixSyncResponseTimelineDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events',
             'limited',
             'prev_batch'
         ])
         && isArrayOf(value?.events, isMatrixSyncResponseRoomEventDTO)
         && isBoolean(value?.limited)
-        && isString(value?.prev_batch)
+        && isStringOrUndefined(value?.prev_batch)
     );
 }
 
@@ -45,7 +47,7 @@ export function assertMatrixSyncResponseTimelineDTO (value: any): void {
         throw new TypeError(`value not object: ${value}`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'events',
         'limited',
         'prev_batch'

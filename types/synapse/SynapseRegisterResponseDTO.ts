@@ -1,11 +1,14 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString
 } from "../../../core/modules/lodash";
 
+/**
+ * @see https://github.com/heusalagroup/hghs/issues/1
+ */
 export interface SynapseRegisterResponseDTO {
     readonly access_token : string;
     readonly user_id      : string;
@@ -13,10 +16,24 @@ export interface SynapseRegisterResponseDTO {
     readonly device_id    : string;
 }
 
+export function createSynapseRegisterResponseDTO (
+    access_token : string,
+    user_id      : string,
+    home_server  : string,
+    device_id    : string,
+) : SynapseRegisterResponseDTO {
+    return {
+        access_token,
+        user_id,
+        home_server,
+        device_id
+    };
+}
+
 export function isSynapseRegisterResponseDTO (value: any): value is SynapseRegisterResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'access_token',
             'user_id',
             'home_server',

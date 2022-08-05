@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isIntegerOrUndefined,
     isRegularObject, isUndefined
 } from "../../../../../core/modules/lodash";
@@ -27,7 +27,7 @@ export interface MatrixRoomPowerLevelsEventDTO {
 export function isMatrixPowerLevelEventContentDTO (value: any): value is MatrixRoomPowerLevelsEventDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'ban',
             'events',
             'events_default',

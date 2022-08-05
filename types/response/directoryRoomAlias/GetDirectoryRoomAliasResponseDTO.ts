@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringArray
@@ -9,13 +9,23 @@ import {
 
 export interface GetDirectoryRoomAliasResponseDTO {
     readonly room_id : string;
-    readonly servers : string[];
+    readonly servers : readonly string[];
+}
+
+export function createGetDirectoryRoomAliasResponseDTO (
+    room_id : string,
+    servers : readonly string[]
+) : GetDirectoryRoomAliasResponseDTO {
+    return {
+        room_id,
+        servers
+    };
 }
 
 export function isGetDirectoryRoomAliasResponseDTO (value: any): value is GetDirectoryRoomAliasResponseDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'room_id',
             'servers'
         ])

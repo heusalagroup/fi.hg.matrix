@@ -1,23 +1,37 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringOrUndefined
 } from "../../../core/modules/lodash";
 import { JsonObject } from "../../../core/Json";
+import { MatrixStateEventOf } from "./MatrixStateEventOf";
+import { MatrixType } from "./MatrixType";
 
-export interface MatrixStateEvent {
-    readonly type       : string;
+export interface MatrixStateEvent extends MatrixStateEventOf<JsonObject> {
+    readonly type       : MatrixType | string;
     readonly state_key ?: string;
     readonly content    : JsonObject;
+}
+
+export function createMatrixStateEvent (
+    type      : MatrixType | string,
+    state_key : string,
+    content   : JsonObject
+) : MatrixStateEvent {
+    return {
+        type,
+        state_key,
+        content
+    };
 }
 
 export function isMatrixStateEvent (value: any): value is MatrixStateEvent {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'type',
             'state_key',
             'content'

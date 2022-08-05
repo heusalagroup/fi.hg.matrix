@@ -1,15 +1,28 @@
+// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import {
+    hasNoOtherKeysInDevelopment,
+    isRegularObject,
+    isString
+} from "../../../../../core/modules/lodash";
 
 export interface MatrixIdentityServerInformationDTO {
     readonly base_url: string;
 }
 
+export function createMatrixIdentityServerInformationDTO (
+    base_url: string
+) : MatrixIdentityServerInformationDTO {
+    return {
+        base_url
+    };
+}
+
 export function isMatrixIdentityServerInformationDTO (value: any): value is MatrixIdentityServerInformationDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, ['base_url'])
+        && hasNoOtherKeysInDevelopment(value, ['base_url'])
         && isString(value?.base_url)
     );
 }

@@ -2,14 +2,14 @@
 
 import {
     concat,
-    hasNoOtherKeys,
-    isArrayOf,
+    hasNoOtherKeysInDevelopment,
+    isArrayOf, isArrayOfOrUndefined,
     isRegularObject
 } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 
 export interface MatrixSyncResponseAccountDataDTO {
-    readonly events: MatrixSyncResponseEventDTO[];
+    readonly events ?: readonly MatrixSyncResponseEventDTO[];
 }
 
 export function getEventsFromMatrixSyncResponseAccountDataDTO (
@@ -21,10 +21,10 @@ export function getEventsFromMatrixSyncResponseAccountDataDTO (
 export function isMatrixSyncResponseAccountDataDTO (value: any): value is MatrixSyncResponseAccountDataDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'events'
         ])
-        && isArrayOf<MatrixSyncResponseEventDTO>(value?.events, isMatrixSyncResponseEventDTO)
+        && isArrayOfOrUndefined<MatrixSyncResponseEventDTO>(value?.events, isMatrixSyncResponseEventDTO)
     );
 }
 

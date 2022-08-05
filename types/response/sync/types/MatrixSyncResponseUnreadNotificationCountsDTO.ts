@@ -1,7 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isInteger,
     isRegularObject
 } from "../../../../../core/modules/lodash";
@@ -14,7 +14,7 @@ export interface MatrixSyncResponseUnreadNotificationCountsDTO {
 export function isMatrixSyncResponseUnreadNotificationCountsDTO (value: any): value is MatrixSyncResponseUnreadNotificationCountsDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'highlight_count',
             'notification_count'
         ])

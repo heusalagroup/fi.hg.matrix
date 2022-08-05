@@ -1,25 +1,27 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixRoomId,  explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
-import { MatrixSyncResponseJoinedRoomDTO, 
+import { MatrixRoomId, explainMatrixRoomId, isMatrixRoomId } from "../../../core/MatrixRoomId";
+import { MatrixSyncResponseJoinedRoomDTO,
     explainMatrixSyncResponseJoinedRoomDTO,
     getEventsFromMatrixSyncResponseJoinedRoomDTO,
     isMatrixSyncResponseJoinedRoomDTO
 } from "./MatrixSyncResponseJoinedRoomDTO";
-import { MatrixSyncResponseInvitedRoomDTO, 
+import { MatrixSyncResponseInvitedRoomDTO,
     explainMatrixSyncResponseInvitedRoomDTO,
     getEventsFromMatrixSyncResponseInvitedRoomDTO,
     isMatrixSyncResponseInvitedRoomDTO
 } from "./MatrixSyncResponseInvitedRoomDTO";
-import { MatrixSyncResponseLeftRoomDTO, 
+import { MatrixSyncResponseLeftRoomDTO,
     getEventsFromMatrixSyncResponseLeftRoomDTO,
     isMatrixSyncResponseLeftRoomDTO
 } from "./MatrixSyncResponseLeftRoomDTO";
 import {
-    concat, explainRegularObjectOf,
-    hasNoOtherKeys,
+    concat, explainNoOtherKeys,
+    explainRegularObjectOf,
+    hasNoOtherKeysInDevelopment,
     isRegularObject,
-    isRegularObjectOf, isUndefined,
+    isRegularObjectOf,
+    isUndefined,
     keys,
     reduce
 } from "../../../../../core/modules/lodash";
@@ -39,38 +41,34 @@ function getEventsFromObject<T> (
     value    : {[K in MatrixRoomId]: T},
     callback : getEventsCallback<T>
 ) : readonly MatrixSyncResponseAnyEventDTO[] {
-
-    const propertyKeys : string[] = keys(value);
-
+    const propertyKeys : readonly string[] = keys(value);
     return reduce(
         propertyKeys,
-        (arr : MatrixSyncResponseAnyEventDTO[], key: string) : MatrixSyncResponseAnyEventDTO[] => {
+        (arr : readonly MatrixSyncResponseAnyEventDTO[], key: string) : readonly MatrixSyncResponseAnyEventDTO[] => {
             return concat(arr, callback(value[key]));
         },
         []
     );
-
 }
 
 export function getEventsFromMatrixSyncResponseRoomsDTO (
     value: MatrixSyncResponseRoomsDTO
 ) : readonly MatrixSyncResponseAnyEventDTO[] {
-
     return concat(
         [] as readonly MatrixSyncResponseAnyEventDTO[],
         getEventsFromObject(value?.join   ?? {}, getEventsFromMatrixSyncResponseJoinedRoomDTO),
         getEventsFromObject(value?.invite ?? {}, getEventsFromMatrixSyncResponseInvitedRoomDTO),
         getEventsFromObject(value?.leave  ?? {}, getEventsFromMatrixSyncResponseLeftRoomDTO),
     );
-
 }
 
 export function isMatrixSyncResponseRoomsDTO (value: any): value is MatrixSyncResponseRoomsDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'join',
             'invite',
+            'peek',
             'leave'
         ])
         && ( isUndefined(value?.join)   || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>( value?.join,   isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO) )
@@ -85,12 +83,15 @@ export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
         throw new TypeError(`value was not regular object`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    const propertyKeys = [
         'join',
         'invite',
-        'leave'
-    ]) )) {
-        throw new TypeError(`value had extra properties`);
+        'leave',
+        'peek'
+    ];
+
+    if(!( hasNoOtherKeysInDevelopment(value, propertyKeys) )) {
+        throw new TypeError(`MatrixSyncResponseRoomsDTO: hasNoOtherKeysInDevelopment: ${explainNoOtherKeys(value, propertyKeys)}`);
     }
 
     if(!(

@@ -1,34 +1,33 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isBooleanOrUndefined,
     isRegularObject,
     isString, isStringOrUndefined, isUndefined
 } from "../../../../core/modules/lodash";
 import { MatrixPreviousRoomDTO,  isMatrixPreviousRoomDTO } from "./types/MatrixPreviousRoomDTO";
+import { MatrixType } from "../../core/MatrixType";
 
 export interface MatrixRoomCreateEventDTO {
-
-    type           ?: string;
-    creator         : string;
-    'm.federate'   ?: boolean;
-    room_version   ?: string;
-    predecessor    ?: MatrixPreviousRoomDTO;
-
+    readonly type           ?: MatrixType;
+    readonly creator         : string;
+    readonly [MatrixType.M_FEDERATE]   ?: boolean;
+    readonly room_version   ?: string;
+    readonly predecessor    ?: MatrixPreviousRoomDTO;
 }
 
 export function isMatrixCreationContentDTO (value: any): value is MatrixRoomCreateEventDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'creator',
-            'm.federate',
+            MatrixType.M_FEDERATE,
             'room_version',
             'predecessor'
         ])
         && isString(value?.creator)
-        && isBooleanOrUndefined(value['m.federate'])
+        && isBooleanOrUndefined(value[MatrixType.M_FEDERATE])
         && isStringOrUndefined(value?.room_version)
         && ( isUndefined(value?.predecessor) || isMatrixPreviousRoomDTO(value?.predecessor) )
     );
@@ -37,14 +36,14 @@ export function isMatrixCreationContentDTO (value: any): value is MatrixRoomCrea
 export function isPartialMatrixCreationContentDTO (value: any): value is Partial<MatrixRoomCreateEventDTO> {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'creator',
-            'm.federate',
+            MatrixType.M_FEDERATE,
             'room_version',
             'predecessor'
         ])
         && isStringOrUndefined(value?.creator)
-        && isBooleanOrUndefined(value['m.federate'])
+        && isBooleanOrUndefined(value[MatrixType.M_FEDERATE])
         && isStringOrUndefined(value?.room_version)
         && ( isUndefined(value?.predecessor) || isMatrixPreviousRoomDTO(value?.predecessor) )
     );

@@ -2,25 +2,26 @@
 
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 import {
-    hasNoOtherKeys,
-    isArrayOf,
-    isRegularObject, isUndefined,
+    hasNoOtherKeysInDevelopment,
+    isArrayOf, isArrayOfOrUndefined,
+    isRegularObject,
+    isUndefined,
     keys
 } from "../../../../../core/modules/lodash";
 
 export interface MatrixSyncResponseDeviceListsDTO {
-    readonly changed : MatrixUserId[];
-    readonly left    : MatrixUserId[] | undefined;
+    readonly changed ?: readonly MatrixUserId[];
+    readonly left    ?: readonly MatrixUserId[] | undefined;
 }
 
 export function isMatrixSyncResponseDeviceListsDTO (value: any): value is MatrixSyncResponseDeviceListsDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'changed',
             'left'
         ])
-        && isArrayOf<MatrixUserId>(value?.changed, isMatrixUserId)
+        && isArrayOfOrUndefined<MatrixUserId>(value?.changed, isMatrixUserId)
         && ( isUndefined(value?.left) || isArrayOf<MatrixUserId>(value?.left, isMatrixUserId) )
     );
 }
@@ -31,7 +32,7 @@ export function assertMatrixSyncResponseDeviceListsDTO (value: any) : void {
         throw new TypeError(`Value not regular object: ${value}`);
     }
 
-    if (! hasNoOtherKeys(value, [
+    if (! hasNoOtherKeysInDevelopment(value, [
         'changed',
         'left'
     ])) {

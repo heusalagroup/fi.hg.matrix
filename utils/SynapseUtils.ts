@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { crypto } from 'crypto';
+import { createHmac } from 'crypto';
 import { SynapseRegisterRequestDTO } from "../types/synapse/SynapseRegisterRequestDTO";
 import { MatrixRegisterKind } from "../types/request/register/types/MatrixRegisterKind";
 
@@ -38,7 +38,7 @@ export class SynapseUtils {
         userType    ?: MatrixRegisterKind
     ) : string {
 
-        let mac = crypto.createHmac('sha1', sharedSecret)
+        let mac = createHmac('sha1', sharedSecret)
             .update(nonce, 'utf8')
             .update('\x00')
             .update(username, 'utf8')

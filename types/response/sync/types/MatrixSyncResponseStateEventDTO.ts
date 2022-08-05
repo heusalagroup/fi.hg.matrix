@@ -1,7 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { MatrixSyncResponseUnsignedDataDTO, 
-    isMatrixSyncResponseUnsignedDataDTO
+import {
+    MatrixSyncResponseUnsignedDataDTO,
+    isMatrixSyncResponseUnsignedDataDTO, explainMatrixSyncResponseUnsignedDataDTO
 } from "./MatrixSyncResponseUnsignedDataDTO";
 
 import {
@@ -10,7 +11,7 @@ import {
 } from "../../../../../core/Json";
 
 import {
-    hasNoOtherKeys,
+    hasNoOtherKeysInDevelopment,
     isInteger,
     isRegularObject,
     isString,
@@ -32,7 +33,7 @@ export interface MatrixSyncResponseStateEventDTO {
 export function isMatrixSyncResponseStateEventDTO (value: any): value is MatrixSyncResponseStateEventDTO {
     return (
         isRegularObject(value)
-        && hasNoOtherKeys(value, [
+        && hasNoOtherKeysInDevelopment(value, [
             'content',
             'type',
             'event_id',
@@ -56,10 +57,10 @@ export function isMatrixSyncResponseStateEventDTO (value: any): value is MatrixS
 export function assertMatrixSyncResponseStateEventDTO (value: any) : void {
 
     if(!( isRegularObject(value) )) {
-        throw new TypeError(`value was not regular object`);
+        throw new TypeError(`value was not regular object: ${value}`);
     }
 
-    if(!( hasNoOtherKeys(value, [
+    if(!( hasNoOtherKeysInDevelopment(value, [
         'content',
         'type',
         'event_id',
@@ -93,7 +94,7 @@ export function assertMatrixSyncResponseStateEventDTO (value: any) : void {
     }
 
     if(!( (isUndefined(value?.unsigned) || isMatrixSyncResponseUnsignedDataDTO(value?.unsigned)) )) {
-        throw new TypeError(`Property "unsigned" not valid: ${value?.unsigned}`);
+        throw new TypeError(`Property "unsigned" not valid: ${explainMatrixSyncResponseUnsignedDataDTO(value?.unsigned)}`);
     }
 
     if(!( (isUndefined(value?.prev_content) || isJsonObject(value?.prev_content)) )) {

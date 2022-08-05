@@ -1,10 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 export enum MatrixVisibility {
-
     PUBLIC  = "public",
     PRIVATE = "private"
-
 }
 
 export function isMatrixVisibility (value: any): value is MatrixVisibility {
