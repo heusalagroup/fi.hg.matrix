@@ -9,20 +9,20 @@ import {
 } from "../../../../core/modules/lodash";
 
 export interface MatrixWhoAmIResponseDTO {
+    readonly user_id    : string;
     readonly device_id ?: string;
     readonly is_guest  ?: boolean;
-    readonly user_id    : string;
 }
 
 export function createMatrixWhoAmIResponseDTO (
     user_id    : string,
-    device_id  : string | undefined,
-    is_guest   : boolean | undefined
+    device_id ?: string | undefined,
+    is_guest  ?: boolean | undefined
 ): MatrixWhoAmIResponseDTO {
     return {
+        user_id,
         device_id,
-        is_guest,
-        user_id
+        is_guest
     };
 }
 

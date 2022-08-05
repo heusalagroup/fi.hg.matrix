@@ -6,12 +6,16 @@ import { UserRepositoryService } from "./types/repository/user/UserRepositorySer
 import { EventRepositoryService } from "./types/repository/event/EventRepositoryService";
 import { createUserRepositoryItem, UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
 import { JwtEngine } from "../../backend/JwtEngine";
-import { createDeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
+import { createDeviceRepositoryItem, DeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
 import { createDevice } from "./types/repository/device/Device";
 import { JwtUtils } from "../../backend/JwtUtils";
 import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
 import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/Repository";
+import { createMatrixWhoAmIResponseDTO, MatrixWhoAmIResponseDTO } from "../types/response/whoami/MatrixWhoAmIResponseDTO";
+import { JwtService } from "../../backend/JwtService";
+import { createMatrixErrorDTO, MatrixErrorDTO } from "../types/response/error/MatrixErrorDTO";
+import { MatrixErrorCode } from "../types/response/error/types/MatrixErrorCode";
 
 const LOG = LogService.createLogger('MatrixServerService');
 
@@ -181,6 +185,57 @@ export class MatrixServerService {
             JwtUtils.createSubPayloadExpiringInMinutes(foundDevice.id, this._accessTokenExpirationTime)
         );
 
+    }
+
+    /**
+     * @throws MatrixErrorDTO
+     */
+    public async whoAmI (accessToken: string) : Promise<MatrixWhoAmIResponseDTO> {
+
+        LOG.debug(`whoAmI: accessToken = `, accessToken);
+
+        if ( !accessToken ) {
+            LOG.warn(`Warning! No authentication token provided.`);
+            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN, 'Unrecognised access token.');
+        }
+
+        const deviceId: string = JwtService.decodePayloadSubject(accessToken);
+        LOG.debug(`whoAmI: deviceId = `, deviceId);
+
+        if ( !this._jwtEngine.verify(accessToken) ) {
+            LOG.warn(`whoAmI: Token verification failed: `, deviceId, accessToken);
+            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.') ;
+        }
+
+        const device : DeviceRepositoryItem | undefined = await this._deviceService.getDeviceById(deviceId);
+        LOG.debug(`whoAmI: device = `, device);
+        if (!device) {
+            LOG.warn(`whoAmI: Device not found: `, deviceId, accessToken);
+            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
+        }
+
+        const userId = device?.userId;
+        LOG.debug(`whoAmI: userId = `, userId);
+        if (!userId) {
+            LOG.warn(`whoAmI: User ID invalid: `, userId, deviceId, accessToken);
+            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
+        }
+        const user : UserRepositoryItem | undefined = await this._userService.findById(userId);
+        LOG.debug(`whoAmI: user = `, user);
+        if (!user) {
+            LOG.warn(`whoAmI: User not found: `, user, userId, deviceId, accessToken);
+            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
+        }
+        const username = user?.username;
+        LOG.debug(`whoAmI: username = `, username);
+
+        const deviceIdentifier = device?.deviceId ?? device?.id;
+
+        return createMatrixWhoAmIResponseDTO(
+            `@${username}:${this._hostname}`,
+            deviceIdentifier ? deviceIdentifier : undefined,
+            false
+        );
     }
 
 }
