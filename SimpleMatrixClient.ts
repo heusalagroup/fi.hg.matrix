@@ -1621,7 +1621,11 @@ export class SimpleMatrixClient implements RepositoryClient {
     }
 
     private _triggerMatrixEvent (event : MatrixSyncResponseAnyEventDTO, room_id : string | undefined) {
-        this._observer.triggerEvent(SimpleMatrixClientEvent.EVENT, room_id ? {...event, room_id} : event);
+        if (this._observer.hasCallbacks(SimpleMatrixClientEvent.EVENT)) {
+            this._observer.triggerEvent(SimpleMatrixClientEvent.EVENT, room_id ? {...event, room_id} : event);
+        } else {
+            LOG.warn(`Warning! Client received an event but nothing was listening it: `, event, room_id);
+        }
     }
 
     /**
