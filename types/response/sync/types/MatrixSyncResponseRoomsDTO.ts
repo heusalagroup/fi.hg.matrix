@@ -17,7 +17,7 @@ import { MatrixSyncResponseLeftRoomDTO,
 } from "./MatrixSyncResponseLeftRoomDTO";
 import {
     concat, explainNoOtherKeys,
-    explainRegularObjectOf, filter,
+    explainRegularObjectOf,
     hasNoOtherKeysInDevelopment,
     isRegularObject,
     isRegularObjectOf,
@@ -68,6 +68,7 @@ export function isMatrixSyncResponseRoomsDTO (value: any): value is MatrixSyncRe
         && hasNoOtherKeysInDevelopment(value, [
             'join',
             'invite',
+            'peek',
             'leave'
         ])
         && ( isUndefined(value?.join)   || isRegularObjectOf<MatrixRoomId, MatrixSyncResponseJoinedRoomDTO>( value?.join,   isMatrixRoomId, isMatrixSyncResponseJoinedRoomDTO) )
@@ -85,7 +86,8 @@ export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
     const propertyKeys = [
         'join',
         'invite',
-        'leave'
+        'leave',
+        'peek'
     ];
 
     if(!( hasNoOtherKeysInDevelopment(value, propertyKeys) )) {
