@@ -9,7 +9,7 @@ import {
 import { isMatrixType, MatrixType } from "./MatrixType";
 
 export interface MatrixStateEventOf<T> {
-    readonly type       : MatrixType;
+    readonly type       : MatrixType | string;
     readonly state_key ?: string;
     readonly content    : T;
 }
