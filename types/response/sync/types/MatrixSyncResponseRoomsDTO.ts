@@ -16,8 +16,8 @@ import { MatrixSyncResponseLeftRoomDTO,
     isMatrixSyncResponseLeftRoomDTO
 } from "./MatrixSyncResponseLeftRoomDTO";
 import {
-    concat,
-    explainRegularObjectOf,
+    concat, explainNoOtherKeys,
+    explainRegularObjectOf, filter,
     hasNoOtherKeysInDevelopment,
     isRegularObject,
     isRegularObjectOf,
@@ -54,14 +54,12 @@ function getEventsFromObject<T> (
 export function getEventsFromMatrixSyncResponseRoomsDTO (
     value: MatrixSyncResponseRoomsDTO
 ) : readonly MatrixSyncResponseAnyEventDTO[] {
-
     return concat(
         [] as readonly MatrixSyncResponseAnyEventDTO[],
         getEventsFromObject(value?.join   ?? {}, getEventsFromMatrixSyncResponseJoinedRoomDTO),
         getEventsFromObject(value?.invite ?? {}, getEventsFromMatrixSyncResponseInvitedRoomDTO),
         getEventsFromObject(value?.leave  ?? {}, getEventsFromMatrixSyncResponseLeftRoomDTO),
     );
-
 }
 
 export function isMatrixSyncResponseRoomsDTO (value: any): value is MatrixSyncResponseRoomsDTO {
@@ -84,12 +82,14 @@ export function assertMatrixSyncResponseRoomsDTO (value: any) : void {
         throw new TypeError(`value was not regular object`);
     }
 
-    if(!( hasNoOtherKeysInDevelopment(value, [
+    const propertyKeys = [
         'join',
         'invite',
         'leave'
-    ]) )) {
-        throw new TypeError(`value had extra properties`);
+    ];
+
+    if(!( hasNoOtherKeysInDevelopment(value, propertyKeys) )) {
+        throw new TypeError(`MatrixSyncResponseRoomsDTO: hasNoOtherKeysInDevelopment: ${explainNoOtherKeys(value, propertyKeys)}`);
     }
 
     if(!(
