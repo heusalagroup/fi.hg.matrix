@@ -198,21 +198,16 @@ export class SimpleMatrixClient implements RepositoryClient {
     }
 
     public isAlreadyInTheRoom (body: any) : boolean {
-
         if (isMatrixErrorDTO(body)) {
-
             const errCode   : string = body?.errcode ?? '';
             const errString : string = body?.error   ?? '';
-
             if ( errCode === MatrixErrorCode.M_FORBIDDEN
                 && errString.indexOf('already in the room') >= 0
             ) {
                 return true;
             }
-
         }
         return false;
-
     }
 
     public isUnauthenticated () : boolean {

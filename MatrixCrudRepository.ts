@@ -753,38 +753,36 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      */
     private async _getAll () : Promise<readonly RepositoryEntry<T>[]> {
 
-        const response : MatrixSyncResponseDTO = await this._client.sync({
-                                                                             filter: {
-                                                                                 presence: {
-                                                                                     limit: 0,
-                                                                                     // types: [ this._stateType ]
-                                                                                 },
-                                                                                 account_data: {
-                                                                                     limit: 0,
-                                                                                     // types: [ this._stateType ]
-                                                                                 },
-                                                                                 room: {
-                                                                                     account_data: {
-                                                                                         limit: 0,
-                                                                                         // types: [ this._stateType ]
-                                                                                     },
-                                                                                     ephemeral: {
-                                                                                         limit: 0,
-                                                                                     },
-                                                                                     timeline: {
-                                                                                         limit: 0,
-                                                                                         // types: [ this._stateType ]
-                                                                                     },
-                                                                                     state: {
-                                                                                         limit: 1,
-                                                                                         include_redundant_members: true,
-                                                                                         types: [ this._stateType ],
-                                                                                         not_types: [ this._deletedType ]
-                                                                                     }
-                                                                                 }
-                                                                             },
-                                                                             full_state: true
-                                                                         });
+        const response: MatrixSyncResponseDTO = await this._client.sync(
+            {
+                filter: {
+                    presence: {
+                        limit: 0
+                    },
+                    account_data: {
+                        limit: 0
+                    },
+                    room: {
+                        account_data: {
+                            limit: 0
+                        },
+                        ephemeral: {
+                            limit: 0
+                        },
+                        timeline: {
+                            limit: 0
+                        },
+                        state: {
+                            limit: 1,
+                            include_redundant_members: true,
+                            types: [ this._stateType ],
+                            not_types: [ this._deletedType ]
+                        }
+                    }
+                },
+                full_state: true
+            }
+        );
 
         LOG.debug(`getAll: response = `, JSON.stringify(response, null, 2));
 
