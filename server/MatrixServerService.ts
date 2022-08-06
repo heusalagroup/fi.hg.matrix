@@ -191,29 +191,23 @@ export class MatrixServerService {
      * @throws MatrixErrorDTO
      */
     public async whoAmI (accessToken: string) : Promise<MatrixWhoAmIResponseDTO> {
-
         LOG.debug(`whoAmI: accessToken = `, accessToken);
-
         if ( !accessToken ) {
             LOG.warn(`Warning! No authentication token provided.`);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN, 'Unrecognised access token.');
         }
-
         const deviceId: string = JwtService.decodePayloadSubject(accessToken);
         LOG.debug(`whoAmI: deviceId = `, deviceId);
-
         if ( !this._jwtEngine.verify(accessToken) ) {
             LOG.warn(`whoAmI: Token verification failed: `, deviceId, accessToken);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.') ;
         }
-
         const device : DeviceRepositoryItem | undefined = await this._deviceService.getDeviceById(deviceId);
         LOG.debug(`whoAmI: device = `, device);
         if (!device) {
             LOG.warn(`whoAmI: Device not found: `, deviceId, accessToken);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
         }
-
         const userId = device?.userId;
         LOG.debug(`whoAmI: userId = `, userId);
         if (!userId) {
@@ -228,9 +222,7 @@ export class MatrixServerService {
         }
         const username = user?.username;
         LOG.debug(`whoAmI: username = `, username);
-
         const deviceIdentifier = device?.deviceId ?? device?.id;
-
         return createMatrixWhoAmIResponseDTO(
             `@${username}:${this._hostname}`,
             deviceIdentifier ? deviceIdentifier : undefined,
