@@ -1,6 +1,6 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { isString } from "../../../core/modules/lodash";
+import { explainNot, explainOk, isString } from "../../../core/modules/lodash";
 
 export type MatrixUserId = string;
 
@@ -10,6 +10,10 @@ export function isMatrixUserId (value: any): value is MatrixUserId {
         && !!value
         && value[0] === '@'
     );
+}
+
+export function explainMatrixUserId (value: any) : string {
+    return isMatrixUserId(value) ? explainOk() : explainNot('MatrixUserId');
 }
 
 export function stringifyMatrixUserId (value: MatrixUserId): string {

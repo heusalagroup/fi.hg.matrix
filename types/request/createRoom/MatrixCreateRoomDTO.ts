@@ -1,22 +1,29 @@
+// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
+    explain,
+    explainArrayOfOrUndefined,
+    explainBooleanOrUndefined,
+    explainNoOtherKeys,
+    explainProperty,
+    explainRegularObject,
+    explainStringOrUndefined,
     hasNoOtherKeysInDevelopment,
-    isArrayOf,
+    isArrayOfOrUndefined,
     isBooleanOrUndefined,
     isRegularObject,
-    isStringOrUndefined,
-    isUndefined
+    isStringOrUndefined
 } from "../../../../core/modules/lodash";
-import { MatrixVisibility,  isMatrixVisibility } from "./types/MatrixVisibility";
-import { isMatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
-import { MatrixRoomCreateEventDTO,  isPartialMatrixCreationContentDTO } from "../../event/roomCreate/MatrixRoomCreateEventDTO";
-import { MatrixStateEvent,  isMatrixStateEvent } from "../../core/MatrixStateEvent";
-import { MatrixCreateRoomPreset,  isMatrixCreateRoomPreset } from "./types/MatrixCreateRoomPreset";
-import { MatrixRoomPowerLevelsEventDTO,  isMatrixPowerLevelEventContentDTO } from "./types/MatrixRoomPowerLevelsEventDTO";
+import { MatrixVisibility, isMatrixVisibilityOrUndefined, explainMatrixVisibilityOrUndefined } from "./types/MatrixVisibility";
+import { explainMatrixInvite3PidDTO, isMatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
+import { MatrixRoomCreateEventDTO, isPartialMatrixCreationContentDTOOrUndefined, explainPartialMatrixCreationContentDTOOrUndefined } from "../../event/roomCreate/MatrixRoomCreateEventDTO";
+import { MatrixStateEvent, isMatrixStateEvent, explainMatrixStateEvent } from "../../core/MatrixStateEvent";
+import { MatrixCreateRoomPreset, isMatrixCreateRoomPresetOrUndefined, explainMatrixCreateRoomPresetOrUndefined } from "./types/MatrixCreateRoomPreset";
+import { MatrixRoomPowerLevelsEventDTO, isMatrixPowerLevelEventContentDTOOrUndefined, explainMatrixPowerLevelEventContentDTOOrUndefined } from "./types/MatrixRoomPowerLevelsEventDTO";
 import { MatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
-import { MatrixUserId,  isMatrixUserId } from "../../core/MatrixUserId";
-import { MatrixRoomVersion } from "../../MatrixRoomVersion";
+import { MatrixUserId, isMatrixUserId, explainMatrixUserId } from "../../core/MatrixUserId";
+import { explainMatrixRoomVersionOrUndefined, isMatrixRoomVersionOrUndefined, MatrixRoomVersion } from "../../MatrixRoomVersion";
 
 export interface MatrixCreateRoomDTO {
 
@@ -57,19 +64,51 @@ export function isMatrixCreateRoomDTO (value: any): value is MatrixCreateRoomDTO
             'is_direct',
             'power_level_content_override'
         ])
-        && (isUndefined(value?.visibility) || isMatrixVisibility(value?.visibility))
+        && isMatrixVisibilityOrUndefined(value?.visibility)
         && isStringOrUndefined(value?.room_alias_name)
         && isStringOrUndefined(value?.name)
         && isStringOrUndefined(value?.topic)
-        && (isUndefined(value?.invite) || isArrayOf<MatrixUserId>(value?.invite, isMatrixUserId))
-        && (isUndefined(value?.invite_3pid) || isArrayOf<MatrixInvite3PidDTO>(value?.invite_3pid, isMatrixInvite3PidDTO))
-        && isStringOrUndefined(value?.room_version)
-        && (isUndefined(value?.creation_content) || isPartialMatrixCreationContentDTO(value?.creation_content))
-        && (isUndefined(value?.initial_state) || isArrayOf<MatrixStateEvent>(value?.initial_state, isMatrixStateEvent))
-        && (isUndefined(value?.preset) || isMatrixCreateRoomPreset(value?.preset))
+        && isArrayOfOrUndefined<MatrixUserId>(value?.invite, isMatrixUserId)
+        && isArrayOfOrUndefined<MatrixInvite3PidDTO>(value?.invite_3pid, isMatrixInvite3PidDTO)
+        && isMatrixRoomVersionOrUndefined(value?.room_version)
+        && isPartialMatrixCreationContentDTOOrUndefined(value?.creation_content)
+        && isArrayOfOrUndefined<MatrixStateEvent>(value?.initial_state, isMatrixStateEvent)
+        && isMatrixCreateRoomPresetOrUndefined(value?.preset)
         && isBooleanOrUndefined(value?.is_direct)
-        && (isUndefined(value?.power_level_content_override) || isMatrixPowerLevelEventContentDTO(value?.power_level_content_override))
+        && isMatrixPowerLevelEventContentDTOOrUndefined(value?.power_level_content_override)
     );
+}
+
+export function explainMatrixCreateRoomDTO (value: any): string {
+    return explain([
+        explainRegularObject(value),
+        explainNoOtherKeys(value, [
+            'visibility',
+            'room_alias_name',
+            'name',
+            'topic',
+            'invite',
+            'invite_3pid',
+            'room_version',
+            'creation_content',
+            'initial_state',
+            'preset',
+            'is_direct',
+            'power_level_content_override'
+        ]),
+        explainProperty('visibility', explainMatrixVisibilityOrUndefined(value?.visibility)),
+        explainProperty('room_alias_name', explainStringOrUndefined(value?.room_alias_name)),
+        explainProperty('name', explainStringOrUndefined(value?.name)),
+        explainProperty('topic', explainStringOrUndefined(value?.topic)),
+        explainProperty('invite', explainArrayOfOrUndefined<MatrixUserId>("MatrixUserId", explainMatrixUserId, value?.invite, isMatrixUserId)),
+        explainProperty('invite_3pid', explainArrayOfOrUndefined<MatrixInvite3PidDTO>("MatrixInvite3PidDTO", explainMatrixInvite3PidDTO, value?.invite_3pid, isMatrixInvite3PidDTO)),
+        explainProperty('room_version', explainMatrixRoomVersionOrUndefined(value?.room_version)),
+        explainProperty('creation_content', explainPartialMatrixCreationContentDTOOrUndefined(value?.creation_content)),
+        explainProperty('initial_state', explainArrayOfOrUndefined<MatrixStateEvent>("MatrixStateEvent", explainMatrixStateEvent, value?.initial_state, isMatrixStateEvent)),
+        explainProperty('preset', explainMatrixCreateRoomPresetOrUndefined(value?.preset)),
+        explainProperty('explain_direct', explainBooleanOrUndefined(value?.explain_direct)),
+        explainProperty('power_level_content_override', explainMatrixPowerLevelEventContentDTOOrUndefined(value?.power_level_content_override))
+    ]);
 }
 
 export function stringifyMatrixCreateRoomDTO (value: MatrixCreateRoomDTO): string {

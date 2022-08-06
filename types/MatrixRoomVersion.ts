@@ -1,5 +1,7 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
+import { explainNot, explainOk, explainOr } from "../../core/modules/lodash";
+
 export enum MatrixRoomVersion {
     V1 = "1",
     V2 = "2",
@@ -27,8 +29,19 @@ export function isMatrixRoomVersion (value: any): value is MatrixRoomVersion {
 
         default:
             return false;
-
     }
+}
+
+export function explainMatrixRoomVersion (value : any) : string {
+    return isMatrixRoomVersion(value) ? explainOk() : explainNot("MatrixRoomVersion");
+}
+
+export function isMatrixRoomVersionOrUndefined (value: any): value is MatrixRoomVersion | undefined {
+    return value === undefined || isMatrixRoomVersion(value);
+}
+
+export function explainMatrixRoomVersionOrUndefined (value : any) : string {
+    return isMatrixRoomVersionOrUndefined(value) ? explainOk() : explainNot(explainOr(["MatrixRoomVersion", "undefined"]));
 }
 
 export function stringifyMatrixRoomVersion (value: MatrixRoomVersion): string {

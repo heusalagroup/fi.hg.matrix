@@ -1,5 +1,7 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
+import { explainNot, explainOk, explainOr } from "../../../../../core/modules/lodash";
+
 export enum MatrixVisibility {
     PUBLIC  = "public",
     PRIVATE = "private"
@@ -10,11 +12,28 @@ export function isMatrixVisibility (value: any): value is MatrixVisibility {
         case MatrixVisibility.PUBLIC:
         case MatrixVisibility.PRIVATE:
             return true;
-
         default:
             return false;
-
     }
+}
+
+export function explainMatrixVisibility (value: any): string {
+    return isMatrixVisibility(value) ? explainOk() : explainNot('MatrixVisibility');
+}
+
+export function isMatrixVisibilityOrUndefined (value: any): value is MatrixVisibility | undefined {
+    if (value === undefined) return true;
+    switch (value) {
+        case MatrixVisibility.PUBLIC:
+        case MatrixVisibility.PRIVATE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function explainMatrixVisibilityOrUndefined (value: any): string {
+    return isMatrixVisibilityOrUndefined(value) ? explainOk() : explainNot(explainOr(['MatrixVisibility', 'undefined']));
 }
 
 export function stringifyMatrixVisibility (value: MatrixVisibility): string {

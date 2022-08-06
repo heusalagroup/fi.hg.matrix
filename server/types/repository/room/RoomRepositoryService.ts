@@ -59,10 +59,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
     public async getAllRooms () : Promise<readonly RoomRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredRoomRepositoryItem>[] = await this._getAllRooms();
         return map(list, (item: RepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem => {
-            return parseRoomRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toRoomRepositoryItem(item);
         });
     }
 
@@ -71,10 +68,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
     ) : Promise<readonly RoomRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredRoomRepositoryItem>[] = await this._getSomeRooms(idList);
         return map(list, (item: RepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem => {
-            return parseRoomRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toRoomRepositoryItem(item);
         });
     }
 
@@ -82,10 +76,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredRoomRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
-        return parseRoomRepositoryItem(
-            foundItem.id,
-            foundItem.data
-        );
+        return this._toRoomRepositoryItem(foundItem);
     }
 
     public async deleteAllRooms () : Promise<void> {
@@ -107,7 +98,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
     ) : Promise<RoomRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
         const createdItem = await this._repository.createItem(toStoredRoomRepositoryItem(item));
-        return parseRoomRepositoryItem(createdItem.id, createdItem.data);
+        return this._toRoomRepositoryItem(createdItem);
     }
 
     public async saveRoom (
@@ -115,7 +106,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
     ) : Promise<RoomRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
         const foundItem = await this._repository.updateOrCreateItem(toStoredRoomRepositoryItem(item));
-        return parseRoomRepositoryItem(foundItem.id, foundItem.data);
+        return this._toRoomRepositoryItem(foundItem);
     }
 
     // PRIVATE METHODS
@@ -128,6 +119,21 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredRoomRepositoryItem>[]> {
         return await this._repository.getSome(idList);
+    }
+
+    private _toRoomRepositoryItem (storedItem: RepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem {
+        const id = storedItem.id;
+        const target = storedItem.data?.target;
+        LOG.debug(`Room with id "${id}": `, storedItem, target);
+        const item = parseRoomRepositoryItem(
+            id,
+            target
+        );
+        LOG.debug(`Room "${id}" as: `, item);
+        if (!item) {
+            throw new TypeError(`RoomRepositoryService: Could not parse "${storedItem.id}" and ${JSON.stringify(target)}`);
+        }
+        return item;
     }
 
 }

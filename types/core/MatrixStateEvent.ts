@@ -1,12 +1,18 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
+    explain,
+    explainNoOtherKeys,
+    explainProperty,
+    explainRegularObject,
+    explainString,
+    explainStringOrUndefined,
     hasNoOtherKeysInDevelopment,
     isRegularObject,
     isString,
     isStringOrUndefined
 } from "../../../core/modules/lodash";
-import { JsonObject } from "../../../core/Json";
+import { explainJsonObject, isJsonObject, JsonObject } from "../../../core/Json";
 import { MatrixStateEventOf } from "./MatrixStateEventOf";
 import { MatrixType } from "./MatrixType";
 
@@ -38,8 +44,24 @@ export function isMatrixStateEvent (value: any): value is MatrixStateEvent {
         ])
         && isString(value?.type)
         && isStringOrUndefined(value?.state_key)
-        && isString(value?.content)
+        && isJsonObject(value?.content)
     );
+}
+
+export function explainMatrixStateEvent (value : any) : string {
+    return explain(
+        [
+            explainRegularObject(value),
+            explainNoOtherKeys(value, [
+                'type',
+                'state_key',
+                'content'
+            ]),
+            explainProperty("type", explainString(value?.type)),
+            explainProperty("state_key", explainStringOrUndefined(value?.state_key)),
+            explainProperty("content", explainJsonObject(value?.content))
+        ]
+    )
 }
 
 export function stringifyMatrixStateEvent (value: MatrixStateEvent): string {

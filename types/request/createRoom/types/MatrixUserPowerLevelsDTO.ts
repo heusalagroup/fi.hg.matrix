@@ -1,6 +1,7 @@
+// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { isInteger, isRegularObjectOf } from "../../../../../core/modules/lodash";
+import { explainNot, explainOk, explainOr, isInteger, isRegularObjectOf, isUndefined } from "../../../../../core/modules/lodash";
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
 
 export type MatrixUserPowerLevelsDTO = {
@@ -8,9 +9,19 @@ export type MatrixUserPowerLevelsDTO = {
 }
 
 export function isMatrixUserPowerLevelsDTO (value: any): value is MatrixUserPowerLevelsDTO {
-    return (
-        isRegularObjectOf<MatrixUserId, number>(value, isMatrixUserId, isInteger)
-    );
+    return isRegularObjectOf<MatrixUserId, number>(value, isMatrixUserId, isInteger);
+}
+
+export function explainMatrixUserPowerLevelsDTO (value: any): string {
+    return isMatrixUserPowerLevelsDTO(value) ? explainOk() : explainNot("MatrixUserPowerLevelsDTO");
+}
+
+export function isMatrixUserPowerLevelsDTOOrUndefined (value: any): value is MatrixUserPowerLevelsDTO | undefined {
+    return isUndefined(value) || isMatrixUserPowerLevelsDTO(value);
+}
+
+export function explainMatrixUserPowerLevelsDTOOrUndefined (value: any): string {
+    return isMatrixUserPowerLevelsDTOOrUndefined(value) ? explainOk() : explainNot(explainOr(["MatrixUserPowerLevelsDTO", "undefined"]));
 }
 
 export function stringifyMatrixUserPowerLevelsDTO (value: MatrixUserPowerLevelsDTO): string {

@@ -1,6 +1,9 @@
+// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
+    explainNot,
+    explainOk, explainOr,
     hasNoOtherKeysInDevelopment,
     isBooleanOrUndefined,
     isRegularObject,
@@ -47,6 +50,15 @@ export function isPartialMatrixCreationContentDTO (value: any): value is Partial
         && isStringOrUndefined(value?.room_version)
         && ( isUndefined(value?.predecessor) || isMatrixPreviousRoomDTO(value?.predecessor) )
     );
+}
+
+
+export function isPartialMatrixCreationContentDTOOrUndefined (value: any) : value is Partial<MatrixRoomCreateEventDTO> | undefined {
+    return value === undefined || isPartialMatrixCreationContentDTO(value);
+}
+
+export function explainPartialMatrixCreationContentDTOOrUndefined (value: any) : string {
+    return isPartialMatrixCreationContentDTOOrUndefined(value) ? explainOk() : explainNot( explainOr(['Partial<MatrixCreationContentDTO>', "undefined"]) );
 }
 
 export function stringifyMatrixCreationContentDTO (value: MatrixRoomCreateEventDTO): string {

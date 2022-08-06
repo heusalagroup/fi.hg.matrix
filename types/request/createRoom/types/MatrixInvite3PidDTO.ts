@@ -1,12 +1,12 @@
-import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
+// Copyright (c) 2021-2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
+
+import { explain, explainNoOtherKeys, explainProperty, explainRegularObject, explainString, hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
 
 export interface MatrixInvite3PidDTO {
-
     readonly id_server       : string;
     readonly id_access_token : string;
     readonly medium          : string;
     readonly address         : string;
-
 }
 
 export function isMatrixInvite3PidDTO (value: any): value is MatrixInvite3PidDTO {
@@ -22,6 +22,24 @@ export function isMatrixInvite3PidDTO (value: any): value is MatrixInvite3PidDTO
         && isString(value?.id_access_token)
         && isString(value?.medium)
         && isString(value?.address)
+    );
+}
+
+export function explainMatrixInvite3PidDTO (value : any) : string {
+    return explain(
+        [
+            explainRegularObject(value),
+            explainNoOtherKeys(value, [
+                'id_server',
+                'id_access_token',
+                'medium',
+                'address'
+            ]),
+            explainProperty("id_server", explainString(value?.id_server)),
+            explainProperty("id_access_token", explainString(value?.id_access_token)),
+            explainProperty("medium", explainString(value?.medium)),
+            explainProperty("address", explainString(value?.address))
+        ]
     );
 }
 

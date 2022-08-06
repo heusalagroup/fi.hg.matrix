@@ -1,16 +1,24 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
+    explain,
+    explainIntegerOrUndefined,
+    explainNoOtherKeys,
+    explainNot,
+    explainOk,
+    explainOr,
+    explainProperty,
+    explainRegularObject,
     hasNoOtherKeysInDevelopment,
     isIntegerOrUndefined,
-    isRegularObject, isUndefined
+    isRegularObject,
+    isUndefined
 } from "../../../../../core/modules/lodash";
-import { MatrixEventPowerLevelsDTO,  isMatrixEventPowerLevelsDTO } from "./MatrixEventPowerLevelsDTO";
-import { MatrixUserPowerLevelsDTO,  isMatrixUserPowerLevelsDTO } from "./MatrixUserPowerLevelsDTO";
-import { MatrixNotificationPowerLevelsDTO,  isMatrixNotificationPowerLevelsDTO } from "./MatrixNotificationPowerLevelsDTO";
+import { MatrixEventPowerLevelsDTO, isMatrixEventPowerLevelsDTOOrUndefined, explainMatrixEventPowerLevelsDTOOrUndefined } from "./MatrixEventPowerLevelsDTO";
+import { MatrixUserPowerLevelsDTO, isMatrixUserPowerLevelsDTOOrUndefined, explainMatrixUserPowerLevelsDTOOrUndefined } from "./MatrixUserPowerLevelsDTO";
+import { MatrixNotificationPowerLevelsDTO, isMatrixNotificationPowerLevelsDTOOrUndefined, explainMatrixNotificationPowerLevelsDTOOrUndefined } from "./MatrixNotificationPowerLevelsDTO";
 
 export interface MatrixRoomPowerLevelsEventDTO {
-
     readonly ban            ?: number;
     readonly events         ?: MatrixEventPowerLevelsDTO;
     readonly events_default ?: number;
@@ -21,7 +29,6 @@ export interface MatrixRoomPowerLevelsEventDTO {
     readonly users          ?: MatrixUserPowerLevelsDTO;
     readonly users_default  ?: number;
     readonly notifications  ?: MatrixNotificationPowerLevelsDTO;
-
 }
 
 export function isMatrixPowerLevelEventContentDTO (value: any): value is MatrixRoomPowerLevelsEventDTO {
@@ -40,16 +47,54 @@ export function isMatrixPowerLevelEventContentDTO (value: any): value is MatrixR
             'notifications'
         ])
         && isIntegerOrUndefined(value?.ban)
-        && isMatrixEventPowerLevelsDTO(value?.events)
+        && isMatrixEventPowerLevelsDTOOrUndefined(value?.events)
         && isIntegerOrUndefined(value?.events_default)
         && isIntegerOrUndefined(value?.invite)
         && isIntegerOrUndefined(value?.kick)
         && isIntegerOrUndefined(value?.redact)
         && isIntegerOrUndefined(value?.state_default)
-        && ( isUndefined(value?.users) || isMatrixUserPowerLevelsDTO(value?.users) )
+        && isMatrixUserPowerLevelsDTOOrUndefined(value?.users)
         && isIntegerOrUndefined(value?.users_default)
-        && ( isUndefined(value?.users) || isMatrixNotificationPowerLevelsDTO(value?.notifications) )
+        && isMatrixNotificationPowerLevelsDTOOrUndefined(value?.notifications)
     );
+}
+
+export function explainMatrixPowerLevelEventContentDTO (value : any) : string {
+    return explain(
+        [
+            explainRegularObject(value),
+            explainNoOtherKeys(value, [
+                'ban',
+                'events',
+                'events_default',
+                'invite',
+                'kick',
+                'redact',
+                'state_default',
+                'users',
+                'users_default',
+                'notifications'
+            ]),
+            explainProperty("ban", explainIntegerOrUndefined(value?.ban)),
+            explainProperty("events", explainMatrixEventPowerLevelsDTOOrUndefined(value?.events)),
+            explainProperty("events_default", explainIntegerOrUndefined(value?.events_default)),
+            explainProperty("invite", explainIntegerOrUndefined(value?.invite)),
+            explainProperty("kick", explainIntegerOrUndefined(value?.kick)),
+            explainProperty("redact", explainIntegerOrUndefined(value?.redact)),
+            explainProperty("state_default", explainIntegerOrUndefined(value?.state_default)),
+            explainProperty("users", explainMatrixUserPowerLevelsDTOOrUndefined(value?.users)),
+            explainProperty("users_default", explainIntegerOrUndefined(value?.users_default)),
+            explainProperty("notifications", explainMatrixNotificationPowerLevelsDTOOrUndefined(value?.notifications))
+        ]
+    );
+}
+
+export function isMatrixPowerLevelEventContentDTOOrUndefined (value: any): value is MatrixRoomPowerLevelsEventDTO | undefined {
+    return isUndefined(value) || isMatrixPowerLevelEventContentDTO(value);
+}
+
+export function explainMatrixPowerLevelEventContentDTOOrUndefined (value: any): string {
+    return isMatrixPowerLevelEventContentDTOOrUndefined(value) ? explainOk() : explainNot(explainOr(["MatrixPowerLevelEventContentDTO", "undefined"]));
 }
 
 export function stringifyMatrixPowerLevelEventContentDTO (value: MatrixRoomPowerLevelsEventDTO): string {
