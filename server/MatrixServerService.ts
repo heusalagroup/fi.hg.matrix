@@ -24,6 +24,7 @@ import { createRoom } from "./types/repository/room/Room";
 import { MatrixRoomVersion, parseMatrixRoomVersion } from "../types/MatrixRoomVersion";
 import { MatrixVisibility } from "../types/request/createRoom/types/MatrixVisibility";
 import { MatrixRoomId } from "../types/core/MatrixRoomId";
+import { LogLevel } from "../../core/types/LogLevel";
 
 const LOG = LogService.createLogger('MatrixServerService');
 
@@ -39,6 +40,10 @@ export interface InternalWhoAmIObject {
 const DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME = 300;
 
 export class MatrixServerService {
+
+    public static setLogLevel (level: LogLevel) {
+        LOG.setLogLevel(level);
+    }
 
     private readonly _url           : string;
     private readonly _hostname      : string;
