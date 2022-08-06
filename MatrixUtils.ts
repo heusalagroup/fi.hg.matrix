@@ -2,4 +2,11 @@
 
 export class MatrixUtils {
 
+    public static getUserId (
+        username: string,
+        hostname: string
+    ) : string {
+        return `@${username}:${hostname}`;
+    }
+
 }

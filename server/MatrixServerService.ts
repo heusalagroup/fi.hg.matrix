@@ -16,6 +16,7 @@ import { createMatrixWhoAmIResponseDTO, MatrixWhoAmIResponseDTO } from "../types
 import { JwtService } from "../../backend/JwtService";
 import { createMatrixErrorDTO, MatrixErrorDTO } from "../types/response/error/MatrixErrorDTO";
 import { MatrixErrorCode } from "../types/response/error/types/MatrixErrorCode";
+import { MatrixUtils } from "../MatrixUtils";
 
 const LOG = LogService.createLogger('MatrixServerService');
 
@@ -224,7 +225,7 @@ export class MatrixServerService {
         LOG.debug(`whoAmI: username = `, username);
         const deviceIdentifier = device?.deviceId ?? device?.id;
         return createMatrixWhoAmIResponseDTO(
-            `@${username}:${this._hostname}`,
+            MatrixUtils.getUserId(username, this._hostname),
             deviceIdentifier ? deviceIdentifier : undefined,
             false
         );
