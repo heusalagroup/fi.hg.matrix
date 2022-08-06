@@ -27,6 +27,7 @@ const DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME = 300;
 
 export class MatrixServerService {
 
+    private readonly _url           : string;
     private readonly _hostname      : string;
     private readonly _deviceService : DeviceRepositoryService;
     private readonly _userService   : UserRepositoryService;
@@ -37,6 +38,7 @@ export class MatrixServerService {
 
     /**
      *
+     * @param url
      * @param hostname
      * @param deviceService
      * @param userService
@@ -46,6 +48,7 @@ export class MatrixServerService {
      * @param accessTokenExpirationTime Expiration time in minutes for access tokens
      */
     public constructor (
+        url: string,
         hostname: string,
         deviceService: DeviceRepositoryService,
         userService: UserRepositoryService,
@@ -54,6 +57,7 @@ export class MatrixServerService {
         jwtEngine: JwtEngine,
         accessTokenExpirationTime : number = DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME
     ) {
+        this._url = url;
         this._hostname = hostname;
         this._deviceService = deviceService;
         this._userService = userService;
@@ -65,6 +69,10 @@ export class MatrixServerService {
 
     public getHostName () : string {
         return this._hostname;
+    }
+
+    public getURL () : string {
+        return this._url;
     }
 
     /**
