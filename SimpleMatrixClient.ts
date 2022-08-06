@@ -72,7 +72,7 @@ import {
     SYNAPSE_REGISTER_URL
 } from "./constants/matrix-routes";
 import { AuthorizationUtils } from "../core/AuthorizationUtils";
-import { isMatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIResponseDTO";
+import { isMatrixWhoAmIResponseDTO, MatrixWhoAmIResponseDTO } from "./types/response/whoami/MatrixWhoAmIResponseDTO";
 import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIdentifierDTO";
 import { GetRoomStateByTypeResponseDTO, isGetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
@@ -105,7 +105,6 @@ export class SimpleMatrixClient implements RepositoryClient {
     public static setLogLevel (level: LogLevel) {
         LOG.setLogLevel(level);
     }
-
 
     private readonly _observer                 : Observer<SimpleMatrixClientEvent>;
     private readonly _originalUrl              : string;
@@ -392,43 +391,48 @@ export class SimpleMatrixClient implements RepositoryClient {
 
     }
 
-    public async whoami () : Promise<string | undefined> {
+    public async whoamiDTO () : Promise<MatrixWhoAmIResponseDTO | undefined> {
 
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
-            throw new TypeError(`${this._observer.getName()}.whoami: Client did not have access token`);
+            throw new TypeError(`${this._observer.getName()}.whoamiDTO: Client did not have access token`);
         }
 
         try {
 
-            LOG.debug(`whoami: Fetching account whoami... `);
-
+            LOG.debug(`whoamiDTO: Fetching account whoamiDTO... `);
             const response : any = await this._getJson(
                 this._homeServerUrl + MATRIX_WHOAMI_URL,
                 {
                     [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
                 }
             );
-            LOG.debug(`whoami: response = `, response);
+
+            LOG.debug(`whoamiDTO: response = `, response);
 
             if (!isMatrixWhoAmIResponseDTO(response)) {
                 // @FIXME: This probably should result in an error promise
-                LOG.error(`whoami: Response was not MatrixWhoAmIResponseDTO: `, response);
+                LOG.error(`whoamiDTO: Response was not MatrixWhoAmIResponseDTO: `, response);
                 return undefined;
             }
 
             const user_id = response?.user_id ?? undefined;
-            LOG.debug(`whoami: user_id = `, user_id);
-
-            const userId = isString(user_id) ? user_id : undefined;
-            this._userId = userId;
-            return userId;
+            LOG.debug(`whoamiDTO: user_id = `, user_id);
+            this._userId = isString(user_id) ? user_id : undefined;
+            return response;
 
         } catch (err : any) {
-            LOG.error(`whoami: Could not fetch user_id: `, err);
+            LOG.error(`whoamiDTO: Could not fetch user_id: `, err);
             return undefined;
         }
 
+    }
+
+    public async whoami () : Promise<string | undefined> {
+        LOG.debug(`whoami: Updating whoami state... `);
+        await this.whoamiDTO();
+        LOG.debug(`whoami: userId: ${this._userId}`);
+        return this._userId;
     }
 
     public async getRegisterNonce () : Promise<string> {
