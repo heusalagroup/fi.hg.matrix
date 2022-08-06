@@ -17,8 +17,21 @@ import { JwtService } from "../../backend/JwtService";
 import { createMatrixErrorDTO, MatrixErrorDTO } from "../types/response/error/MatrixErrorDTO";
 import { MatrixErrorCode } from "../types/response/error/types/MatrixErrorCode";
 import { MatrixUtils } from "../MatrixUtils";
+import { createMatrixCreateRoomResponseDTO, MatrixCreateRoomResponseDTO } from "../types/response/createRoom/MatrixCreateRoomResponseDTO";
+import { MatrixCreateRoomDTO } from "../types/request/createRoom/MatrixCreateRoomDTO";
+import { createRoomRepositoryItem, RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
+import { createRoom } from "./types/repository/room/Room";
+import { MatrixRoomVersion, parseMatrixRoomVersion } from "../types/MatrixRoomVersion";
+import { MatrixVisibility } from "../types/request/createRoom/types/MatrixVisibility";
+import { MatrixRoomId } from "../types/core/MatrixRoomId";
 
 const LOG = LogService.createLogger('MatrixServerService');
+
+export interface InternalWhoAmIObject {
+    readonly userId: string;
+    readonly deviceId: string;
+    readonly device: DeviceRepositoryItem;
+}
 
 /**
  * Default expiration time in minutes
@@ -29,6 +42,7 @@ export class MatrixServerService {
 
     private readonly _url           : string;
     private readonly _hostname      : string;
+    private readonly _defaultRoomVersion : MatrixRoomVersion;
     private readonly _deviceService : DeviceRepositoryService;
     private readonly _userService   : UserRepositoryService;
     private readonly _roomService   : RoomRepositoryService;
@@ -46,6 +60,7 @@ export class MatrixServerService {
      * @param eventService
      * @param jwtEngine
      * @param accessTokenExpirationTime Expiration time in minutes for access tokens
+     * @param defaultRoomVersion Defaults to room version 8
      */
     public constructor (
         url: string,
@@ -55,7 +70,8 @@ export class MatrixServerService {
         roomService: RoomRepositoryService,
         eventService: EventRepositoryService,
         jwtEngine: JwtEngine,
-        accessTokenExpirationTime : number = DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME
+        accessTokenExpirationTime : number = DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME,
+        defaultRoomVersion : MatrixRoomVersion = MatrixRoomVersion.V8
     ) {
         this._url = url;
         this._hostname = hostname;
@@ -65,6 +81,7 @@ export class MatrixServerService {
         this._eventService = eventService;
         this._jwtEngine = jwtEngine;
         this._accessTokenExpirationTime = accessTokenExpirationTime;
+        this._defaultRoomVersion = defaultRoomVersion;
     }
 
     public getHostName () : string {
@@ -196,33 +213,50 @@ export class MatrixServerService {
 
     }
 
-    /**
-     * @throws MatrixErrorDTO
-     */
-    public async whoAmI (accessToken: string) : Promise<MatrixWhoAmIResponseDTO> {
+    private async _whoAmI (accessToken: string) : Promise<InternalWhoAmIObject> {
+
         LOG.debug(`whoAmI: accessToken = `, accessToken);
         if ( !accessToken ) {
             LOG.warn(`Warning! No authentication token provided.`);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN, 'Unrecognised access token.');
         }
+
         const deviceId: string = JwtService.decodePayloadSubject(accessToken);
         LOG.debug(`whoAmI: deviceId = `, deviceId);
         if ( !this._jwtEngine.verify(accessToken) ) {
             LOG.warn(`whoAmI: Token verification failed: `, deviceId, accessToken);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.') ;
         }
+
         const device : DeviceRepositoryItem | undefined = await this._deviceService.getDeviceById(deviceId);
         LOG.debug(`whoAmI: device = `, device);
         if (!device) {
             LOG.warn(`whoAmI: Device not found: `, deviceId, accessToken);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
         }
+
         const userId = device?.userId;
         LOG.debug(`whoAmI: userId = `, userId);
         if (!userId) {
             LOG.warn(`whoAmI: User ID invalid: `, userId, deviceId, accessToken);
             throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
         }
+
+        return {
+            deviceId,
+            device,
+            userId
+        };
+
+    }
+
+    /**
+     * @throws MatrixErrorDTO
+     */
+    public async whoAmI (accessToken: string) : Promise<MatrixWhoAmIResponseDTO> {
+
+        const {userId, deviceId, device} = await this._whoAmI(accessToken);
+
         const user : UserRepositoryItem | undefined = await this._userService.findById(userId);
         LOG.debug(`whoAmI: user = `, user);
         if (!user) {
@@ -237,6 +271,41 @@ export class MatrixServerService {
             deviceIdentifier ? deviceIdentifier : undefined,
             false
         );
+    }
+
+    public async createRoom (
+        accessToken: string,
+        body: MatrixCreateRoomDTO
+    ) : Promise<MatrixCreateRoomResponseDTO> {
+
+        const {userId, deviceId, device} = await this._whoAmI(accessToken);
+
+        const roomVersion = parseMatrixRoomVersion(body?.room_version) ?? this._defaultRoomVersion;
+        const visibility : MatrixVisibility = body?.visibility ?? MatrixVisibility.PRIVATE;
+        LOG.debug(`User ${userId} from device ${deviceId} is creating a room with visibility ${visibility} and version ${roomVersion}`);
+
+        const createdRoomItem : RoomRepositoryItem = await this._roomService.createRoom(
+            createRoomRepositoryItem(
+                REPOSITORY_NEW_IDENTIFIER,
+                createRoom(
+                    REPOSITORY_NEW_IDENTIFIER,
+                    roomVersion,
+                    visibility
+                )
+            )
+        );
+
+        const roomId : string = createdRoomItem.id;
+        LOG.info(`User ${userId} created room by id: ${roomId} with visibility ${visibility} and version ${roomVersion}`);
+
+        const matrixRoomId : MatrixRoomId = MatrixUtils.getRoomId(roomId, this._hostname);
+        LOG.debug(`createRoom: matrixRoomId: `, matrixRoomId);
+
+        return createMatrixCreateRoomResponseDTO(
+            matrixRoomId,
+            undefined
+        );
+
     }
 
 }

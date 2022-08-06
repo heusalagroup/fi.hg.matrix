@@ -102,6 +102,14 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
         await this._repository.deleteByList(list);
     }
 
+    public async createRoom (
+        item : RoomRepositoryItem
+    ) : Promise<RoomRepositoryItem> {
+        await this._sharedClientService.waitForInitialization();
+        const createdItem = await this._repository.createItem(toStoredRoomRepositoryItem(item));
+        return parseRoomRepositoryItem(createdItem.id, createdItem.data);
+    }
+
     public async saveRoom (
         item : RoomRepositoryItem
     ) : Promise<RoomRepositoryItem> {

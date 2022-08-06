@@ -5,9 +5,11 @@ import { RepositoryItem } from "../../../../../core/simpleRepository/types/Repos
 import { Room, isRoom } from "./Room";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredRoomRepositoryItem, StoredRoomRepositoryItem } from "./StoredRoomRepositoryItem";
+import { isMatrixVisibility, MatrixVisibility } from "../../../../types/request/createRoom/types/MatrixVisibility";
 
 export interface RoomRepositoryItem extends RepositoryItem<Room> {
     readonly id: string;
+    readonly visibility: MatrixVisibility;
     readonly target: Room;
 }
 
@@ -17,6 +19,7 @@ export function createRoomRepositoryItem (
 ): RoomRepositoryItem {
     return {
         id,
+        visibility: target?.visibility,
         target
     };
 }
@@ -26,10 +29,12 @@ export function isRoomRepositoryItem (value: any): value is RoomRepositoryItem {
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'id',
-            'target'
+            'target',
+            'visibility'
         ])
         && isString(value?.id)
         && isRoom(value?.target)
+        && isMatrixVisibility(value?.visibility)
     );
 }
 
@@ -51,6 +56,7 @@ export function toStoredRoomRepositoryItem (
 ) : StoredRoomRepositoryItem | undefined {
     return createStoredRoomRepositoryItem(
         item.id,
-        JSON.stringify(item.target)
+        JSON.stringify(item.target),
+        item.target.visibility
     );
 }

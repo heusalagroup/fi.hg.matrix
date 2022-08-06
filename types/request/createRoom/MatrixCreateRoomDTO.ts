@@ -16,16 +16,22 @@ import { MatrixCreateRoomPreset,  isMatrixCreateRoomPreset } from "./types/Matri
 import { MatrixRoomPowerLevelsEventDTO,  isMatrixPowerLevelEventContentDTO } from "./types/MatrixRoomPowerLevelsEventDTO";
 import { MatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
 import { MatrixUserId,  isMatrixUserId } from "../../core/MatrixUserId";
+import { MatrixRoomVersion } from "../../MatrixRoomVersion";
 
 export interface MatrixCreateRoomDTO {
 
     readonly visibility                   ?: MatrixVisibility;
     readonly room_alias_name              ?: string;
+
+    /**
+     * User friendly room name. This must be unique.
+     */
     readonly name                         ?: string;
+
     readonly topic                        ?: string;
     readonly invite                       ?: readonly MatrixUserId[];
     readonly invite_3pid                  ?: readonly MatrixInvite3PidDTO[];
-    readonly room_version                 ?: string;
+    readonly room_version                 ?: MatrixRoomVersion;
     readonly creation_content             ?: Partial<MatrixRoomCreateEventDTO>;
     readonly initial_state                ?: readonly MatrixStateEvent[];
     readonly preset                       ?: MatrixCreateRoomPreset;

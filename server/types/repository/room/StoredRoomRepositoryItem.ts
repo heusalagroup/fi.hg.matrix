@@ -2,6 +2,7 @@
 
 import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
 import { StoredRepositoryItem } from "../../../../../core/simpleRepository/types/StoredRepositoryItem";
+import { MatrixVisibility } from "../../../../types/request/createRoom/types/MatrixVisibility";
 
 export interface StoredRoomRepositoryItem extends StoredRepositoryItem {
 
@@ -14,15 +15,19 @@ export interface StoredRoomRepositoryItem extends StoredRepositoryItem {
      */
     readonly target : string;
 
+    readonly visibility : MatrixVisibility;
+
 }
 
 export function createStoredRoomRepositoryItem (
     id: string,
-    target: string
+    target: string,
+    visibility: MatrixVisibility
 ): StoredRoomRepositoryItem {
     return {
         id,
-        target
+        target,
+        visibility
     };
 }
 
@@ -31,10 +36,12 @@ export function isStoredRoomRepositoryItem (value: any): value is StoredRoomRepo
         isRegularObject(value)
         && hasNoOtherKeys(value, [
             'id',
-            'target'
+            'target',
+            'visibility'
         ])
         && isString(value?.id)
         && isString(value?.target)
+        && isString(value?.visibility)
     );
 }
 
