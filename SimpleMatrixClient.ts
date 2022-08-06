@@ -189,6 +189,13 @@ export class SimpleMatrixClient implements RepositoryClient {
     }
 
     /**
+     * Returns the URL of the current Matrix home server
+     */
+    public getHomeServerUrl () : string {
+        return this._homeServerUrl;
+    }
+
+    /**
      * Returns the hostname of the current Matrix home server
      */
     public getHomeServerName () : string {
@@ -316,13 +323,9 @@ export class SimpleMatrixClient implements RepositoryClient {
         kind         : MatrixRegisterKind | undefined = undefined,
         accessToken ?: string
     ) : Promise<MatrixRegisterResponseDTO> {
-
         try {
-
             LOG.debug(`register: Registering user:`, requestBody, kind);
-
             const access_token : string | undefined = this?._accessToken ?? accessToken ?? undefined;
-
             const response : any = await this._postJson(
                 this._homeServerUrl + MATRIX_REGISTER_URL(kind),
                 requestBody as unknown as JsonAny,
@@ -330,28 +333,18 @@ export class SimpleMatrixClient implements RepositoryClient {
                     [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(access_token)
                 } : undefined
             );
-
             if (!isMatrixRegisterResponseDTO(response)) {
                 LOG.debug(`Invalid response received: `, response);
                 throw new TypeError(`${this._observer.getName()}.register: Response was invalid`);
             }
-
             LOG.debug(`register: RegisterResponseDTO received: `, response);
-
             return response;
-
         } catch (err : any) {
-
             LOG.warn(`register: Could not register user: `, err);
-
             if (err instanceof RequestError) {
-
                 const statusCode = err?.getStatusCode();
-
                 if ( statusCode === 400 ) {
-
-                    const errorBody: any = err?.getBody() ?? err?.body;
-
+                    const errorBody: any = SimpleMatrixClient._getErrorBody(err);
                     if ( isMatrixErrorDTO(errorBody) ) {
                         switch (errorBody.errcode) {
                             case MatrixErrorCode.M_USER_IN_USE:
@@ -363,14 +356,11 @@ export class SimpleMatrixClient implements RepositoryClient {
                             default:
                                 throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
                         }
-
                     } else {
                         throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
                     }
-
                 } else if ( statusCode === 401 ) {
                     throw new RequestError(RequestStatus.Unauthorized);
-
                 } else if ( statusCode === 403 ) {
                     throw new RequestError(RequestStatus.Forbidden);
 
@@ -382,50 +372,31 @@ export class SimpleMatrixClient implements RepositoryClient {
                 } else {
                     throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
                 }
-
             } else {
                 throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
             }
-
         }
-
     }
 
     public async whoamiDTO () : Promise<MatrixWhoAmIResponseDTO | undefined> {
-
         const accessToken : string | undefined = this._accessToken;
         if (!accessToken) {
             throw new TypeError(`${this._observer.getName()}.whoamiDTO: Client did not have access token`);
         }
-
-        try {
-
-            LOG.debug(`whoamiDTO: Fetching account whoamiDTO... `);
-            const response : any = await this._getJson(
-                this._homeServerUrl + MATRIX_WHOAMI_URL,
-                {
-                    [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
-                }
-            );
-
-            LOG.debug(`whoamiDTO: response = `, response);
-
-            if (!isMatrixWhoAmIResponseDTO(response)) {
-                // @FIXME: This probably should result in an error promise
-                LOG.error(`whoamiDTO: Response was not MatrixWhoAmIResponseDTO: `, response);
-                return undefined;
+        LOG.debug(`whoamiDTO: Fetching account whoamiDTO... `);
+        const response : any = await this._getJson(
+            this._homeServerUrl + MATRIX_WHOAMI_URL,
+            {
+                [MATRIX_AUTHORIZATION_HEADER_NAME]: AuthorizationUtils.createBearerHeader(accessToken)
             }
-
-            const user_id = response?.user_id ?? undefined;
-            LOG.debug(`whoamiDTO: user_id = `, user_id);
-            this._userId = isString(user_id) ? user_id : undefined;
-            return response;
-
-        } catch (err : any) {
-            LOG.error(`whoamiDTO: Could not fetch user_id: `, err);
-            return undefined;
+        );
+        LOG.debug(`whoamiDTO: response = `, response);
+        if (!isMatrixWhoAmIResponseDTO(response)) {
+            throw new TypeError(`${this._observer.getName()}.whoamiDTO: Response was not MatrixWhoAmIResponseDTO: ${JSON.stringify(response)}`);
         }
-
+        LOG.debug(`whoamiDTO: response.user_id = `, response.user_id);
+        this._userId = response.user_id;
+        return response;
     }
 
     public async whoami () : Promise<string | undefined> {
@@ -460,37 +431,24 @@ export class SimpleMatrixClient implements RepositoryClient {
     public async registerWithSharedSecret (
         requestBody  : SynapseRegisterRequestDTO
     ) : Promise<SynapseRegisterResponseDTO> {
-
         try {
-
             LOG.debug(`registerWithSharedSecret: Registering user:`, requestBody);
-
             const response : any = await this._postJson(
                 this._homeServerUrl + SYNAPSE_REGISTER_URL,
                 requestBody as unknown as JsonAny
             );
-
             if (!isSynapseRegisterResponseDTO(response)) {
                 LOG.debug(`registerWithSharedSecret: Invalid response received: `, response);
                 throw new TypeError(`${this._observer.getName()}.registerWithSharedSecret: Response was invalid`);
             }
-
             LOG.debug(`registerWithSharedSecret: RegisterResponseDTO received: `, response);
-
             return response;
-
         } catch (err : any) {
-
             LOG.warn(`registerWithSharedSecret: Could not register user: `, err);
-
             if (err instanceof RequestError) {
-
                 const statusCode = err?.getStatusCode();
-
                 if ( statusCode === 400 ) {
-
-                    const errorBody: any = err?.getBody() ?? err?.body;
-
+                    const errorBody: any = SimpleMatrixClient._getErrorBody(err);
                     if ( isMatrixErrorDTO(errorBody) ) {
                         switch (errorBody.errcode) {
                             case MatrixErrorCode.M_USER_IN_USE:
@@ -502,11 +460,9 @@ export class SimpleMatrixClient implements RepositoryClient {
                             default:
                                 throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
                         }
-
                     } else {
                         throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
                     }
-
                 } else if ( statusCode === 401 ) {
                     throw new RequestError(RequestStatus.Unauthorized);
 
@@ -521,13 +477,10 @@ export class SimpleMatrixClient implements RepositoryClient {
                 } else {
                     throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
                 }
-
             } else {
                 throw new RequestError(RequestStatus.InternalServerError, `Failed to register user`);
             }
-
         }
-
     }
 
     /**
@@ -542,63 +495,49 @@ export class SimpleMatrixClient implements RepositoryClient {
         userId   : MatrixUserId,
         password : string
     ) : Promise<SimpleMatrixClient> {
-
         try {
-
             const requestBody : MatrixPasswordLoginRequestDTO = createMatrixPasswordLoginRequestDTO(
                 createMatrixIdentifierDTO(userId),
                 password
             );
-
             LOG.debug(`Sending login with userId:`, userId);
-
             const response : any = await this._postJson(
                 this._homeServerUrl + MATRIX_LOGIN_URL,
                 requestBody as unknown as JsonAny
             );
-
             if (!isMatrixLoginResponseDTO(response)) {
                 LOG.debug(`Invalid response received: `, response);
                 throw new TypeError(`${this._observer.getName()}.login: Response was invalid`);
             }
-
             LOG.debug(`Login response received: `, response);
-
             let originalUrl = this._originalUrl;
             let homeServerUrl = this._homeServerUrl;
             let identityServerUrl = this._identityServerUrl;
-
             if (response?.well_known) {
-
                 const responseHomeServerUrl = response.well_known[MatrixType.M_HOMESERVER]?.base_url;
                 if (responseHomeServerUrl) {
                     homeServerUrl = responseHomeServerUrl;
                 } else {
                     homeServerUrl = originalUrl;
                 }
-
                 const responseIdentityServerUrl = response.well_known[MatrixType.M_IDENTITY_SERVER]?.base_url;
                 if (responseIdentityServerUrl) {
                     identityServerUrl = responseIdentityServerUrl;
                 } else {
                     identityServerUrl = homeServerUrl;
                 }
-
             } else {
                 homeServerUrl     = originalUrl;
                 identityServerUrl = originalUrl;
             }
-
             const access_token = response?.access_token;
             if (!access_token) {
                 throw new TypeError(`${this._observer.getName()}.login: Response did not have access_token`);
             }
-
             const user_id = response?.user_id;
             if (!user_id) {
                 throw new TypeError(`${this._observer.getName()}.login: Response did not have user_id`);
             }
-
             return new SimpleMatrixClient(
                 originalUrl,
                 homeServerUrl,
@@ -608,15 +547,10 @@ export class SimpleMatrixClient implements RepositoryClient {
                 this._syncRequestTimeoutMs,
                 this._syncAgainTimeMs
             );
-
         } catch (err : any) {
-
             LOG.debug(`Could not login: `, err);
-
             throw new RequestError(RequestStatus.Forbidden, `Access denied`);
-
         }
-
     }
 
     /**
@@ -1040,7 +974,7 @@ export class SimpleMatrixClient implements RepositoryClient {
                 return {room_id: roomId};
             }
 
-            const body = err?.getBody() ?? err?.body;
+            const body: any = SimpleMatrixClient._getErrorBody(err);
             if ( isMatrixErrorDTO(body) && body.errcode === MatrixErrorCode.M_FORBIDDEN ) {
                 LOG.warn(`joinRoom: Passing on error: Could not join to room "${roomId}": ${body?.errcode}: ${body?.error}`);
                 throw err;
@@ -1259,20 +1193,14 @@ export class SimpleMatrixClient implements RepositoryClient {
         body    ?: JsonAny,
         headers ?: {[key: string]: string}
     ) : Promise< Json| undefined > {
-
         try {
-
             LOG.debug(`_postJson: Executing POST request ${url} with `, body, headers);
             const result = await RequestClient.postJson(url, body, headers);
-
             LOG.debug(`_postJson: Response received for POST request ${url} as `, result);
             return result;
-
         } catch (err : any) {
-
             LOG.warn(`_postJson: Error: `, err);
-
-            const responseBody = err?.getBody() ?? err?.body;
+            const responseBody = SimpleMatrixClient._getErrorBody(err);
             if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
                 if ( errCode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
@@ -1288,11 +1216,8 @@ export class SimpleMatrixClient implements RepositoryClient {
             } else {
                 LOG.warn(`_postJson: Passing on error with no body: `, err);
             }
-
             throw err;
-
         }
-
     }
 
     private async _putJson (
@@ -1300,20 +1225,14 @@ export class SimpleMatrixClient implements RepositoryClient {
         body    ?: JsonAny,
         headers ?: {[key: string]: string}
     ) : Promise<Json| undefined> {
-
         try {
-
             LOG.debug(`_putJson: Executing PUT request ${url} with `, body, headers);
-
             const result = await RequestClient.putJson(url, body, headers);
             LOG.debug(`_putJson: Response received for PUT request ${url} as `, result);
             return result;
-
         } catch (err : any) {
-
             LOG.warn(`_putJson: Error: `, err);
-
-            const responseBody = err?.getBody() ?? err?.body;
+            const responseBody = SimpleMatrixClient._getErrorBody(err);
             if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
                 if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
@@ -1329,28 +1248,22 @@ export class SimpleMatrixClient implements RepositoryClient {
             } else {
                 LOG.warn(`Passing on: Error did not have body: `, err);
             }
-
             throw err;
-
         }
-
     }
 
     private async _getJson (
         url      : string,
         headers ?: {[key: string]: string}
     ) : Promise<Json| undefined> {
-
         try {
             LOG.debug(`_getJson: Executing GET request ${url} with `, headers);
             const result = await RequestClient.getJson(url, headers);
             LOG.debug(`_getJson: Response received for PUT request ${url} as `, result);
             return result;
         } catch (err : any) {
-
             LOG.warn(`_getJson: Error: `, err);
-
-            const responseBody = err?.getBody() ?? err?.body;
+            const responseBody = SimpleMatrixClient._getErrorBody(err);
             if ( isMatrixErrorDTO(responseBody) ) {
                 const errCode = responseBody?.errcode;
                 if ( responseBody?.errcode === MatrixErrorCode.M_LIMIT_EXCEEDED ) {
@@ -1366,11 +1279,18 @@ export class SimpleMatrixClient implements RepositoryClient {
             } else {
                 LOG.warn(`_getJson: Passing on: Error did not have body: `, err);
             }
-
             throw err;
-
         }
+    }
 
+    private static _getErrorBody (err : any) : any {
+        try {
+            return (err?.getBody ? err?.getBody() : undefined) ?? err?.body;;
+        } catch (err2) {
+            LOG.error(`_getErrorBody: Could not get body of error: `, err2);
+            LOG.error(`_getErrorBody: Original error: `, err);
+            return undefined;
+        }
     }
 
     private _normalizeRoomName (name : string) {
