@@ -3,8 +3,9 @@
 import { isRoomMembershipType, RoomMembershipType } from "./RoomMembershipType";
 import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { isMatrixRoomId, MatrixRoomId } from "../../core/MatrixRoomId";
+import { ReadonlyJsonObject } from "../../../../core/Json";
 
-export interface RoomJoinRulesAllowConditionDTO {
+export interface RoomJoinRulesAllowConditionDTO extends ReadonlyJsonObject {
     readonly type    : RoomMembershipType;
     readonly room_id : MatrixRoomId;
 }

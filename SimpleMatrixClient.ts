@@ -88,10 +88,6 @@ export type SimpleMatrixClientDestructor = ObserverDestructor;
 
 const DEFAULT_WAIT_FOR_EVENTS_TIMEOUT = 30000;
 
-interface SyncAgainCallback {
-    (triggerEvents: boolean) : void;
-}
-
 /**
  * Super lightweight Matrix client and simple event listener.
  *

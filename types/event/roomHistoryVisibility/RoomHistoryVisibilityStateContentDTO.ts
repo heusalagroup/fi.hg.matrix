@@ -2,8 +2,9 @@
 
 import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { isMatrixHistoryVisibility, MatrixHistoryVisibility } from "./MatrixHistoryVisibility";
+import { ReadonlyJsonObject } from "../../../../core/Json";
 
-export interface RoomHistoryVisibilityStateContentDTO {
+export interface RoomHistoryVisibilityStateContentDTO  extends ReadonlyJsonObject {
     readonly history_visibility : MatrixHistoryVisibility;
 }
 

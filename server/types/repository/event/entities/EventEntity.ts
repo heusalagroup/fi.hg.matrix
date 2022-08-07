@@ -1,12 +1,22 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import {
-    hasNoOtherKeys, isNumber,
+    explain, explainNoOtherKeys,
+    explainNumber, explainProperty,
+    explainRegularObject,
+    explainString,
+    explainStringOrUndefined,
+    hasNoOtherKeys,
+    isNumber,
     isRegularObject,
     isString,
     isStringOrUndefined
 } from "../../../../../../core/modules/lodash";
-import { isJsonObject, ReadonlyJsonObject } from "../../../../../../core/Json";
+import {
+    explainReadonlyJsonObject,
+    isReadonlyJsonObject,
+    ReadonlyJsonObject
+} from "../../../../../../core/Json";
 import { MatrixType } from "../../../../../types/core/MatrixType";
 
 /**
@@ -59,8 +69,32 @@ export function isEventEntity (value: any): value is EventEntity {
         && isNumber(value?.originServerTs)
         && isString(value?.senderId)
         && isStringOrUndefined(value?.roomId)
-        && isJsonObject(value?.content)
+        && isReadonlyJsonObject(value?.content)
         && isStringOrUndefined(value?.stateKey)
+    );
+}
+
+export function explainEventEntity (value : any): string {
+    return explain(
+        [
+            explainRegularObject(value),
+            explainNoOtherKeys(value, [
+                'id',
+                'type',
+                'originServerTs',
+                'senderId',
+                'roomId',
+                'content',
+                'stateKey'
+            ]),
+            explainProperty("id", explainString(value?.id)),
+            explainProperty("type", explainString(value?.type)),
+            explainProperty("originServerTs", explainNumber(value?.originServerTs)),
+            explainProperty("senderId", explainString(value?.senderId)),
+            explainProperty("roomId", explainStringOrUndefined(value?.roomId)),
+            explainProperty("content", explainReadonlyJsonObject(value?.content)),
+            explainProperty("stateKey", explainStringOrUndefined(value?.stateKey))
+        ]
     );
 }
 

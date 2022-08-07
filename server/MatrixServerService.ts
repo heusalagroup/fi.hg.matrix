@@ -36,6 +36,15 @@ export interface CreateRoomResponse {
     readonly room: RoomRepositoryItem;
 }
 
+/**
+ * Provides services to implement Matrix HomeServer features.
+ *
+ * Methods in this service should only provide means to implement features,
+ * e.g. not have control itself. Actual control of things must reside in the user
+ * side of this service.
+ *
+ * @see HsBackendController
+ */
 export class MatrixServerService {
 
     public static setLogLevel (level: LogLevel) {

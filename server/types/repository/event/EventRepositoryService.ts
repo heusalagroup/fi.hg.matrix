@@ -8,11 +8,13 @@ import { RepositoryServiceEvent } from "../../../../../core/simpleRepository/typ
 import { SharedClientService } from "../../../../../core/simpleRepository/types/SharedClientService";
 import { Repository } from "../../../../../core/simpleRepository/types/Repository";
 import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
-import { EventRepositoryItem, parseEventRepositoryItem, toStoredEventRepositoryItem } from "./EventRepositoryItem";
+import { createEventRepositoryItem, EventRepositoryItem, toStoredEventRepositoryItem } from "./EventRepositoryItem";
 import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
 import {
     map
 } from "../../../../../core/modules/lodash";
+import { explainEventEntity, isEventEntity } from "./entities/EventEntity";
+import { parseJson } from "../../../../../core/Json";
 
 const LOG = LogService.createLogger('EventRepositoryService');
 
@@ -99,7 +101,10 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
         item : EventRepositoryItem
     ) : Promise<EventRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
-        const createdItem = await this._repository.createItem(toStoredEventRepositoryItem(item));
+        const storedItemTemplate = toStoredEventRepositoryItem(item);
+        LOG.debug(`createEvent: Going to create: `, item);
+        const createdItem : RepositoryEntry<StoredEventRepositoryItem> = await this._repository.createItem(storedItemTemplate);
+        LOG.debug(`createEvent: Created: `, createdItem);
         return this._toEventRepositoryItem(createdItem);
     }
 
@@ -124,17 +129,15 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     }
 
     private _toEventRepositoryItem (storedItem: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem {
-        const id = storedItem.id;
-        const target = storedItem.data?.target;
-        LOG.debug(`Event with id "${id}": `, storedItem, target);
-        const item : EventRepositoryItem | undefined = parseEventRepositoryItem(
-            id,
-            target
-        );
-        LOG.debug(`Event "${id}" as: `, item);
-        if (!item) {
-            throw new TypeError(`EventRepositoryService: Could not parse "${storedItem.id}" and ${JSON.stringify(target)}`);
+        const id : string = storedItem.id;
+        const target : string = storedItem.data.target;
+        const data = parseJson(target);
+        if ( !isEventEntity(data) ) {
+            LOG.debug(`_toEventRepositoryItem: Event "${id}": data = `, data);
+            throw new TypeError(`EventRepositoryService: Could not parse repository item "${id}" because ${explainEventEntity(data)}`);
         }
+        const item = createEventRepositoryItem(id, data);
+        LOG.debug(`Event "${id}" parsed as: `, item);
         return item;
     }
 

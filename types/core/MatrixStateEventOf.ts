@@ -7,14 +7,15 @@ import {
     TestCallbackNonStandardOf
 } from "../../../core/modules/lodash";
 import { isMatrixType, MatrixType } from "./MatrixType";
+import { ReadonlyJsonObject } from "../../../core/Json";
 
-export interface MatrixStateEventOf<T> {
+export interface MatrixStateEventOf<T extends ReadonlyJsonObject> {
     readonly type       : MatrixType | string;
     readonly state_key ?: string;
     readonly content    : T;
 }
 
-export function isMatrixStateEventOf<T> (
+export function isMatrixStateEventOf<T extends ReadonlyJsonObject> (
     value     : any,
     isContent : TestCallbackNonStandardOf<T>
 ): value is MatrixStateEventOf<T> {

@@ -4,37 +4,17 @@ import { RepositoryEntry } from "../core/simpleRepository/types/RepositoryEntry"
 import { Repository, REPOSITORY_NEW_IDENTIFIER } from "../core/simpleRepository/types/Repository";
 import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { MatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
-import { MatrixCreateRoomPreset }
-    from "./types/request/createRoom/types/MatrixCreateRoomPreset";
-import {
-    JsonAny,
-    isJsonObject,
-    JsonObject, ReadonlyJsonObject
-} from "../core/Json";
+import { MatrixCreateRoomPreset } from "./types/request/createRoom/types/MatrixCreateRoomPreset";
+import { isJsonObject, ReadonlyJsonAny, ReadonlyJsonObject } from "../core/Json";
 import { MatrixSyncResponseDTO } from "./types/response/sync/MatrixSyncResponseDTO";
 import { LogService } from "../core/LogService";
-import {
-    concat,
-    filter,
-    get,
-    isInteger,
-    isNumber,
-    keys,
-    map,
-    reduce,
-    parseNonEmptyString,
-    uniq,
-    forEach
-} from "../core/modules/lodash";
+import { concat, filter, forEach, get, isInteger, isNumber, keys, map, parseNonEmptyString, reduce, uniq } from "../core/modules/lodash";
 import { MatrixRoomId } from "./types/core/MatrixRoomId";
-import { MatrixSyncResponseJoinedRoomDTO }
-    from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
-import { MatrixSyncResponseRoomEventDTO }
-    from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
+import { MatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
+import { MatrixSyncResponseRoomEventDTO } from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
 import { isMatrixType, MatrixType } from "./types/core/MatrixType";
 import { RequestError } from "../core/request/types/RequestError";
-import { PutRoomStateWithEventTypeResponseDTO }
-    from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeResponseDTO";
+import { PutRoomStateWithEventTypeResponseDTO } from "./types/response/setRoomStateByType/PutRoomStateWithEventTypeResponseDTO";
 import { MatrixCreateRoomDTO } from "./types/request/createRoom/MatrixCreateRoomDTO";
 import { createMatrixStateEvent } from "./types/core/MatrixStateEvent";
 import { MatrixRoomCreateEventDTO } from "./types/event/roomCreate/MatrixRoomCreateEventDTO";
@@ -42,8 +22,7 @@ import { MatrixUserId } from "./types/core/MatrixUserId";
 import { MatrixHistoryVisibility } from "./types/event/roomHistoryVisibility/MatrixHistoryVisibility";
 import { MatrixJoinRule } from "./types/event/roomJoinRules/MatrixJoinRule";
 import { MatrixGuestAccess } from "./types/event/roomGuestAccess/MatrixGuestAccess";
-import { MatrixRoomJoinedMembersDTO }
-    from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
+import { MatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
 import { RepositoryMember } from "../core/simpleRepository/types/RepositoryMember";
 import { LogLevel } from "../core/types/LogLevel";
 import { createRoomGuestAccessStateEventDTO } from "./types/event/roomGuestAccess/RoomGuestAccessStateEventDTO";
@@ -59,6 +38,7 @@ import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType
 import { GetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 import { isStoredRepositoryItem, StoredRepositoryItem, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
 import { RepositoryUtils } from "../core/simpleRepository/RepositoryUtils";
+import { MatrixRoomVersion } from "./types/MatrixRoomVersion";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -224,10 +204,10 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         const clientUserId : string | undefined = this._client.getUserId();
         LOG.debug(`createItem: clientUserId = `, clientUserId);
 
-        const jsonData : JsonAny = data as unknown as JsonAny;
+        const jsonData : ReadonlyJsonAny = data as unknown as ReadonlyJsonAny;
         const version  : number     = 1;
 
-        const content : JsonObject = {
+        const content : ReadonlyJsonObject = {
             data    : jsonData,
             version : version
         };
@@ -320,7 +300,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
             preset: MatrixCreateRoomPreset.PRIVATE_CHAT,
             creation_content: creationContent,
             initial_state: initialState,
-            room_version: "8",
+            room_version: MatrixRoomVersion.V8,
             power_level_content_override: {
                 events: allowedEventsObject
             }

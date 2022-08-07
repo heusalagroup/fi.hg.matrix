@@ -3,8 +3,13 @@
 import { isMatrixJoinRule, MatrixJoinRule } from "./MatrixJoinRule";
 import { isRoomJoinRulesAllowConditionDTO, RoomJoinRulesAllowConditionDTO } from "./RoomJoinRulesAllowConditionDTO";
 import { hasNoOtherKeysInDevelopment, isArrayOf, isRegularObject } from "../../../../core/modules/lodash";
+import { ReadonlyJsonObject } from "../../../../core/Json";
 
-export interface RoomJoinRulesStateContentDTO {
+/**
+ * @see https://spec.matrix.org/v1.2/client-server-api/#mroomjoin_rules
+ * @see https://github.com/heusalagroup/hghs/issues/20
+ */
+export interface RoomJoinRulesStateContentDTO extends ReadonlyJsonObject {
     readonly allow     : readonly RoomJoinRulesAllowConditionDTO[];
     readonly join_rule : MatrixJoinRule;
 }

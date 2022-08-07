@@ -12,20 +12,20 @@ import {
     isString,
     isStringOrUndefined
 } from "../../../core/modules/lodash";
-import { explainJsonObject, isJsonObject, JsonObject } from "../../../core/Json";
+import {
+    explainJsonObject,
+    isReadonlyJsonObject,
+    ReadonlyJsonObject
+} from "../../../core/Json";
 import { MatrixStateEventOf } from "./MatrixStateEventOf";
 import { MatrixType } from "./MatrixType";
 
-export interface MatrixStateEvent extends MatrixStateEventOf<JsonObject> {
-    readonly type       : MatrixType | string;
-    readonly state_key ?: string;
-    readonly content    : JsonObject;
-}
+export type MatrixStateEvent = MatrixStateEventOf<ReadonlyJsonObject>;
 
 export function createMatrixStateEvent (
     type      : MatrixType | string,
     state_key : string,
-    content   : JsonObject
+    content   : ReadonlyJsonObject
 ) : MatrixStateEvent {
     return {
         type,
@@ -44,7 +44,7 @@ export function isMatrixStateEvent (value: any): value is MatrixStateEvent {
         ])
         && isString(value?.type)
         && isStringOrUndefined(value?.state_key)
-        && isJsonObject(value?.content)
+        && isReadonlyJsonObject(value?.content)
     );
 }
 

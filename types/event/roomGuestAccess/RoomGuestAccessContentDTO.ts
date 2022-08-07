@@ -2,8 +2,9 @@
 
 import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { isMatrixGuestAccess, MatrixGuestAccess } from "./MatrixGuestAccess";
+import { ReadonlyJsonObject } from "../../../../core/Json";
 
-export interface RoomGuestAccessContentDTO {
+export interface RoomGuestAccessContentDTO extends ReadonlyJsonObject {
     readonly guest_access : MatrixGuestAccess;
 }
 

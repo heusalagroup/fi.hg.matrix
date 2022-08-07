@@ -3,14 +3,14 @@
 
 import {
     explain,
-    explainArrayOfOrUndefined,
+    explainReadonlyArrayOfOrUndefined,
     explainBooleanOrUndefined,
     explainNoOtherKeys,
     explainProperty,
     explainRegularObject,
     explainStringOrUndefined,
     hasNoOtherKeysInDevelopment,
-    isArrayOfOrUndefined,
+    isReadonlyArrayOfOrUndefined,
     isBooleanOrUndefined,
     isRegularObject,
     isStringOrUndefined
@@ -68,11 +68,11 @@ export function isMatrixCreateRoomDTO (value: any): value is MatrixCreateRoomDTO
         && isStringOrUndefined(value?.room_alias_name)
         && isStringOrUndefined(value?.name)
         && isStringOrUndefined(value?.topic)
-        && isArrayOfOrUndefined<MatrixUserId>(value?.invite, isMatrixUserId)
-        && isArrayOfOrUndefined<MatrixInvite3PidDTO>(value?.invite_3pid, isMatrixInvite3PidDTO)
+        && isReadonlyArrayOfOrUndefined<MatrixUserId>(value?.invite, isMatrixUserId)
+        && isReadonlyArrayOfOrUndefined<MatrixInvite3PidDTO>(value?.invite_3pid, isMatrixInvite3PidDTO)
         && isMatrixRoomVersionOrUndefined(value?.room_version)
         && isPartialMatrixCreationContentDTOOrUndefined(value?.creation_content)
-        && isArrayOfOrUndefined<MatrixStateEvent>(value?.initial_state, isMatrixStateEvent)
+        && isReadonlyArrayOfOrUndefined<MatrixStateEvent>(value?.initial_state, isMatrixStateEvent)
         && isMatrixCreateRoomPresetOrUndefined(value?.preset)
         && isBooleanOrUndefined(value?.is_direct)
         && isMatrixPowerLevelEventContentDTOOrUndefined(value?.power_level_content_override)
@@ -100,11 +100,11 @@ export function explainMatrixCreateRoomDTO (value: any): string {
         explainProperty('room_alias_name', explainStringOrUndefined(value?.room_alias_name)),
         explainProperty('name', explainStringOrUndefined(value?.name)),
         explainProperty('topic', explainStringOrUndefined(value?.topic)),
-        explainProperty('invite', explainArrayOfOrUndefined<MatrixUserId>("MatrixUserId", explainMatrixUserId, value?.invite, isMatrixUserId)),
-        explainProperty('invite_3pid', explainArrayOfOrUndefined<MatrixInvite3PidDTO>("MatrixInvite3PidDTO", explainMatrixInvite3PidDTO, value?.invite_3pid, isMatrixInvite3PidDTO)),
+        explainProperty('invite', explainReadonlyArrayOfOrUndefined<MatrixUserId>("MatrixUserId", explainMatrixUserId, value?.invite, isMatrixUserId)),
+        explainProperty('invite_3pid', explainReadonlyArrayOfOrUndefined<MatrixInvite3PidDTO>("MatrixInvite3PidDTO", explainMatrixInvite3PidDTO, value?.invite_3pid, isMatrixInvite3PidDTO)),
         explainProperty('room_version', explainMatrixRoomVersionOrUndefined(value?.room_version)),
         explainProperty('creation_content', explainPartialMatrixCreationContentDTOOrUndefined(value?.creation_content)),
-        explainProperty('initial_state', explainArrayOfOrUndefined<MatrixStateEvent>("MatrixStateEvent", explainMatrixStateEvent, value?.initial_state, isMatrixStateEvent)),
+        explainProperty('initial_state', explainReadonlyArrayOfOrUndefined<MatrixStateEvent>("MatrixStateEvent", explainMatrixStateEvent, value?.initial_state, isMatrixStateEvent)),
         explainProperty('preset', explainMatrixCreateRoomPresetOrUndefined(value?.preset)),
         explainProperty('explain_direct', explainBooleanOrUndefined(value?.explain_direct)),
         explainProperty('power_level_content_override', explainMatrixPowerLevelEventContentDTOOrUndefined(value?.power_level_content_override))

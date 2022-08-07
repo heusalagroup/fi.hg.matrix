@@ -1,14 +1,18 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import {
+    explain, explainNoOtherKeys, explainProperty, explainRegularObject, explainString,
     hasNoOtherKeys,
     isRegularObject,
     isString
 } from "../../../../../core/modules/lodash";
 import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
-import { EventEntity, isEventEntity } from "./entities/EventEntity";
+import { EventEntity, explainEventEntity, isEventEntity } from "./entities/EventEntity";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredEventRepositoryItem, StoredEventRepositoryItem } from "./StoredEventRepositoryItem";
+import { LogService } from "../../../../../core/LogService";
+
+const LOG = LogService.createLogger('EventRepositoryItem');
 
 export interface EventRepositoryItem extends RepositoryItem<EventEntity> {
     readonly id: string;
@@ -37,13 +41,30 @@ export function isEventRepositoryItem (value: any): value is EventRepositoryItem
     );
 }
 
+export function explainEventRepositoryItem (value: any) : string {
+    return explain(
+        [
+            explainRegularObject(value),
+            explainNoOtherKeys(value, [
+                'id',
+                'target'
+            ]),
+            explainProperty("id", explainString(value?.id)),
+            explainProperty("target", explainEventEntity(value?.target))
+        ]
+    );
+}
+
 export function stringifyEventRepositoryItem (value: EventRepositoryItem): string {
     return `HgHsEventRepositoryItem(${value})`;
 }
 
 export function parseEventRepositoryItem (id: string, unparsedData: any) : EventRepositoryItem | undefined {
     const data = parseJson(unparsedData);
-    if ( !isEventEntity(data) ) return undefined;
+    if ( !isEventEntity(data) ) {
+        LOG.warn(`Warning! Could not parse repository item "${id}" because ${explainEventEntity(data)}`);
+        return undefined;
+    }
     return createEventRepositoryItem(
         id,
         data
@@ -53,10 +74,14 @@ export function parseEventRepositoryItem (id: string, unparsedData: any) : Event
 export function toStoredEventRepositoryItem (
     item: EventRepositoryItem
 ) : StoredEventRepositoryItem | undefined {
+    if (!isEventRepositoryItem(item)) {
+        LOG.debug(`toStoredEventRepositoryItem: item: `, item);
+        throw new TypeError(`EventRepositoryItem.toStoredEventRepositoryItem: Item ${explainEventRepositoryItem(item)}`);
+    }
     return createStoredEventRepositoryItem(
         item.id,
         JSON.stringify(item.target),
         item.target.senderId,
-        item.target.roomId
+        item.target?.roomId
     );
 }
