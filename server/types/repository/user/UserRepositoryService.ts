@@ -72,7 +72,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         });
     }
 
-    public async findById (id: string) : Promise<UserRepositoryItem | undefined> {
+    public async findUserById (id: string) : Promise<UserRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredUserRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;

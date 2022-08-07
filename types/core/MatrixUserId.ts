@@ -1,7 +1,11 @@
+// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { explainNot, explainOk, isString } from "../../../core/modules/lodash";
 
+/**
+ * Size must not exceed 255 bytes.
+ */
 export type MatrixUserId = string;
 
 export function isMatrixUserId (value: any): value is MatrixUserId {

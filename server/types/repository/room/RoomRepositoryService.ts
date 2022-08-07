@@ -72,7 +72,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
         });
     }
 
-    public async getRoomById (id: string) : Promise<RoomRepositoryItem | undefined> {
+    public async findRoomById (id: string) : Promise<RoomRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredRoomRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;

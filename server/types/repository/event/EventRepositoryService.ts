@@ -10,7 +10,9 @@ import { Repository } from "../../../../../core/simpleRepository/types/Repositor
 import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
 import { EventRepositoryItem, parseEventRepositoryItem, toStoredEventRepositoryItem } from "./EventRepositoryItem";
 import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
-import { map } from "../../../../../core/modules/lodash";
+import {
+    map
+} from "../../../../../core/modules/lodash";
 
 const LOG = LogService.createLogger('EventRepositoryService');
 
@@ -59,10 +61,7 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     public async getAllEvents () : Promise<readonly EventRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredEventRepositoryItem>[] = await this._getAllEvents();
         return map(list, (item: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem => {
-            return parseEventRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toEventRepositoryItem(item);
         });
     }
 
@@ -71,21 +70,15 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     ) : Promise<readonly EventRepositoryItem[]> {
         const list : readonly RepositoryEntry<StoredEventRepositoryItem>[] = await this._getSomeEvents(idList);
         return map(list, (item: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem => {
-            return parseEventRepositoryItem(
-                item.id,
-                item.data
-            );
+            return this._toEventRepositoryItem(item);
         });
     }
 
-    public async getEventById (id: string) : Promise<EventRepositoryItem | undefined> {
+    public async findEventById (id: string) : Promise<EventRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredEventRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
-        return parseEventRepositoryItem(
-            foundItem.id,
-            foundItem.data
-        );
+        return this._toEventRepositoryItem(foundItem);
     }
 
     public async deleteAllEvents () : Promise<void> {
@@ -102,12 +95,20 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
         await this._repository.deleteByList(list);
     }
 
+    public async createEvent (
+        item : EventRepositoryItem
+    ) : Promise<EventRepositoryItem> {
+        await this._sharedClientService.waitForInitialization();
+        const createdItem = await this._repository.createItem(toStoredEventRepositoryItem(item));
+        return this._toEventRepositoryItem(createdItem);
+    }
+
     public async saveEvent (
         item : EventRepositoryItem
     ) : Promise<EventRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
         const foundItem = await this._repository.updateOrCreateItem(toStoredEventRepositoryItem(item));
-        return parseEventRepositoryItem(foundItem.id, foundItem.data);
+        return this._toEventRepositoryItem(foundItem);
     }
 
     // PRIVATE METHODS
@@ -120,6 +121,21 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredEventRepositoryItem>[]> {
         return await this._repository.getSome(idList);
+    }
+
+    private _toEventRepositoryItem (storedItem: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem {
+        const id = storedItem.id;
+        const target = storedItem.data?.target;
+        LOG.debug(`Event with id "${id}": `, storedItem, target);
+        const item : EventRepositoryItem | undefined = parseEventRepositoryItem(
+            id,
+            target
+        );
+        LOG.debug(`Event "${id}" as: `, item);
+        if (!item) {
+            throw new TypeError(`EventRepositoryService: Could not parse "${storedItem.id}" and ${JSON.stringify(target)}`);
+        }
+        return item;
     }
 
 }

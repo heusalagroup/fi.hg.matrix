@@ -77,7 +77,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
      *
      * @param id
      */
-    public async getDeviceById (id: string) : Promise<DeviceRepositoryItem | undefined> {
+    public async findDeviceById (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
@@ -89,7 +89,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
      *
      * @param id
      */
-    public async getDeviceByDeviceId (id: string) : Promise<DeviceRepositoryItem | undefined> {
+    public async findDeviceByDeviceId (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findByProperty("deviceId", id);
         if (!foundItem) return undefined;

@@ -1,19 +1,23 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import {
+    hasNoOtherKeys,
+    isRegularObject,
+    isString
+} from "../../../../../core/modules/lodash";
 import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
-import { Event, isEvent } from "./Event";
+import { EventEntity, isEventEntity } from "./entities/EventEntity";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredEventRepositoryItem, StoredEventRepositoryItem } from "./StoredEventRepositoryItem";
 
-export interface EventRepositoryItem extends RepositoryItem<Event> {
+export interface EventRepositoryItem extends RepositoryItem<EventEntity> {
     readonly id: string;
-    readonly target: Event;
+    readonly target: EventEntity;
 }
 
 export function createEventRepositoryItem (
     id: string,
-    target: Event
+    target: EventEntity
 ): EventRepositoryItem {
     return {
         id,
@@ -29,7 +33,7 @@ export function isEventRepositoryItem (value: any): value is EventRepositoryItem
             'target'
         ])
         && isString(value?.id)
-        && isEvent(value?.target)
+        && isEventEntity(value?.target)
     );
 }
 
@@ -39,7 +43,7 @@ export function stringifyEventRepositoryItem (value: EventRepositoryItem): strin
 
 export function parseEventRepositoryItem (id: string, unparsedData: any) : EventRepositoryItem | undefined {
     const data = parseJson(unparsedData);
-    if ( !isEvent(data) ) return undefined;
+    if ( !isEventEntity(data) ) return undefined;
     return createEventRepositoryItem(
         id,
         data
@@ -51,6 +55,8 @@ export function toStoredEventRepositoryItem (
 ) : StoredEventRepositoryItem | undefined {
     return createStoredEventRepositoryItem(
         item.id,
-        JSON.stringify(item.target)
+        JSON.stringify(item.target),
+        item.target.senderId,
+        item.target.roomId
     );
 }

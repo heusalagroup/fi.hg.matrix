@@ -12,10 +12,7 @@ import { JwtUtils } from "../../backend/JwtUtils";
 import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
 import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/Repository";
-import { createMatrixWhoAmIResponseDTO, MatrixWhoAmIResponseDTO } from "../types/response/whoami/MatrixWhoAmIResponseDTO";
 import { JwtService } from "../../backend/JwtService";
-import { createMatrixErrorDTO, MatrixErrorDTO } from "../types/response/error/MatrixErrorDTO";
-import { MatrixErrorCode } from "../types/response/error/types/MatrixErrorCode";
 import { MatrixUtils } from "../MatrixUtils";
 import { createMatrixCreateRoomResponseDTO, MatrixCreateRoomResponseDTO } from "../types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { MatrixCreateRoomDTO } from "../types/request/createRoom/MatrixCreateRoomDTO";
@@ -27,12 +24,6 @@ import { MatrixRoomId } from "../types/core/MatrixRoomId";
 import { LogLevel } from "../../core/types/LogLevel";
 
 const LOG = LogService.createLogger('MatrixServerService');
-
-export interface InternalWhoAmIObject {
-    readonly userId: string;
-    readonly deviceId: string;
-    readonly device: DeviceRepositoryItem;
-}
 
 /**
  * Default expiration time in minutes
@@ -182,9 +173,9 @@ export class MatrixServerService {
 
         let foundDevice = undefined;
         if ( deviceId ) {
-            foundDevice = await this._deviceService.getDeviceByDeviceId(deviceId);
+            foundDevice = await this._deviceService.findDeviceByDeviceId(deviceId);
             if ( !foundDevice ) {
-                foundDevice = await this._deviceService.getDeviceById(deviceId);
+                foundDevice = await this._deviceService.findDeviceById(deviceId);
             }
         }
 
@@ -218,72 +209,54 @@ export class MatrixServerService {
 
     }
 
-    private async _whoAmI (accessToken: string) : Promise<InternalWhoAmIObject> {
-
-        LOG.debug(`whoAmI: accessToken = `, accessToken);
-        if ( !accessToken ) {
-            LOG.warn(`Warning! No authentication token provided.`);
-            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN, 'Unrecognised access token.');
-        }
-
+    /**
+     * Verifies access token and returns the device it belongs to.
+     *
+     * @param accessToken
+     * @returns string The device id if access token is valid
+     */
+    public async verifyAccessToken (accessToken : string) : Promise<string|undefined> {
         const deviceId: string = JwtService.decodePayloadSubject(accessToken);
-        LOG.debug(`whoAmI: deviceId = `, deviceId);
+        LOG.debug(`verifyAccessToken: deviceId = `, deviceId);
         if ( !this._jwtEngine.verify(accessToken) ) {
-            LOG.warn(`whoAmI: Token verification failed: `, deviceId, accessToken);
-            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.') ;
+            LOG.warn(`verifyAccessToken: Token verification failed: `, deviceId, accessToken);
+            return undefined;
         }
-
-        const device : DeviceRepositoryItem | undefined = await this._deviceService.getDeviceById(deviceId);
-        LOG.debug(`whoAmI: device = `, device);
-        if (!device) {
-            LOG.warn(`whoAmI: Device not found: `, deviceId, accessToken);
-            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
-        }
-
-        const userId = device?.userId;
-        LOG.debug(`whoAmI: userId = `, userId);
-        if (!userId) {
-            LOG.warn(`whoAmI: User ID invalid: `, userId, deviceId, accessToken);
-            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
-        }
-
-        return {
-            deviceId,
-            device,
-            userId
-        };
-
+        return deviceId;
     }
 
     /**
-     * @throws MatrixErrorDTO
+     * Returns the device record by internal ID
+     *
+     * @param deviceId
      */
-    public async whoAmI (accessToken: string) : Promise<MatrixWhoAmIResponseDTO> {
-
-        const {userId, deviceId, device} = await this._whoAmI(accessToken);
-
-        const user : UserRepositoryItem | undefined = await this._userService.findById(userId);
-        LOG.debug(`whoAmI: user = `, user);
-        if (!user) {
-            LOG.warn(`whoAmI: User not found: `, user, userId, deviceId, accessToken);
-            throw createMatrixErrorDTO(MatrixErrorCode.M_UNKNOWN_TOKEN,'Unrecognised access token.');
-        }
-        const username = user?.username;
-        LOG.debug(`whoAmI: username = `, username);
-        const deviceIdentifier = device?.deviceId ?? device?.id;
-        return createMatrixWhoAmIResponseDTO(
-            MatrixUtils.getUserId(username, this._hostname),
-            deviceIdentifier ? deviceIdentifier : undefined,
-            false
-        );
+    public async findDeviceById (deviceId : string) : Promise<DeviceRepositoryItem | undefined> {
+        const device = await this._deviceService.findDeviceById(deviceId);
+        LOG.debug(`getDeviceById: device [${deviceId}] = `, device);
+        return device;
     }
 
+    /**
+     * Returns the user record by internal ID
+     *
+     * @param userId
+     */
+    public async findUserById (userId: string) : Promise<UserRepositoryItem | undefined> {
+        return await this._userService.findUserById(userId);
+    }
+
+    /**
+     * Create a room
+     *
+     * @param userId
+     * @param deviceId
+     * @param body
+     */
     public async createRoom (
-        accessToken: string,
+        userId: string,
+        deviceId: string,
         body: MatrixCreateRoomDTO
     ) : Promise<MatrixCreateRoomResponseDTO> {
-
-        const {userId, deviceId, device} = await this._whoAmI(accessToken);
 
         const roomVersion = parseMatrixRoomVersion(body?.room_version) ?? this._defaultRoomVersion;
         const visibility : MatrixVisibility = body?.visibility ?? MatrixVisibility.PRIVATE;

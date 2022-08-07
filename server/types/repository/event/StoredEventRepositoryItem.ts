@@ -14,15 +14,22 @@ export interface StoredEventRepositoryItem extends StoredRepositoryItem {
      */
     readonly target : string;
 
+    readonly senderId : string;
+    readonly roomId ?: string;
+
 }
 
 export function createStoredEventRepositoryItem (
     id: string,
-    target: string
+    target: string,
+    senderId: string,
+    roomId ?: string
 ): StoredEventRepositoryItem {
     return {
         id,
-        target
+        target,
+        senderId,
+        roomId
     };
 }
 

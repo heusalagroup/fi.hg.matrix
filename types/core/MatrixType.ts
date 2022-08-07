@@ -3,6 +3,9 @@
 
 import { isString } from "../../../core/modules/lodash";
 
+/**
+ * Key size must not exceed 255 bytes.
+ */
 export enum MatrixType {
 
     /**
