@@ -18,6 +18,10 @@ import { MatrixHistoryVisibility } from "./types/event/roomHistoryVisibility/Mat
 import { createRoomGuestAccessStateEventDTO, RoomGuestAccessStateEventDTO } from "./types/event/roomGuestAccess/RoomGuestAccessStateEventDTO";
 import { createRoomGuestAccessContentDTO } from "./types/event/roomGuestAccess/RoomGuestAccessContentDTO";
 import { MatrixGuestAccess } from "./types/event/roomGuestAccess/MatrixGuestAccess";
+import { createRoomMemberStateEventDTO, RoomMemberStateEventDTO } from "./types/event/roomMember/RoomMemberStateEventDTO";
+import { createRoomMemberContentDTO } from "./types/event/roomMember/RoomMemberContentDTO";
+import { RoomMembershipState } from "./types/event/roomMember/RoomMembershipState";
+import { RoomMemberContent3rdPartyInviteDTO } from "./types/event/roomMember/RoomMemberContent3rdPartyInviteDTO";
 
 const LOG = LogService.createLogger('MatrixUtils');
 
@@ -92,6 +96,30 @@ export class MatrixUtils {
     ) : RoomGuestAccessStateEventDTO {
         return createRoomGuestAccessStateEventDTO(
             createRoomGuestAccessContentDTO(access)
+        );
+    }
+
+    public static createRoomMemberEventDTO (
+        userId                            : string,
+        membership                        : RoomMembershipState,
+        reason                           ?: string | undefined,
+        avatar_url                       ?: string | undefined,
+        displayname                      ?: string | null | undefined,
+        is_direct                        ?: boolean | undefined,
+        join_authorised_via_users_server ?: string | undefined,
+        third_party_invite               ?: RoomMemberContent3rdPartyInviteDTO
+    ) : RoomMemberStateEventDTO {
+        return createRoomMemberStateEventDTO(
+            userId,
+            createRoomMemberContentDTO(
+                membership,
+                reason,
+                avatar_url,
+                displayname,
+                is_direct,
+                join_authorised_via_users_server,
+                third_party_invite
+            )
         );
     }
 

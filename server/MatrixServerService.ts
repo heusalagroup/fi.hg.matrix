@@ -23,6 +23,9 @@ import { createEventRepositoryItem, EventRepositoryItem } from "./types/reposito
 import { MatrixType } from "../types/core/MatrixType";
 import { ReadonlyJsonObject } from "../../core/Json";
 import { MatrixRoomCreateEventDTO } from "../types/event/roomCreate/MatrixRoomCreateEventDTO";
+import { RoomMembershipState } from "../types/event/roomMember/RoomMembershipState";
+import { RoomMemberContent3rdPartyInviteDTO } from "../types/event/roomMember/RoomMemberContent3rdPartyInviteDTO";
+import { createRoomMemberContentDTO } from "../types/event/roomMember/RoomMemberContentDTO";
 
 const LOG = LogService.createLogger('MatrixServerService');
 
@@ -330,7 +333,7 @@ export class MatrixServerService {
     }
 
     /**
-     * Creates room create event (`m.room.create`).
+     * Creates `m.room.create` event.
      *
      * @see https://github.com/heusalagroup/hghs/issues/23
      */
@@ -353,6 +356,43 @@ export class MatrixServerService {
             content,
             MatrixType.M_ROOM_CREATE,
             "",
+            originServerTs
+        );
+    }
+
+    /**
+     * Creates `m.room.member` event
+     *
+     * @see https://github.com/heusalagroup/hghs/issues/24
+     */
+    public async createRoomMemberEvent (
+        senderId                          : string,
+        roomId                            : string,
+        membership                        : RoomMembershipState,
+        reason                           ?: string | undefined,
+        userId                            : string = senderId,
+        avatar_url                       ?: string | undefined,
+        displayname                      ?: string | null | undefined,
+        is_direct                        ?: boolean | undefined,
+        join_authorised_via_users_server ?: string | undefined,
+        third_party_invite               ?: RoomMemberContent3rdPartyInviteDTO,
+        originServerTs                    : number = this.getCurrentTimestamp()
+    ) : Promise<EventRepositoryItem> {
+        const content = createRoomMemberContentDTO(
+            membership,
+            reason,
+            avatar_url,
+            displayname,
+            is_direct,
+            join_authorised_via_users_server,
+            third_party_invite
+        );
+        return await this.createRoomStateEvent(
+            senderId,
+            roomId,
+            content,
+            MatrixType.M_ROOM_MEMBER,
+            userId,
             originServerTs
         );
     }
