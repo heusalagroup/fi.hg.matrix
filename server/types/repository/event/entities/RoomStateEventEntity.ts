@@ -3,7 +3,7 @@
 import { createRoomEventEntity, RoomEventEntity } from "./RoomEventEntity";
 import { hasNoOtherKeys, isNumber, isRegularObject, isString } from "../../../../../../core/modules/lodash";
 import { MatrixType } from "../../../../../types/core/MatrixType";
-import { isJsonObject, ReadonlyJsonObject } from "../../../../../../core/Json";
+import { isReadonlyJsonObject, ReadonlyJsonObject } from "../../../../../../core/Json";
 
 /**
  * Base type for room state events saved in the repository.
@@ -55,7 +55,7 @@ export function isRoomStateEvent (value: any): value is RoomStateEventEntity {
         && isNumber(value?.originServerTs)
         && isString(value?.senderId)
         && isString(value?.roomId)
-        && isJsonObject(value?.content)
+        && isReadonlyJsonObject(value?.content)
         && isString(value?.stateKey)
     );
 }

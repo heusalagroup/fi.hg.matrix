@@ -33,17 +33,14 @@ export function stringifyMatrixHistoryVisibility (value: MatrixHistoryVisibility
 }
 
 export function parseMatrixHistoryVisibility (value: any): MatrixHistoryVisibility | undefined {
-
-    switch (value.toUpperCase()) {
-
+    if (value === undefined) return undefined;
+    switch (`${value}`.toUpperCase()) {
         case 'INVITED'        : return MatrixHistoryVisibility.INVITED;
         case 'JOINED'         : return MatrixHistoryVisibility.JOINED;
         case 'SHARED'         : return MatrixHistoryVisibility.SHARED;
         case 'WORLD_READABLE' : return MatrixHistoryVisibility.WORLD_READABLE;
         default               : return undefined;
-
     }
-
 }
 
 

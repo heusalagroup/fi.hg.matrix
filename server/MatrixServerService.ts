@@ -13,15 +13,16 @@ import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
 import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/Repository";
 import { JwtService } from "../../backend/JwtService";
-import { MatrixUtils } from "../MatrixUtils";
-import { createMatrixCreateRoomResponseDTO, MatrixCreateRoomResponseDTO } from "../types/response/createRoom/MatrixCreateRoomResponseDTO";
-import { MatrixCreateRoomDTO } from "../types/request/createRoom/MatrixCreateRoomDTO";
 import { createRoomRepositoryItem, RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
 import { createRoom } from "./types/repository/room/Room";
-import { MatrixRoomVersion, parseMatrixRoomVersion } from "../types/MatrixRoomVersion";
+import { MatrixRoomVersion } from "../types/MatrixRoomVersion";
 import { MatrixVisibility } from "../types/request/createRoom/types/MatrixVisibility";
-import { MatrixRoomId } from "../types/core/MatrixRoomId";
 import { LogLevel } from "../../core/types/LogLevel";
+import { createRoomStateEventEntity } from "./types/repository/event/entities/RoomStateEventEntity";
+import { createEventRepositoryItem, EventRepositoryItem } from "./types/repository/event/EventRepositoryItem";
+import { MatrixType } from "../types/core/MatrixType";
+import { ReadonlyJsonObject } from "../../core/Json";
+import { MatrixRoomCreateEventDTO } from "../types/event/roomCreate/MatrixRoomCreateEventDTO";
 
 const LOG = LogService.createLogger('MatrixServerService');
 
@@ -29,6 +30,11 @@ const LOG = LogService.createLogger('MatrixServerService');
  * Default expiration time in minutes
  */
 const DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME = 300;
+
+export interface CreateRoomResponse {
+    readonly roomId: string;
+    readonly room: RoomRepositoryItem;
+}
 
 export class MatrixServerService {
 
@@ -82,6 +88,10 @@ export class MatrixServerService {
 
     public getHostName () : string {
         return this._hostname;
+    }
+
+    public getDefaultRoomVersion () : MatrixRoomVersion {
+        return this._defaultRoomVersion;
     }
 
     public getURL () : string {
@@ -250,16 +260,16 @@ export class MatrixServerService {
      *
      * @param userId
      * @param deviceId
-     * @param body
+     * @param roomVersion
+     * @param visibility
      */
     public async createRoom (
         userId: string,
         deviceId: string,
-        body: MatrixCreateRoomDTO
-    ) : Promise<MatrixCreateRoomResponseDTO> {
+        roomVersion: MatrixRoomVersion,
+        visibility: MatrixVisibility
+    ) : Promise<CreateRoomResponse> {
 
-        const roomVersion = parseMatrixRoomVersion(body?.room_version) ?? this._defaultRoomVersion;
-        const visibility : MatrixVisibility = body?.visibility ?? MatrixVisibility.PRIVATE;
         LOG.debug(`User ${userId} from device ${deviceId} is creating a room with visibility ${visibility} and version ${roomVersion}`);
 
         const createdRoomItem : RoomRepositoryItem = await this._roomService.createRoom(
@@ -276,14 +286,70 @@ export class MatrixServerService {
         const roomId : string = createdRoomItem.id;
         LOG.info(`User ${userId} created room by id: ${roomId} with visibility ${visibility} and version ${roomVersion}`);
 
-        const matrixRoomId : MatrixRoomId = MatrixUtils.getRoomId(roomId, this._hostname);
-        LOG.debug(`createRoom: matrixRoomId: `, matrixRoomId);
+        return {
+            roomId,
+            room: createdRoomItem
+        };
 
-        return createMatrixCreateRoomResponseDTO(
-            matrixRoomId,
-            undefined
+    }
+
+    /**
+     * Create room state event
+     */
+    public async createRoomStateEvent (
+        senderId: string,
+        roomId: string,
+        content: ReadonlyJsonObject,
+        type: MatrixType | string,
+        stateKey: string,
+        originServerTs: number = this.getCurrentTimestamp()
+    ) : Promise<EventRepositoryItem> {
+        return await this._eventService.createEvent(
+            createEventRepositoryItem(
+                REPOSITORY_NEW_IDENTIFIER,
+                createRoomStateEventEntity(
+                    REPOSITORY_NEW_IDENTIFIER,
+                    type,
+                    content,
+                    originServerTs,
+                    senderId,
+                    roomId,
+                    stateKey
+                )
+            )
         );
+    }
 
+    /**
+     * Creates room create event (`m.room.create`).
+     *
+     * @see https://github.com/heusalagroup/hghs/issues/23
+     */
+    public async createRoomCreateEvent (
+        senderId        : string,
+        roomId          : string,
+        roomVersion     : MatrixRoomVersion = MatrixRoomVersion.V1,
+        creatorId       : string = senderId,
+        extraContent    : Partial<MatrixRoomCreateEventDTO> | undefined = undefined,
+        originServerTs  : number = this.getCurrentTimestamp()
+    ) : Promise<EventRepositoryItem> {
+        const content : ReadonlyJsonObject = {
+            ...(extraContent ?? {}) as ReadonlyJsonObject,
+            creator: creatorId,
+            room_version: roomVersion
+        };
+        return await this.createRoomStateEvent(
+            senderId,
+            roomId,
+            content,
+            MatrixType.M_ROOM_CREATE,
+            "",
+            originServerTs
+        );
+    }
+
+    public getCurrentTimestamp () : number {
+        return (new Date()).getTime();
     }
 
 }

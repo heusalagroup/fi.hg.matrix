@@ -47,19 +47,12 @@ export function stringifyMatrixVisibility (value: MatrixVisibility): string {
 }
 
 export function parseMatrixVisibility (value: any): MatrixVisibility | undefined {
-
-    switch (value.toUpperCase()) {
-
-        case 'PRIVATE' :
-            return MatrixVisibility.PRIVATE;
-        case 'PUBLIC' :
-            return MatrixVisibility.PUBLIC;
-
-        default    :
-            return undefined;
-
+    if (value === undefined) return undefined;
+    switch (`${value}`.toUpperCase()) {
+        case 'PRIVATE' : return MatrixVisibility.PRIVATE;
+        case 'PUBLIC'  : return MatrixVisibility.PUBLIC;
+        default        : return undefined;
     }
-
 }
 
 
