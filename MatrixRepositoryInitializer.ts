@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { StoredRepositoryItem, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
+import { StoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
 import { Repository } from "../core/simpleRepository/types/Repository";
 import { RepositoryInitializer } from "../core/simpleRepository/types/RepositoryInitializer";
 import { RepositoryClient } from "../core/simpleRepository/types/RepositoryClient";
@@ -11,13 +11,19 @@ export class MatrixRepositoryInitializer<T extends StoredRepositoryItem> impleme
 
     private readonly _roomType : string;
     private readonly _isT      : StoredRepositoryItemTestCallback;
+    private readonly _explainT : StoredRepositoryItemExplainCallback;
+    private readonly _tName    : string;
 
     public constructor (
         roomType            : string,
-        isT                 : StoredRepositoryItemTestCallback
+        isT                 : StoredRepositoryItemTestCallback,
+        tName               : string                              | undefined = undefined,
+        explainT            : StoredRepositoryItemExplainCallback | undefined = undefined
     ) {
         this._roomType = roomType;
         this._isT = isT;
+        this._explainT = explainT;
+        this._tName = tName;
     }
 
     public async initializeRepository ( client : RepositoryClient ) : Promise<Repository<T>> {
@@ -31,7 +37,9 @@ export class MatrixRepositoryInitializer<T extends StoredRepositoryItem> impleme
             undefined,
             undefined,
             undefined,
-            this._isT
+            this._isT,
+            this._tName,
+            this._explainT
         );
     }
 
