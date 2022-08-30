@@ -100,15 +100,15 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public constructor (
         client                : SimpleMatrixClient,
         stateType             : string,
-        stateKey              : string             | undefined = undefined,
-        serviceAccount        : SimpleMatrixClient | undefined = undefined,
-        deletedType           : string             | undefined = undefined,
-        deletedKey            : string             | undefined = undefined,
-        allowedGroups         : readonly MatrixRoomId[]          | undefined = undefined,
-        allowedEvents         : readonly string[]                | undefined = undefined,
-        isT                   : StoredRepositoryItemTestCallback | undefined = undefined,
-        tName     : string = undefined,
-        explainT  : StoredRepositoryItemExplainCallback = undefined
+        stateKey              : string                              | undefined = undefined,
+        serviceAccount        : SimpleMatrixClient                  | undefined = undefined,
+        deletedType           : string                              | undefined = undefined,
+        deletedKey            : string                              | undefined = undefined,
+        allowedGroups         : readonly MatrixRoomId[]             | undefined = undefined,
+        allowedEvents         : readonly string[]                   | undefined = undefined,
+        isT                   : StoredRepositoryItemTestCallback    | undefined = undefined,
+        tName                 : string                              | undefined = undefined,
+        explainT              : StoredRepositoryItemExplainCallback | undefined = undefined
     ) {
 
         if (!isMatrixType(stateType)) {
@@ -123,8 +123,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         this._deletedKey     = deletedKey                        ?? '';
         this._allowedEvents  = allowedEvents;
         this._isT            = isT ?? isStoredRepositoryItem;
-        this._tName    = tName ?? 'T';
-        this._explainT = explainT ?? ( (value: any) : string => isT(value) ? explainOk() : explainNot(this._tName) );
+        this._tName          = tName ?? 'T';
+        this._explainT       = explainT ?? ( (value: any) : string => isT(value) ? explainOk() : explainNot(this._tName) );
 
         if (allowedGroups === undefined) {
             this._allowedGroups = undefined;
