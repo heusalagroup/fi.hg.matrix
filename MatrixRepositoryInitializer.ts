@@ -22,8 +22,8 @@ export class MatrixRepositoryInitializer<T extends StoredRepositoryItem> impleme
     ) {
         this._roomType = roomType;
         this._isT = isT;
-        this._explainT = explainT;
-        this._tName = tName;
+        this._tName    = tName ?? 'T';
+        this._explainT = explainT ?? ( (value: any) : string => isT(value) ? explainOk() : explainNot(this._tName) );
     }
 
     public async initializeRepository ( client : RepositoryClient ) : Promise<Repository<T>> {
