@@ -8,7 +8,7 @@ import { MatrixCreateRoomPreset } from "./types/request/createRoom/types/MatrixC
 import { isJsonObject, ReadonlyJsonAny, ReadonlyJsonObject } from "../core/Json";
 import { MatrixSyncResponseDTO } from "./types/response/sync/MatrixSyncResponseDTO";
 import { LogService } from "../core/LogService";
-import { concat, filter, forEach, get, isInteger, isNumber, keys, map, parseNonEmptyString, reduce, uniq } from "../core/modules/lodash";
+import { concat, explainNot, explainOk, filter, forEach, get, isInteger, isNumber, keys, map, parseNonEmptyString, reduce, uniq } from "../core/modules/lodash";
 import { MatrixRoomId } from "./types/core/MatrixRoomId";
 import { MatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
 import { MatrixSyncResponseRoomEventDTO } from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
@@ -36,7 +36,7 @@ import { createRoomJoinRulesStateContentDTO } from "./types/event/roomJoinRules/
 import { createRoomJoinRulesStateEventDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateEventDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
 import { GetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
-import { isStoredRepositoryItem, StoredRepositoryItem, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
+import { isStoredRepositoryItem, StoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
 import { RepositoryUtils } from "../core/simpleRepository/RepositoryUtils";
 import { MatrixRoomVersion } from "./types/MatrixRoomVersion";
 
@@ -63,6 +63,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     private readonly _allowedGroups  : readonly MatrixRoomId[] | undefined;
     private readonly _allowedEvents  : readonly string[] | undefined;
     private readonly _isT            : StoredRepositoryItemTestCallback;
+    private readonly _explainT : StoredRepositoryItemExplainCallback;
+    private readonly _tName    : string;
 
     /**
      * Creates an instance of MatrixCrudRepository.
@@ -91,6 +93,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      * @param allowedEvents  Optional. List of allowed event IDs in the room.
      *
      * @param isT            Optional. Test function to check if the type really is T.
+     * @param explainT Optional. Function to explain if isT fails
+     * @param tName    Optional. The name of the T type for debugging purposes. Defaults to "T".
      *
      */
     public constructor (
@@ -102,7 +106,9 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         deletedKey            : string             | undefined = undefined,
         allowedGroups         : readonly MatrixRoomId[]          | undefined = undefined,
         allowedEvents         : readonly string[]                | undefined = undefined,
-        isT                   : StoredRepositoryItemTestCallback | undefined = undefined
+        isT                   : StoredRepositoryItemTestCallback | undefined = undefined,
+        tName     : string = undefined,
+        explainT  : StoredRepositoryItemExplainCallback = undefined
     ) {
 
         if (!isMatrixType(stateType)) {
@@ -117,6 +123,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         this._deletedKey     = deletedKey                        ?? '';
         this._allowedEvents  = allowedEvents;
         this._isT            = isT ?? isStoredRepositoryItem;
+        this._tName    = tName ?? 'T';
+        this._explainT = explainT ?? ( (value: any) : string => isT(value) ? explainOk() : explainNot(this._tName) );
 
         if (allowedGroups === undefined) {
             this._allowedGroups = undefined;
@@ -134,7 +142,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public async getAll () : Promise<readonly RepositoryEntry<T>[]> {
         const list = this._getAll();
         if (!this.isRepositoryEntryList(list)) {
-            throw new TypeError(`MatrixCrudRepository.getAll: Illegal data from database`);
+            throw new TypeError(`MatrixCrudRepository.getAll: Illegal data from database: ${this.explainRepositoryEntryList(list)}`);
         }
         return list;
     }
@@ -151,7 +159,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
             (item : RepositoryEntry<T>) : boolean => !!item?.id && idList.includes(item?.id)
         );
         if (!this.isRepositoryEntryList(list)) {
-            throw new TypeError(`MatrixCrudRepository.getSome: Illegal data from database`);
+            throw new TypeError(`MatrixCrudRepository.getSome: Illegal data from database: ${this.explainRepositoryEntryList(list)}`);
         }
         return list;
     }
@@ -183,7 +191,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
             })
         );
         if (!this.isRepositoryEntryList(list)) {
-            throw new TypeError(`MatrixCrudRepository.getAllByProperty: Illegal data from database`);
+            throw new TypeError(`MatrixCrudRepository.getAllByProperty: Illegal data from database: ${this.explainRepositoryEntryList(list)}`);
         }
         return list;
     }
@@ -610,10 +618,13 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      * @param list
      */
     public async deleteByIdList (list: readonly string[]) : Promise<readonly RepositoryEntry<T>[]> {
-        const results = [];
+        const results : RepositoryEntry<T>[] = [];
         let i = 0;
         for (; i < list.length; i += 1) {
             results.push( await this.deleteById(list[i]) );
+        }
+        if (!this.isRepositoryEntryList(results)) {
+            throw new TypeError(`MatrixCrudRepository.getAllByProperty: Illegal data from database: ${this.explainRepositoryEntryList(results)}`);
         }
         return results;
     }
@@ -725,6 +736,9 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         return RepositoryUtils.isRepositoryEntryList(list, this._isT);
     }
 
+    public explainRepositoryEntryList (list: any): string {
+        return RepositoryUtils.explainRepositoryEntryList(list, this._isT, this._explainT, this._tName);
+    }
 
     /**
      * Returns all resources (eg. Matrix rooms) from the repository which are of this type.
