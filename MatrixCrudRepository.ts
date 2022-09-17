@@ -639,6 +639,14 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     }
 
     /**
+     * Delete all
+     */
+    public async deleteAll () : Promise<readonly RepositoryEntry<T>[]> {
+        const list : readonly RepositoryEntry<T>[] = await this._getAll();
+        return this.deleteByIdList( map(list, item => item.id) );
+    }
+
+    /**
      *
      * @param id
      * @param members
