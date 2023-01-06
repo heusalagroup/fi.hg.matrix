@@ -1,24 +1,16 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import {
-    explain,
-    explainNoOtherKeys,
-    explainProperty,
-    explainRegularObject,
-    explainString,
-    explainStringOrUndefined,
-    hasNoOtherKeysInDevelopment,
-    isRegularObject,
-    isString,
-    isStringOrUndefined
-} from "../../../core/modules/lodash";
-import {
     explainJsonObject,
     isReadonlyJsonObject,
     ReadonlyJsonObject
 } from "../../../core/Json";
 import { MatrixStateEventOf } from "./MatrixStateEventOf";
 import { MatrixType } from "./MatrixType";
+import { explain, explainProperty } from "../../../core/types/explain";
+import { explainString, explainStringOrUndefined, isString, isStringOrUndefined } from "../../../core/types/String";
+import { explainRegularObject, isRegularObject } from "../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeysInDevelopment } from "../../../core/types/OtherKeys";
 
 export type MatrixStateEvent = MatrixStateEventOf<ReadonlyJsonObject>;
 

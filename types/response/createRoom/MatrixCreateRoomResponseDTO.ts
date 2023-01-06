@@ -1,8 +1,10 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isUndefined } from "../../../../core/modules/lodash";
 import { MatrixRoomId,  isMatrixRoomId } from "../../core/MatrixRoomId";
 import { MatrixRoomAlias,  isMatrixRoomAlias } from "../../core/MatrixRoomAlias";
+import { isUndefined } from "../../../../core/types/undefined";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface MatrixCreateRoomResponseDTO {
     readonly room_id     : MatrixRoomId;

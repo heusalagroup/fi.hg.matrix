@@ -8,7 +8,13 @@ import { MatrixCreateRoomPreset } from "./types/request/createRoom/types/MatrixC
 import { isJsonObject, ReadonlyJsonAny, ReadonlyJsonObject } from "../core/Json";
 import { MatrixSyncResponseDTO } from "./types/response/sync/MatrixSyncResponseDTO";
 import { LogService } from "../core/LogService";
-import { concat, explainNot, explainOk, filter, forEach, get, isInteger, isNumber, keys, map, parseNonEmptyString, reduce, uniq } from "../core/modules/lodash";
+import { concat} from "../core/functions/concat";
+import { filter } from "../core/functions/filter";
+import { forEach } from "../core/functions/forEach";
+import { get } from "../core/functions/get";
+import { map } from "../core/functions/map";
+import { reduce } from "../core/functions/reduce";
+import { uniq } from "../core/functions/uniq";
 import { MatrixRoomId } from "./types/core/MatrixRoomId";
 import { MatrixSyncResponseJoinedRoomDTO } from "./types/response/sync/types/MatrixSyncResponseJoinedRoomDTO";
 import { MatrixSyncResponseRoomEventDTO } from "./types/response/sync/types/MatrixSyncResponseRoomEventDTO";
@@ -39,6 +45,10 @@ import { GetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByTy
 import { isStoredRepositoryItem, StoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
 import { RepositoryUtils } from "../core/simpleRepository/RepositoryUtils";
 import { MatrixRoomVersion } from "./types/MatrixRoomVersion";
+import { explainNot, explainOk } from "../core/types/explain";
+import { parseNonEmptyString } from "../core/types/String";
+import { isInteger, isNumber } from "../core/types/Number";
+import { keys } from "../core/functions/keys";
 
 const LOG = LogService.createLogger('MatrixCrudRepository');
 
@@ -63,8 +73,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     private readonly _allowedGroups  : readonly MatrixRoomId[] | undefined;
     private readonly _allowedEvents  : readonly string[] | undefined;
     private readonly _isT            : StoredRepositoryItemTestCallback;
-    private readonly _explainT : StoredRepositoryItemExplainCallback;
-    private readonly _tName    : string;
+    private readonly _explainT       : StoredRepositoryItemExplainCallback;
+    private readonly _tName          : string;
 
     /**
      * Creates an instance of MatrixCrudRepository.
@@ -124,7 +134,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         this._allowedEvents  = allowedEvents;
         this._isT            = isT ?? isStoredRepositoryItem;
         this._tName          = tName ?? 'T';
-        this._explainT       = explainT ?? ( (value: any) : string => isT(value) ? explainOk() : explainNot(this._tName) );
+        this._explainT       = explainT ?? ( (value: any) : string => this._isT(value) ? explainOk() : explainNot(this._tName) );
 
         if (allowedGroups === undefined) {
             this._allowedGroups = undefined;

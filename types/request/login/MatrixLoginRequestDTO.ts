@@ -3,8 +3,11 @@
 
 import { isMatrixIdentifierDTO, MatrixIdentifierDTO } from "./types/MatrixIdentifierDTO";
 import { isMatrixLoginType, MatrixLoginType } from "./MatrixLoginType";
-import { hasNoOtherKeysInDevelopment, isRegularObject, isString, isStringOrUndefined, isUndefined } from "../../../../core/modules/lodash";
 import { MatrixUserId } from "../../core/MatrixUserId";
+import { isUndefined } from "../../../../core/types/undefined";
+import { isString, isStringOrUndefined } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface MatrixLoginRequestDTO {
 

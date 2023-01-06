@@ -1,11 +1,7 @@
 // Copyright (c) 2021 Sendanor. All rights reserved.
 
-import {
-    concat,
-    forEach,
-    isString,
-    keys
-} from "../core/modules/lodash";
+import { concat } from "../core/functions/concat";
+import { forEach } from "../core/functions/forEach";
 import { Observer,  ObserverCallback, ObserverDestructor } from "../core/Observer";
 import { RequestClient } from "../core/RequestClient";
 import { LogService } from "../core/LogService";
@@ -77,6 +73,8 @@ import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIde
 import { GetRoomStateByTypeResponseDTO, isGetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
 import { RepositoryClient } from "../core/simpleRepository/types/RepositoryClient";
+import { isString } from "../core/types/String";
+import { keys } from "../core/functions/keys";
 
 const LOG = LogService.createLogger('SimpleMatrixClient');
 

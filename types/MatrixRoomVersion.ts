@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { explainNot, explainOk, explainOr } from "../../core/modules/lodash";
+import { explainNot, explainOk, explainOr } from "../../core/types/explain";
 
 export enum MatrixRoomVersion {
     V1 = "1",

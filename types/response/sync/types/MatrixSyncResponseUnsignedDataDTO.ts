@@ -1,16 +1,14 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeysInDevelopment,
-    isInteger, isIntegerOrUndefined,
-    isRegularObject,
-    isStringOrUndefined,
-    isUndefined,
-    keys
-} from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { isJsonObjectOrUndefined, JsonObject } from "../../../../../core/Json";
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { isStringOrUndefined } from "../../../../../core/types/String";
+import { isIntegerOrUndefined } from "../../../../../core/types/Number";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
 
 /**
  *

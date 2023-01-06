@@ -1,7 +1,9 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../core/modules/lodash";
 import { isMatrixType, MatrixType } from "../../core/MatrixType";
+import { isString } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 /**
  * @see https://github.com/heusalagroup/hghs/issues/17

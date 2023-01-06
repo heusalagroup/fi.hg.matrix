@@ -1,10 +1,13 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString, isStringOrUndefined, toLower } from "../../../../../core/modules/lodash";
+import { toLower } from "../../../../../core/functions/toLower";
 import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
 import { User, isUser, createUser } from "./User";
 import { parseJson } from "../../../../../core/Json";
-import { createStoredUserRepositoryItem, isStoredUserRepositoryItem, StoredUserRepositoryItem } from "./StoredUserRepositoryItem";
+import { createStoredUserRepositoryItem, StoredUserRepositoryItem } from "./StoredUserRepositoryItem";
+import { isString, isStringOrUndefined } from "../../../../../core/types/String";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
 export interface UserRepositoryItem extends RepositoryItem<User> {
 
@@ -80,7 +83,7 @@ export function parseUserRepositoryItem (
 
 export function toStoredUserRepositoryItem (
     item: UserRepositoryItem
-) : StoredUserRepositoryItem | undefined {
+) : StoredUserRepositoryItem {
     const email = item?.target?.email;
     return createStoredUserRepositoryItem(
         item.id,

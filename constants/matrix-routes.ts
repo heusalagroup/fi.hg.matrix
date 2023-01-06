@@ -2,7 +2,9 @@
 
 import { MatrixRegisterKind } from "../types/request/register/types/MatrixRegisterKind";
 import { MatrixType } from "../types/core/MatrixType";
-import { join, keys, map } from "../../core/modules/lodash";
+import { join } from "../../core/functions/join";
+import { map } from "../../core/functions/map";
+import { keys } from "../../core/functions/keys";
 
 export interface MatrixSyncQueryParams {
     filter       ?: string,

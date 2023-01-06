@@ -1,13 +1,11 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
-import {
-    hasNoOtherKeysInDevelopment,
-    isArrayOf, isArrayOfOrUndefined,
-    isRegularObject,
-    isUndefined,
-    keys
-} from "../../../../../core/modules/lodash";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
+import { isArrayOf, isArrayOfOrUndefined } from "../../../../../core/types/Array";
 
 export interface MatrixSyncResponseDeviceListsDTO {
     readonly changed ?: readonly MatrixUserId[];

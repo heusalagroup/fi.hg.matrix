@@ -1,20 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    explain,
-    explainReadonlyArrayOfOrUndefined,
-    explainBooleanOrUndefined,
-    explainNoOtherKeys,
-    explainProperty,
-    explainRegularObject,
-    explainStringOrUndefined,
-    hasNoOtherKeysInDevelopment,
-    isReadonlyArrayOfOrUndefined,
-    isBooleanOrUndefined,
-    isRegularObject,
-    isStringOrUndefined
-} from "../../../../core/modules/lodash";
 import { MatrixVisibility, isMatrixVisibilityOrUndefined, explainMatrixVisibilityOrUndefined } from "./types/MatrixVisibility";
 import { explainMatrixInvite3PidDTO, isMatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
 import { MatrixRoomCreateEventDTO, isPartialMatrixCreationContentDTOOrUndefined, explainPartialMatrixCreationContentDTOOrUndefined } from "../../event/roomCreate/MatrixRoomCreateEventDTO";
@@ -24,6 +10,12 @@ import { MatrixRoomPowerLevelsEventDTO, isMatrixPowerLevelEventContentDTOOrUndef
 import { MatrixInvite3PidDTO } from "./types/MatrixInvite3PidDTO";
 import { MatrixUserId, isMatrixUserId, explainMatrixUserId } from "../../core/MatrixUserId";
 import { explainMatrixRoomVersionOrUndefined, isMatrixRoomVersionOrUndefined, MatrixRoomVersion } from "../../MatrixRoomVersion";
+import { explain, explainProperty } from "../../../../core/types/explain";
+import { explainBooleanOrUndefined, isBooleanOrUndefined } from "../../../../core/types/Boolean";
+import { explainStringOrUndefined, isStringOrUndefined } from "../../../../core/types/String";
+import { explainRegularObject, isRegularObject } from "../../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
+import { explainReadonlyArrayOfOrUndefined, isReadonlyArrayOfOrUndefined } from "../../../../core/types/Array";
 
 export interface MatrixCreateRoomDTO {
 

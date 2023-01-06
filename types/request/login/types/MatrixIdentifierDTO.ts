@@ -3,7 +3,9 @@
 
 import { MatrixType } from "../../../core/MatrixType";
 import { MatrixUserId } from "../../../core/MatrixUserId";
-import { hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { isString } from "../../../../../core/types/String";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
 
 export interface MatrixIdentifierDTO {
     readonly type: MatrixType.M_ID_USER;

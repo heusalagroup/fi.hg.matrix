@@ -5,8 +5,10 @@ import { MatrixSyncResponseInviteStateDTO,
     getEventsFromMatrixSyncResponseInviteStateDTO,
     isMatrixSyncResponseInviteStateDTO
 } from "./MatrixSyncResponseInviteStateDTO";
-import { hasNoOtherKeysInDevelopment, isRegularObject, keys } from "../../../../../core/modules/lodash";
 import { MatrixSyncResponseStrippedStateDTO } from "./MatrixSyncResponseStrippedStateDTO";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
 
 export interface MatrixSyncResponseInvitedRoomDTO {
     readonly invite_state : MatrixSyncResponseInviteStateDTO;

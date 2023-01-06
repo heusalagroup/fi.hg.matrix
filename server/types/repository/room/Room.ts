@@ -1,8 +1,10 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../../core/modules/lodash";
 import { isMatrixVisibility, MatrixVisibility } from "../../../../types/request/createRoom/types/MatrixVisibility";
 import { isMatrixRoomVersion, MatrixRoomVersion } from "../../../../types/MatrixRoomVersion";
+import { isString } from "../../../../../core/types/String";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
 export interface Room {
 

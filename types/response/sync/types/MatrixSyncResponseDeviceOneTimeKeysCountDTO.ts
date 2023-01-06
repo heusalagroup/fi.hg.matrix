@@ -1,10 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    isInteger,
-    isRegularObjectOf,
-    isString
-} from "../../../../../core/modules/lodash";
+import { isString } from "../../../../../core/types/String";
+import { isInteger } from "../../../../../core/types/Number";
+import { isRegularObjectOf } from "../../../../../core/types/RegularObject";
 
 export interface MatrixSyncResponseDeviceOneTimeKeysCountDTO {
     readonly [key : string] : number;

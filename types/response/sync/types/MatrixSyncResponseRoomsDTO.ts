@@ -15,17 +15,13 @@ import { MatrixSyncResponseLeftRoomDTO,
     getEventsFromMatrixSyncResponseLeftRoomDTO,
     isMatrixSyncResponseLeftRoomDTO
 } from "./MatrixSyncResponseLeftRoomDTO";
-import {
-    concat, explainNoOtherKeys,
-    explainRegularObjectOf,
-    hasNoOtherKeysInDevelopment,
-    isRegularObject,
-    isRegularObjectOf,
-    isUndefined,
-    keys,
-    reduce
-} from "../../../../../core/modules/lodash";
+import { concat } from "../../../../../core/functions/concat";
+import { reduce } from "../../../../../core/functions/reduce";
 import { MatrixSyncResponseAnyEventDTO } from "./MatrixSyncResponseAnyEventDTO";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { explainRegularObjectOf, isRegularObject, isRegularObjectOf } from "../../../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
 
 export interface MatrixSyncResponseRoomsDTO {
     readonly join   ?: {[K in MatrixRoomId]: MatrixSyncResponseJoinedRoomDTO};

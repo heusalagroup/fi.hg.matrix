@@ -1,9 +1,10 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import { isRoomMembershipType, RoomMembershipType } from "./RoomMembershipType";
-import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { isMatrixRoomId, MatrixRoomId } from "../../core/MatrixRoomId";
 import { ReadonlyJsonObject } from "../../../../core/Json";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface RoomJoinRulesAllowConditionDTO extends ReadonlyJsonObject {
     readonly type    : RoomMembershipType;

@@ -4,16 +4,14 @@ import { MatrixSyncResponseRoomEventDTO,
     explainMatrixSyncResponseRoomEventDTO,
     isMatrixSyncResponseRoomEventDTO
 } from "./MatrixSyncResponseRoomEventDTO";
-import {
-    concat,
-    find,
-    hasNoOtherKeysInDevelopment,
-    isArrayOf,
-    isBoolean,
-    isRegularObject,
-    isString, isStringOrUndefined,
-    keys
-} from "../../../../../core/modules/lodash";
+import { concat } from "../../../../../core/functions/concat";
+import { find } from "../../../../../core/functions/find";
+import { isBoolean } from "../../../../../core/types/Boolean";
+import { isString, isStringOrUndefined } from "../../../../../core/types/String";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
+import { isArrayOf } from "../../../../../core/types/Array";
 
 export interface MatrixSyncResponseTimelineDTO {
     readonly events      : readonly MatrixSyncResponseRoomEventDTO[];

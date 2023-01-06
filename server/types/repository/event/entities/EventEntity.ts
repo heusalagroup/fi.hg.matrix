@@ -1,23 +1,16 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import {
-    explain, explainNoOtherKeys,
-    explainNumber, explainProperty,
-    explainRegularObject,
-    explainString,
-    explainStringOrUndefined,
-    hasNoOtherKeys,
-    isNumber,
-    isRegularObject,
-    isString,
-    isStringOrUndefined
-} from "../../../../../../core/modules/lodash";
-import {
     explainReadonlyJsonObject,
     isReadonlyJsonObject,
     ReadonlyJsonObject
 } from "../../../../../../core/Json";
 import { MatrixType } from "../../../../../types/core/MatrixType";
+import { explain, explainProperty } from "../../../../../../core/types/explain";
+import { explainString, explainStringOrUndefined, isString, isStringOrUndefined } from "../../../../../../core/types/String";
+import { explainNumber, isNumber } from "../../../../../../core/types/Number";
+import { explainRegularObject, isRegularObject } from "../../../../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeys } from "../../../../../../core/types/OtherKeys";
 
 /**
  * The base type for events saved in the repository.

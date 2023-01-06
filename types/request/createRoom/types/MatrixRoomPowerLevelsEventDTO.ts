@@ -1,22 +1,13 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    explain,
-    explainIntegerOrUndefined,
-    explainNoOtherKeys,
-    explainNot,
-    explainOk,
-    explainOr,
-    explainProperty,
-    explainRegularObject,
-    hasNoOtherKeysInDevelopment,
-    isIntegerOrUndefined,
-    isRegularObject,
-    isUndefined
-} from "../../../../../core/modules/lodash";
 import { MatrixEventPowerLevelsDTO, isMatrixEventPowerLevelsDTOOrUndefined, explainMatrixEventPowerLevelsDTOOrUndefined } from "./MatrixEventPowerLevelsDTO";
 import { MatrixUserPowerLevelsDTO, isMatrixUserPowerLevelsDTOOrUndefined, explainMatrixUserPowerLevelsDTOOrUndefined } from "./MatrixUserPowerLevelsDTO";
 import { MatrixNotificationPowerLevelsDTO, isMatrixNotificationPowerLevelsDTOOrUndefined, explainMatrixNotificationPowerLevelsDTOOrUndefined } from "./MatrixNotificationPowerLevelsDTO";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { explain, explainNot, explainOk, explainOr, explainProperty } from "../../../../../core/types/explain";
+import { explainIntegerOrUndefined, isIntegerOrUndefined } from "../../../../../core/types/Number";
+import { explainRegularObject, isRegularObject } from "../../../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
 
 export interface MatrixRoomPowerLevelsEventDTO {
     readonly ban            ?: number;

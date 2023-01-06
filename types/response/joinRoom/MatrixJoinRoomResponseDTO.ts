@@ -1,7 +1,8 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { MatrixRoomId,  isMatrixRoomId } from "../../core/MatrixRoomId";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface MatrixJoinRoomResponseDTO {
     readonly room_id: MatrixRoomId;

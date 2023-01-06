@@ -1,11 +1,9 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeysInDevelopment,
-    isBoolean,
-    isRegularObject,
-    isString
-} from "../../../core/modules/lodash";
+import { isBoolean } from "../../../core/types/Boolean";
+import { isString } from "../../../core/types/String";
+import { isRegularObject } from "../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../core/types/OtherKeys";
 
 /**
  * @see https://matrix-org.github.io/synapse/latest/admin_api/register_api.html

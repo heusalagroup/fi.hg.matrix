@@ -4,13 +4,11 @@ import { MatrixSyncResponseStrippedStateDTO,
     explainMatrixSyncResponseStrippedStateDTO,
     isMatrixSyncResponseStrippedStateDTO
 } from "./MatrixSyncResponseStrippedStateDTO";
-import {
-    find,
-    hasNoOtherKeysInDevelopment,
-    isArrayOf,
-    isRegularObject,
-    keys
-} from "../../../../../core/modules/lodash";
+import { find } from "../../../../../core/functions/find";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
+import { isArrayOf } from "../../../../../core/types/Array";
 
 export interface MatrixSyncResponseInviteStateDTO {
     readonly events: readonly MatrixSyncResponseStrippedStateDTO[];

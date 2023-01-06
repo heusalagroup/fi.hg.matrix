@@ -6,11 +6,9 @@ import {
 } from "./RoomGuestAccessContentDTO";
 import { MatrixStateEventOf } from "../../core/MatrixStateEventOf";
 import { MatrixType } from "../../core/MatrixType";
-import {
-    hasNoOtherKeysInDevelopment,
-    isRegularObject,
-    isString
-} from "../../../../core/modules/lodash";
+import { isString } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface RoomGuestAccessStateEventDTO extends MatrixStateEventOf<RoomGuestAccessContentDTO> {
     readonly type      : MatrixType.M_ROOM_GUEST_ACCESS;

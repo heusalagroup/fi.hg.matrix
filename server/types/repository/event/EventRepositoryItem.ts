@@ -1,16 +1,14 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import {
-    explain, explainNoOtherKeys, explainProperty, explainRegularObject, explainString,
-    hasNoOtherKeys,
-    isRegularObject,
-    isString
-} from "../../../../../core/modules/lodash";
 import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
 import { EventEntity, explainEventEntity, isEventEntity } from "./entities/EventEntity";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredEventRepositoryItem, StoredEventRepositoryItem } from "./StoredEventRepositoryItem";
 import { LogService } from "../../../../../core/LogService";
+import { explain, explainProperty } from "../../../../../core/types/explain";
+import { explainString, isString } from "../../../../../core/types/String";
+import { explainRegularObject, isRegularObject } from "../../../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
 const LOG = LogService.createLogger('EventRepositoryItem');
 
@@ -73,7 +71,7 @@ export function parseEventRepositoryItem (id: string, unparsedData: any) : Event
 
 export function toStoredEventRepositoryItem (
     item: EventRepositoryItem
-) : StoredEventRepositoryItem | undefined {
+) : StoredEventRepositoryItem {
     if (!isEventRepositoryItem(item)) {
         LOG.debug(`toStoredEventRepositoryItem: item: `, item);
         throw new TypeError(`EventRepositoryItem.toStoredEventRepositoryItem: Item ${explainEventRepositoryItem(item)}`);

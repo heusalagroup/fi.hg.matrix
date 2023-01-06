@@ -2,8 +2,10 @@
 
 import { MatrixStateEventOf } from "../../core/MatrixStateEventOf";
 import { isRoomMemberContentDTO, RoomMemberContentDTO } from "./RoomMemberContentDTO";
-import { hasNoOtherKeys, isRegularObject, isString } from "../../../../core/modules/lodash";
 import { MatrixType } from "../../core/MatrixType";
+import { isString } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../core/types/OtherKeys";
 
 export interface RoomMemberStateEventDTO extends MatrixStateEventOf<RoomMemberContentDTO> {
     readonly type      : MatrixType.M_ROOM_MEMBER;

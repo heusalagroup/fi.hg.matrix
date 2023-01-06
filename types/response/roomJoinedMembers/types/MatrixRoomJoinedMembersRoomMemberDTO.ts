@@ -1,11 +1,9 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeysInDevelopment,
-    isNull,
-    isRegularObject,
-    isString
-} from "../../../../../core/modules/lodash";
+import { isNull } from "../../../../../core/types/Null";
+import { isString } from "../../../../../core/types/String";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
 
 export interface MatrixRoomJoinedMembersRoomMemberDTO {
     readonly display_name : string;

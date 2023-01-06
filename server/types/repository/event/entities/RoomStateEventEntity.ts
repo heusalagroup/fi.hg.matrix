@@ -1,9 +1,12 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import { createRoomEventEntity, RoomEventEntity } from "./RoomEventEntity";
-import { hasNoOtherKeys, isNumber, isRegularObject, isString } from "../../../../../../core/modules/lodash";
 import { MatrixType } from "../../../../../types/core/MatrixType";
 import { isReadonlyJsonObject, ReadonlyJsonObject } from "../../../../../../core/Json";
+import { isString } from "../../../../../../core/types/String";
+import { isNumber } from "../../../../../../core/types/Number";
+import { isRegularObject } from "../../../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../../../core/types/OtherKeys";
 
 /**
  * Base type for room state events saved in the repository.

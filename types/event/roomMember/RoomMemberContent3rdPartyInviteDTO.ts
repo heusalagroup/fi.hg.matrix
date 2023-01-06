@@ -1,8 +1,11 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString, isUndefined } from "../../../../core/modules/lodash";
 import { isRoomMemberStateSignedDTO, RoomMemberStateSignedDTO } from "./RoomMemberStateSignedDTO";
 import { ReadonlyJsonObject } from "../../../../core/Json";
+import { isUndefined } from "../../../../core/types/undefined";
+import { isString } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../core/types/OtherKeys";
 
 export interface RoomMemberContent3rdPartyInviteDTO extends ReadonlyJsonObject {
     readonly display_name : string;

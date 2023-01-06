@@ -1,6 +1,9 @@
 // Copyright (c) 2021-2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { explain, explainNoOtherKeys, explainProperty, explainRegularObject, explainString, hasNoOtherKeysInDevelopment, isRegularObject, isString } from "../../../../../core/modules/lodash";
+import { explain, explainProperty } from "../../../../../core/types/explain";
+import { explainString, isString } from "../../../../../core/types/String";
+import { explainRegularObject, isRegularObject } from "../../../../../core/types/RegularObject";
+import { explainNoOtherKeys, hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
 
 export interface MatrixInvite3PidDTO {
     readonly id_server       : string;

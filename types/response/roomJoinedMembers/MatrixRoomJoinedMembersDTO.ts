@@ -1,8 +1,9 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isRegularObjectOf } from "../../../../core/modules/lodash";
 import { MatrixUserId,  isMatrixUserId } from "../../core/MatrixUserId";
 import { MatrixRoomJoinedMembersRoomMemberDTO,  isMatrixRoomJoinedMembersRoomMemberDTO } from "./types/MatrixRoomJoinedMembersRoomMemberDTO";
+import { isRegularObject, isRegularObjectOf } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface MatrixRoomJoinedMembersDTO {
     readonly joined: {[P in MatrixUserId]: MatrixRoomJoinedMembersRoomMemberDTO}

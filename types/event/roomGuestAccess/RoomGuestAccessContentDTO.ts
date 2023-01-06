@@ -1,8 +1,9 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject } from "../../../../core/modules/lodash";
 import { isMatrixGuestAccess, MatrixGuestAccess } from "./MatrixGuestAccess";
 import { ReadonlyJsonObject } from "../../../../core/Json";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface RoomGuestAccessContentDTO extends ReadonlyJsonObject {
     readonly guest_access : MatrixGuestAccess;

@@ -10,7 +10,7 @@ import { RepositoryInitializer } from "../../../core/simpleRepository/types/Repo
 import { RepositoryEntry } from "../../../core/simpleRepository/types/RepositoryEntry";
 import { StoredDeviceRepositoryItem } from "./repository/device/StoredDeviceRepositoryItem";
 import { createDeviceRepositoryItem, DeviceRepositoryItem, parseDeviceRepositoryItem, toStoredDeviceRepositoryItem } from "./repository/device/DeviceRepositoryItem";
-import { map } from "../../../core/modules/lodash";
+import { map } from "../../../core/functions/map";
 import { parseJson } from "../../../core/Json";
 import { isDevice } from "./repository/device/Device";
 

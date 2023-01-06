@@ -5,13 +5,13 @@ import { MatrixSyncResponseUnsignedDataDTO,
     explainMatrixSyncResponseUnsignedDataDTO,
     isMatrixSyncResponseUnsignedDataDTO
 } from "./MatrixSyncResponseUnsignedDataDTO";
-import {
-    hasNoOtherKeysInDevelopment,
-    isInteger,
-    isRegularObject,
-    isString, isStringOrUndefined, isUndefined, keys
-} from "../../../../../core/modules/lodash";
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { isString, isStringOrUndefined } from "../../../../../core/types/String";
+import { isInteger } from "../../../../../core/types/Number";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
+import { keys } from "../../../../../core/functions/keys";
 
 export interface MatrixSyncResponseRoomEventDTO {
     readonly content           : JsonObject;

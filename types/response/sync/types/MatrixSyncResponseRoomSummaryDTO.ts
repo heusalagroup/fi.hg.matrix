@@ -1,12 +1,10 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeysInDevelopment,
-    isIntegerOrUndefined,
-    isRegularObject,
-    isStringArrayOrUndefined
-} from "../../../../../core/modules/lodash";
 import { MatrixType } from "../../../core/MatrixType";
+import { isIntegerOrUndefined } from "../../../../../core/types/Number";
+import { isStringArrayOrUndefined } from "../../../../../core/types/StringArray";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
 
 export interface MatrixSyncResponseRoomSummaryDTO {
     readonly [MatrixType.M_HEROES]               ?: readonly string[];

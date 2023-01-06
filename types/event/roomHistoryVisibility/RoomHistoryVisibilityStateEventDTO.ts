@@ -1,9 +1,11 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isStringOrUndefined } from "../../../../core/modules/lodash";
 import { isRoomHistoryVisibilityStateContentDTO, RoomHistoryVisibilityStateContentDTO } from "./RoomHistoryVisibilityStateContentDTO";
 import { MatrixStateEventOf } from "../../core/MatrixStateEventOf";
 import { MatrixType } from "../../core/MatrixType";
+import { isStringOrUndefined } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface RoomHistoryVisibilityStateEventDTO extends MatrixStateEventOf<RoomHistoryVisibilityStateContentDTO> {
     readonly type      : MatrixType.M_ROOM_HISTORY_VISIBILITY;

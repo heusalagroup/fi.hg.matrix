@@ -1,8 +1,11 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { explainNot, explainOk, explainOr, isInteger, isRegularObjectOf, isUndefined } from "../../../../../core/modules/lodash";
 import { MatrixUserId,  isMatrixUserId } from "../../../core/MatrixUserId";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { explainNot, explainOk, explainOr } from "../../../../../core/types/explain";
+import { isInteger } from "../../../../../core/types/Number";
+import { isRegularObjectOf } from "../../../../../core/types/RegularObject";
 
 export type MatrixUserPowerLevelsDTO = {
     [K in MatrixUserId]: number

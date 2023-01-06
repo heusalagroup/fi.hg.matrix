@@ -1,9 +1,11 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isStringOrUndefined } from "../../../../core/modules/lodash";
 import { isRoomJoinRulesStateContentDTO, RoomJoinRulesStateContentDTO } from "./RoomJoinRulesStateContentDTO";
 import { MatrixStateEventOf } from "../../core/MatrixStateEventOf";
 import { MatrixType } from "../../core/MatrixType";
+import { isStringOrUndefined } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 /**
  * @see https://github.com/heusalagroup/hghs/issues/20

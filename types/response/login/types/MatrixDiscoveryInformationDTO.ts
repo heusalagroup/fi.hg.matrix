@@ -1,12 +1,14 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isRegularObject, isUndefined } from "../../../../../core/modules/lodash";
 import {
     isMatrixIdentityServerInformationDTO,
     MatrixIdentityServerInformationDTO
 } from "./MatrixIdentityServerInformationDTO";
 import { isMatrixHomeServerDTO, MatrixHomeServerDTO } from "./MatrixHomeServerDTO";
 import { MatrixType } from "../../../core/MatrixType";
+import { isUndefined } from "../../../../../core/types/undefined";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
 
 export interface MatrixDiscoveryInformationDTO {
     readonly [MatrixType.M_HOMESERVER]: MatrixHomeServerDTO;

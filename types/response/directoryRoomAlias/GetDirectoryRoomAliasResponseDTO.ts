@@ -1,11 +1,9 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeysInDevelopment,
-    isRegularObject,
-    isString,
-    isStringArray
-} from "../../../../core/modules/lodash";
+import { isString } from "../../../../core/types/String";
+import { isStringArray } from "../../../../core/types/StringArray";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface GetDirectoryRoomAliasResponseDTO {
     readonly room_id : string;

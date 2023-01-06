@@ -10,7 +10,7 @@ import { Repository } from "../../../../../core/simpleRepository/types/Repositor
 import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
 import { RoomRepositoryItem, parseRoomRepositoryItem, toStoredRoomRepositoryItem } from "./RoomRepositoryItem";
 import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
-import { map } from "../../../../../core/modules/lodash";
+import { map } from "../../../../../core/functions/map";
 
 const LOG = LogService.createLogger('RoomRepositoryService');
 

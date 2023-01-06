@@ -1,7 +1,11 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeysInDevelopment, isNumberOrUndefined, isRegularObject, isString, isStringOrUndefined, isUndefined } from "../../../../core/modules/lodash";
 import { isReadonlyJsonObject, ReadonlyJsonObject } from "../../../../core/Json";
+import { isUndefined } from "../../../../core/types/undefined";
+import { isStringOrUndefined } from "../../../../core/types/String";
+import { isNumberOrUndefined } from "../../../../core/types/Number";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface GetRoomStateByTypeResponseDTO {
     readonly name    ?: string;

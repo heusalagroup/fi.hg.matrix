@@ -10,7 +10,8 @@ import { Repository } from "../../../../../core/simpleRepository/types/Repositor
 import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
 import { UserRepositoryItem, parseUserRepositoryItem, toStoredUserRepositoryItem } from "./UserRepositoryItem";
 import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
-import { map, toLower } from "../../../../../core/modules/lodash";
+import { map } from "../../../../../core/functions/map";
+import { toLower } from "../../../../../core/functions/toLower";
 
 const LOG = LogService.createLogger('UserRepositoryService');
 
@@ -23,7 +24,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
     protected readonly _sharedClientService : SharedClientService;
     protected readonly _observer            : Observer<RepositoryServiceEvent>;
     protected _repository                   : Repository<StoredUserRepositoryItem>  | undefined;
-    protected _repositoryInitializer        : RepositoryInitializer<StoredUserRepositoryItem>  | undefined;
+    protected _repositoryInitializer        : RepositoryInitializer<StoredUserRepositoryItem>;
 
     public constructor (
         sharedClientService   : SharedClientService,
@@ -74,6 +75,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
 
     public async findUserById (id: string) : Promise<UserRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError('No this._repository');
         const foundItem : RepositoryEntry<StoredUserRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
         return this._toUserRepositoryItem(foundItem);
@@ -81,6 +83,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
 
     public async findByUsername (username: string) : Promise<UserRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError('No this._repository');
         const foundItem : RepositoryEntry<StoredUserRepositoryItem> | undefined = await this._repository.findByProperty("username", toLower(username));
         if (!foundItem) return undefined;
         return this._toUserRepositoryItem(foundItem);
@@ -88,6 +91,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
 
     public async deleteAllUsers () : Promise<void> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError('No this._repository');
         const list : readonly RepositoryEntry<StoredUserRepositoryItem>[] = await this._getAllUsers();
         await this._repository.deleteByList(list);
     }
@@ -96,6 +100,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         idList : readonly string[]
     ) : Promise<void> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError('No this._repository');
         const list : readonly RepositoryEntry<StoredUserRepositoryItem>[] = await this._getSomeUsers(idList);
         await this._repository.deleteByList(list);
     }
@@ -104,6 +109,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         item : UserRepositoryItem
     ) : Promise<UserRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError('No this._repository');
         LOG.debug(`Creating user using: `, item);
         const createdStoredItem : RepositoryEntry<StoredUserRepositoryItem> = await this._repository.createItem(toStoredUserRepositoryItem(item));
         return this._toUserRepositoryItem(createdStoredItem);
@@ -113,6 +119,7 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
         item : UserRepositoryItem
     ) : Promise<UserRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError('No this._repository');
         const foundItem = await this._repository.updateOrCreateItem(toStoredUserRepositoryItem(item));
         return this._toUserRepositoryItem(foundItem);
     }
@@ -120,12 +127,14 @@ export class UserRepositoryService implements RepositoryService<StoredUserReposi
     // PRIVATE METHODS
 
     private async _getAllUsers () : Promise<readonly RepositoryEntry<StoredUserRepositoryItem>[]> {
+        if (!this._repository) throw new TypeError('No this._repository');
         return await this._repository.getAll();
     }
 
     private async _getSomeUsers (
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredUserRepositoryItem>[]> {
+        if (!this._repository) throw new TypeError('No this._repository');
         return await this._repository.getSome(idList);
     }
 

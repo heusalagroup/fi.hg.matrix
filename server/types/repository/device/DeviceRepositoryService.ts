@@ -10,7 +10,7 @@ import { Repository } from "../../../../../core/simpleRepository/types/Repositor
 import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
 import { DeviceRepositoryItem, parseDeviceRepositoryItem, toStoredDeviceRepositoryItem } from "./DeviceRepositoryItem";
 import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
-import { map } from "../../../../../core/modules/lodash";
+import { map } from "../../../../../core/functions/map";
 
 const LOG = LogService.createLogger('DeviceRepositoryService');
 

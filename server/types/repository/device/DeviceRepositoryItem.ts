@@ -1,10 +1,12 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { hasNoOtherKeys, isRegularObject, isString, isStringOrUndefined } from "../../../../../core/modules/lodash";
 import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
 import { createDevice, Device, isDevice } from "./Device";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredDeviceRepositoryItem, StoredDeviceRepositoryItem } from "./StoredDeviceRepositoryItem";
+import { isString, isStringOrUndefined } from "../../../../../core/types/String";
+import { isRegularObject } from "../../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
 export interface DeviceRepositoryItem extends RepositoryItem<Device> {
     readonly id: string;
@@ -64,6 +66,7 @@ export function parseDeviceRepositoryItem (
 export function toStoredDeviceRepositoryItem (
     item: DeviceRepositoryItem
 ) : StoredDeviceRepositoryItem | undefined {
+    if (!item?.target?.deviceId) throw new TypeError('No device ID');
     return createStoredDeviceRepositoryItem(
         item.id,
         item?.target?.userId,

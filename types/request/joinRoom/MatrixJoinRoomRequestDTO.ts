@@ -1,11 +1,9 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
 import { MatrixJoinRoomThirdPartySignedDTO,  isMatrixJoinRoomThirdPartySignedDTO } from "./types/MatrixJoinRoomThirdPartySignedDTO";
-import {
-    hasNoOtherKeysInDevelopment,
-    isRegularObject,
-    isUndefined
-} from "../../../../core/modules/lodash";
+import { isUndefined } from "../../../../core/types/undefined";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../../core/types/OtherKeys";
 
 export interface MatrixJoinRoomRequestDTO {
 

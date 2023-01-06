@@ -1,13 +1,11 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeysInDevelopment,
-    isRegularObject,
-    isStringOrUndefined,
-    TestCallbackNonStandardOf
-} from "../../../core/modules/lodash";
 import { isMatrixType, MatrixType } from "./MatrixType";
 import { ReadonlyJsonObject } from "../../../core/Json";
+import { TestCallbackNonStandardOf } from "../../../core/types/TestCallback";
+import { isStringOrUndefined } from "../../../core/types/String";
+import { isRegularObject } from "../../../core/types/RegularObject";
+import { hasNoOtherKeysInDevelopment } from "../../../core/types/OtherKeys";
 
 export interface MatrixStateEventOf<T extends ReadonlyJsonObject> {
     readonly type       : MatrixType | string;

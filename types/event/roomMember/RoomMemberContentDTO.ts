@@ -1,15 +1,13 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import {
-    hasNoOtherKeys,
-    isBooleanOrUndefined,
-    isNull,
-    isRegularObject,
-    isStringOrUndefined
-} from "../../../../core/modules/lodash";
+import { isNull } from "../../../../core/types/Null";
 import { ReadonlyJsonObject } from "../../../../core/Json";
 import { isRoomMembershipState, RoomMembershipState } from "./RoomMembershipState";
 import { isRoomMemberContent3rdPartyInviteDTOOrUndefined, RoomMemberContent3rdPartyInviteDTO } from "./RoomMemberContent3rdPartyInviteDTO";
+import { isBooleanOrUndefined } from "../../../../core/types/Boolean";
+import { isStringOrUndefined } from "../../../../core/types/String";
+import { isRegularObject } from "../../../../core/types/RegularObject";
+import { hasNoOtherKeys } from "../../../../core/types/OtherKeys";
 
 export interface RoomMemberContentDTO extends ReadonlyJsonObject {
     readonly membership                        : RoomMembershipState;
