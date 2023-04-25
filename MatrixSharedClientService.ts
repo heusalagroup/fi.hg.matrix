@@ -77,7 +77,7 @@ export class MatrixSharedClientService implements SharedClientService {
         const username = decodeURIComponent(u?.username ?? '');
         const password = decodeURIComponent(u?.password ?? '');
         const hsUrl = `${proto}//${hostname}:${port}`;
-        LOG.debug(`Creating client to "hsUrl"`);
+        LOG.debug(`Creating client to "${hsUrl}"`);
         let client : SimpleMatrixClient = new SimpleMatrixClient(hsUrl);
         this._loginInProgress = true;
         LOG.debug(`Logging in to "https://${hostname}" as "${username}" with "${password}"`);
