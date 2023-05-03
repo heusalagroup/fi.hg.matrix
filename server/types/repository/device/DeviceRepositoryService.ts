@@ -49,6 +49,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     public async initialize () : Promise<void> {
         LOG.debug(`Initialization started`);
         await this._sharedClientService.waitForInitialization();
+        if (!this._repositoryInitializer) throw new TypeError(`Repository uninitialized`);
         this._repository = await this._repositoryInitializer.initializeRepository( this._sharedClientService.getClient() );
         LOG.debug(`Initialization finished`);
         if (this._observer.hasCallbacks(RepositoryServiceEvent.INITIALIZED)) {
@@ -79,6 +80,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
      */
     public async findDeviceById (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
         return this._toDeviceRepositoryItem(foundItem);
@@ -91,6 +93,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
      */
     public async findDeviceByDeviceId (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findByProperty("deviceId", id);
         if (!foundItem) return undefined;
         return this._toDeviceRepositoryItem(foundItem);
@@ -99,6 +102,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     public async deleteAllDevices () : Promise<void> {
         await this._sharedClientService.waitForInitialization();
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
 
@@ -107,6 +111,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     ) : Promise<void> {
         await this._sharedClientService.waitForInitialization();
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
 
@@ -114,19 +119,23 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
         item : DeviceRepositoryItem
     ) : Promise<DeviceRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
-        const foundItem = await this._repository.updateOrCreateItem(toStoredDeviceRepositoryItem(item));
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
+        const storedRepositoryItem : StoredDeviceRepositoryItem = toStoredDeviceRepositoryItem(item);
+        const foundItem = await this._repository.updateOrCreateItem(storedRepositoryItem);
         return this._toDeviceRepositoryItem(foundItem);
     }
 
     // PRIVATE METHODS
 
     private async _getAllDevices () : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getAll();
     }
 
     private async _getSomeDevices (
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getSome(idList);
     }
 

@@ -65,7 +65,7 @@ export function parseDeviceRepositoryItem (
 
 export function toStoredDeviceRepositoryItem (
     item: DeviceRepositoryItem
-) : StoredDeviceRepositoryItem | undefined {
+) : StoredDeviceRepositoryItem {
     if (!item?.target?.deviceId) throw new TypeError('No device ID');
     return createStoredDeviceRepositoryItem(
         item.id,
