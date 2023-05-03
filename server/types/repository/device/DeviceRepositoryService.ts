@@ -50,7 +50,9 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
         LOG.debug(`Initialization started`);
         await this._sharedClientService.waitForInitialization();
         if (!this._repositoryInitializer) throw new TypeError(`Repository uninitialized`);
-        this._repository = await this._repositoryInitializer.initializeRepository( this._sharedClientService.getClient() );
+        const client = this._sharedClientService.getClient();
+        if (!client) throw new TypeError(`Client not configured`);
+        this._repository = await this._repositoryInitializer.initializeRepository( client );
         LOG.debug(`Initialization finished`);
         if (this._observer.hasCallbacks(RepositoryServiceEvent.INITIALIZED)) {
             this._observer.triggerEvent(RepositoryServiceEvent.INITIALIZED);

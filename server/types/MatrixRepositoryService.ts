@@ -51,7 +51,10 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
     public async initialize () : Promise<void> {
         LOG.debug(`Initialization started`);
         await this._sharedClientService.waitForInitialization();
-        this._repository = await this._repositoryInitializer.initializeRepository( this._sharedClientService.getClient() );
+        if (!this._repositoryInitializer) throw new TypeError(`Repository uninitialized`);
+        const client = this._sharedClientService.getClient();
+        if (!client) throw new TypeError(`Client uninitialized`);
+        this._repository = await this._repositoryInitializer.initializeRepository( client );
         LOG.debug(`Initialization finished`);
         if (this._observer.hasCallbacks(RepositoryServiceEvent.INITIALIZED)) {
             this._observer.triggerEvent(RepositoryServiceEvent.INITIALIZED);
@@ -77,15 +80,15 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
         return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
             const data = parseJson(item.data);
             if (!isDevice(data)) throw new TypeError(`MatrixRepositoryService: Could not parse data: ${item.data}`);
-            return parseDeviceRepositoryItem(
-                item.id,
-                data
-            );
+            const parsedItem = parseDeviceRepositoryItem(item.id, data);
+            if (!parsedItem) throw new TypeError(`MatrixRepositoryService: Could not parse data: ${item.data}`);
+            return parsedItem;
         });
     }
 
     public async getDeviceById (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
         return parseDeviceRepositoryItem(
@@ -97,6 +100,7 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
     public async deleteAllDevices () : Promise<void> {
         await this._sharedClientService.waitForInitialization();
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
 
@@ -105,6 +109,7 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
     ) : Promise<void> {
         await this._sharedClientService.waitForInitialization();
         const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
 
@@ -112,19 +117,24 @@ export class HgHsDeviceRepositoryService implements RepositoryService<StoredDevi
         item : DeviceRepositoryItem
     ) : Promise<DeviceRepositoryItem> {
         await this._sharedClientService.waitForInitialization();
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         const foundItem = await this._repository.updateOrCreateItem(toStoredDeviceRepositoryItem(item));
-        return parseDeviceRepositoryItem(foundItem.id, foundItem.data);
+        const parsedItem = parseDeviceRepositoryItem(foundItem.id, foundItem.data);
+        if (!parsedItem) throw new TypeError(`Could not parse item`);
+        return parsedItem;
     }
 
     // PRIVATE METHODS
 
     private async _getAllDevices () : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getAll();
     }
 
     private async _getSomeDevices (
         idList : readonly string[]
     ) : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
+        if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getSome(idList);
     }
 

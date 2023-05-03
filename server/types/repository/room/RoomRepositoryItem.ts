@@ -55,7 +55,7 @@ export function parseRoomRepositoryItem (id: string, unparsedData: any) : RoomRe
 
 export function toStoredRoomRepositoryItem (
     item: RoomRepositoryItem
-) : StoredRoomRepositoryItem | undefined {
+) : StoredRoomRepositoryItem {
     return createStoredRoomRepositoryItem(
         item.id,
         JSON.stringify(item.target),
