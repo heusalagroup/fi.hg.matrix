@@ -2,42 +2,42 @@
 
 import { LogService } from "../../../../../core/LogService";
 import { Observer, ObserverCallback, ObserverDestructor } from "../../../../../core/Observer";
-import { RepositoryService } from "../../../../../core/simpleRepository/types/RepositoryService";
+import { SimpleRepositoryService } from "../../../../../core/simpleRepository/types/SimpleRepositoryService";
 import { StoredDeviceRepositoryItem } from "./StoredDeviceRepositoryItem";
-import { RepositoryServiceEvent } from "../../../../../core/simpleRepository/types/RepositoryServiceEvent";
-import { SharedClientService } from "../../../../../core/simpleRepository/types/SharedClientService";
-import { Repository } from "../../../../../core/simpleRepository/types/Repository";
-import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
+import { SimpleRepositoryServiceEvent } from "../../../../../core/simpleRepository/types/SimpleRepositoryServiceEvent";
+import { SimpleSharedClientService } from "../../../../../core/simpleRepository/types/SimpleSharedClientService";
+import { SimpleRepository } from "../../../../../core/simpleRepository/types/SimpleRepository";
+import { SimpleRepositoryInitializer } from "../../../../../core/simpleRepository/types/SimpleRepositoryInitializer";
 import { DeviceRepositoryItem, parseDeviceRepositoryItem, toStoredDeviceRepositoryItem } from "./DeviceRepositoryItem";
-import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
+import { SimpleRepositoryEntry } from "../../../../../core/simpleRepository/types/SimpleRepositoryEntry";
 import { map } from "../../../../../core/functions/map";
 
 const LOG = LogService.createLogger('DeviceRepositoryService');
 
 export type DeviceRepositoryServiceDestructor = ObserverDestructor;
 
-export class DeviceRepositoryService implements RepositoryService<StoredDeviceRepositoryItem> {
+export class DeviceRepositoryService implements SimpleRepositoryService<StoredDeviceRepositoryItem> {
 
-    public Event = RepositoryServiceEvent;
+    public Event = SimpleRepositoryServiceEvent;
 
-    protected readonly _sharedClientService : SharedClientService;
-    protected readonly _observer            : Observer<RepositoryServiceEvent>;
-    protected _repository                   : Repository<StoredDeviceRepositoryItem>  | undefined;
-    protected _repositoryInitializer        : RepositoryInitializer<StoredDeviceRepositoryItem>  | undefined;
+    protected readonly _sharedClientService : SimpleSharedClientService;
+    protected readonly _observer            : Observer<SimpleRepositoryServiceEvent>;
+    protected _repository                   : SimpleRepository<StoredDeviceRepositoryItem>  | undefined;
+    protected _repositoryInitializer        : SimpleRepositoryInitializer<StoredDeviceRepositoryItem>  | undefined;
 
     public constructor (
-        sharedClientService   : SharedClientService,
-        repositoryInitializer : RepositoryInitializer<StoredDeviceRepositoryItem>
+        sharedClientService   : SimpleSharedClientService,
+        repositoryInitializer : SimpleRepositoryInitializer<StoredDeviceRepositoryItem>
     ) {
-        this._observer = new Observer<RepositoryServiceEvent>("DeviceRepositoryService");
+        this._observer = new Observer<SimpleRepositoryServiceEvent>("DeviceRepositoryService");
         this._sharedClientService = sharedClientService;
         this._repositoryInitializer = repositoryInitializer;
         this._repository = undefined;
     }
 
     public on (
-        name: RepositoryServiceEvent,
-        callback: ObserverCallback<RepositoryServiceEvent>
+        name: SimpleRepositoryServiceEvent,
+        callback: ObserverCallback<SimpleRepositoryServiceEvent>
     ): DeviceRepositoryServiceDestructor {
         return this._observer.listenEvent(name, callback);
     }
@@ -54,14 +54,14 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
         if (!client) throw new TypeError(`Client not configured`);
         this._repository = await this._repositoryInitializer.initializeRepository( client );
         LOG.debug(`Initialization finished`);
-        if (this._observer.hasCallbacks(RepositoryServiceEvent.INITIALIZED)) {
-            this._observer.triggerEvent(RepositoryServiceEvent.INITIALIZED);
+        if (this._observer.hasCallbacks(SimpleRepositoryServiceEvent.INITIALIZED)) {
+            this._observer.triggerEvent(SimpleRepositoryServiceEvent.INITIALIZED);
         }
     }
 
     public async getAllDevices () : Promise<readonly DeviceRepositoryItem[]> {
-        const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
-        return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
+        const list : readonly SimpleRepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
+        return map(list, (item: SimpleRepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
             return this._toDeviceRepositoryItem(item);
         });
     }
@@ -69,8 +69,8 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     public async getSomeDevices (
         idList : readonly string[]
     ) : Promise<readonly DeviceRepositoryItem[]> {
-        const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
-        return map(list, (item: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
+        const list : readonly SimpleRepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
+        return map(list, (item: SimpleRepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem => {
             return this._toDeviceRepositoryItem(item);
         });
     }
@@ -83,7 +83,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     public async findDeviceById (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
-        const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findById(id);
+        const foundItem : SimpleRepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
         return this._toDeviceRepositoryItem(foundItem);
     }
@@ -96,14 +96,14 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
     public async findDeviceByDeviceId (id: string) : Promise<DeviceRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
-        const foundItem : RepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findByProperty("deviceId", id);
+        const foundItem : SimpleRepositoryEntry<StoredDeviceRepositoryItem> | undefined = await this._repository.findByProperty("deviceId", id);
         if (!foundItem) return undefined;
         return this._toDeviceRepositoryItem(foundItem);
     }
 
     public async deleteAllDevices () : Promise<void> {
         await this._sharedClientService.waitForInitialization();
-        const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
+        const list : readonly SimpleRepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getAllDevices();
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
@@ -112,7 +112,7 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
         idList : readonly string[]
     ) : Promise<void> {
         await this._sharedClientService.waitForInitialization();
-        const list : readonly RepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
+        const list : readonly SimpleRepositoryEntry<StoredDeviceRepositoryItem>[] = await this._getSomeDevices(idList);
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
@@ -129,19 +129,19 @@ export class DeviceRepositoryService implements RepositoryService<StoredDeviceRe
 
     // PRIVATE METHODS
 
-    private async _getAllDevices () : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
+    private async _getAllDevices () : Promise<readonly SimpleRepositoryEntry<StoredDeviceRepositoryItem>[]> {
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getAll();
     }
 
     private async _getSomeDevices (
         idList : readonly string[]
-    ) : Promise<readonly RepositoryEntry<StoredDeviceRepositoryItem>[]> {
+    ) : Promise<readonly SimpleRepositoryEntry<StoredDeviceRepositoryItem>[]> {
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getSome(idList);
     }
 
-    private _toDeviceRepositoryItem (storedItem: RepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem {
+    private _toDeviceRepositoryItem (storedItem: SimpleRepositoryEntry<StoredDeviceRepositoryItem>) : DeviceRepositoryItem {
         const id = storedItem.id;
         const target = storedItem.data?.target;
         LOG.debug(`Device with id "${id}": `, storedItem, target);

@@ -72,7 +72,7 @@ import { isMatrixWhoAmIResponseDTO, MatrixWhoAmIResponseDTO } from "./types/resp
 import { createMatrixIdentifierDTO } from "./types/request/login/types/MatrixIdentifierDTO";
 import { GetRoomStateByTypeResponseDTO, isGetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
-import { RepositoryClient } from "../core/simpleRepository/types/RepositoryClient";
+import { SimpleRepositoryClient } from "../core/simpleRepository/types/SimpleRepositoryClient";
 import { isString } from "../core/types/String";
 import { keys } from "../core/functions/keys";
 
@@ -92,7 +92,7 @@ const DEFAULT_WAIT_FOR_EVENTS_TIMEOUT = 30000;
  * Far from perfect, but works both on browser and on OpenWRT with NodeJS 8 and full POC takes only
  * 50k as compiled single bundle file (including all the dependencies) :)
  */
-export class SimpleMatrixClient implements RepositoryClient {
+export class SimpleMatrixClient implements SimpleRepositoryClient {
 
     public static Event = SimpleMatrixClientEvent;
 

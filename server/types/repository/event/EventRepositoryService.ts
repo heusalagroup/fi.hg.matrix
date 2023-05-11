@@ -2,14 +2,14 @@
 
 import { LogService } from "../../../../../core/LogService";
 import { Observer, ObserverCallback, ObserverDestructor } from "../../../../../core/Observer";
-import { RepositoryService } from "../../../../../core/simpleRepository/types/RepositoryService";
+import { SimpleRepositoryService } from "../../../../../core/simpleRepository/types/SimpleRepositoryService";
 import { StoredEventRepositoryItem } from "./StoredEventRepositoryItem";
-import { RepositoryServiceEvent } from "../../../../../core/simpleRepository/types/RepositoryServiceEvent";
-import { SharedClientService } from "../../../../../core/simpleRepository/types/SharedClientService";
-import { Repository } from "../../../../../core/simpleRepository/types/Repository";
-import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
+import { SimpleRepositoryServiceEvent } from "../../../../../core/simpleRepository/types/SimpleRepositoryServiceEvent";
+import { SimpleSharedClientService } from "../../../../../core/simpleRepository/types/SimpleSharedClientService";
+import { SimpleRepository } from "../../../../../core/simpleRepository/types/SimpleRepository";
+import { SimpleRepositoryInitializer } from "../../../../../core/simpleRepository/types/SimpleRepositoryInitializer";
 import { createEventRepositoryItem, EventRepositoryItem, toStoredEventRepositoryItem } from "./EventRepositoryItem";
-import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
+import { SimpleRepositoryEntry } from "../../../../../core/simpleRepository/types/SimpleRepositoryEntry";
 import { map } from "../../../../../core/functions/map";
 import { explainEventEntity, isEventEntity } from "./entities/EventEntity";
 import { parseJson } from "../../../../../core/Json";
@@ -18,28 +18,28 @@ const LOG = LogService.createLogger('EventRepositoryService');
 
 export type EventRepositoryServiceDestructor = ObserverDestructor;
 
-export class EventRepositoryService implements RepositoryService<StoredEventRepositoryItem> {
+export class EventRepositoryService implements SimpleRepositoryService<StoredEventRepositoryItem> {
 
-    public Event = RepositoryServiceEvent;
+    public Event = SimpleRepositoryServiceEvent;
 
-    protected readonly _sharedClientService : SharedClientService;
-    protected readonly _observer            : Observer<RepositoryServiceEvent>;
-    protected _repository                   : Repository<StoredEventRepositoryItem>  | undefined;
-    protected _repositoryInitializer        : RepositoryInitializer<StoredEventRepositoryItem>;
+    protected readonly _sharedClientService : SimpleSharedClientService;
+    protected readonly _observer            : Observer<SimpleRepositoryServiceEvent>;
+    protected _repository                   : SimpleRepository<StoredEventRepositoryItem>  | undefined;
+    protected _repositoryInitializer        : SimpleRepositoryInitializer<StoredEventRepositoryItem>;
 
     public constructor (
-        sharedClientService   : SharedClientService,
-        repositoryInitializer : RepositoryInitializer<StoredEventRepositoryItem>
+        sharedClientService   : SimpleSharedClientService,
+        repositoryInitializer : SimpleRepositoryInitializer<StoredEventRepositoryItem>
     ) {
-        this._observer = new Observer<RepositoryServiceEvent>("EventRepositoryService");
+        this._observer = new Observer<SimpleRepositoryServiceEvent>("EventRepositoryService");
         this._sharedClientService = sharedClientService;
         this._repositoryInitializer = repositoryInitializer;
         this._repository = undefined;
     }
 
     public on (
-        name: RepositoryServiceEvent,
-        callback: ObserverCallback<RepositoryServiceEvent>
+        name: SimpleRepositoryServiceEvent,
+        callback: ObserverCallback<SimpleRepositoryServiceEvent>
     ): EventRepositoryServiceDestructor {
         return this._observer.listenEvent(name, callback);
     }
@@ -55,14 +55,14 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
         if (!client) throw new TypeError(`Client not configured`);
         this._repository = await this._repositoryInitializer.initializeRepository( client );
         LOG.debug(`Initialization finished`);
-        if (this._observer.hasCallbacks(RepositoryServiceEvent.INITIALIZED)) {
-            this._observer.triggerEvent(RepositoryServiceEvent.INITIALIZED);
+        if (this._observer.hasCallbacks(SimpleRepositoryServiceEvent.INITIALIZED)) {
+            this._observer.triggerEvent(SimpleRepositoryServiceEvent.INITIALIZED);
         }
     }
 
     public async getAllEvents () : Promise<readonly EventRepositoryItem[]> {
-        const list : readonly RepositoryEntry<StoredEventRepositoryItem>[] = await this._getAllEvents();
-        return map(list, (item: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem => {
+        const list : readonly SimpleRepositoryEntry<StoredEventRepositoryItem>[] = await this._getAllEvents();
+        return map(list, (item: SimpleRepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem => {
             return this._toEventRepositoryItem(item);
         });
     }
@@ -70,8 +70,8 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     public async getSomeEvents (
         idList : readonly string[]
     ) : Promise<readonly EventRepositoryItem[]> {
-        const list : readonly RepositoryEntry<StoredEventRepositoryItem>[] = await this._getSomeEvents(idList);
-        return map(list, (item: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem => {
+        const list : readonly SimpleRepositoryEntry<StoredEventRepositoryItem>[] = await this._getSomeEvents(idList);
+        return map(list, (item: SimpleRepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem => {
             return this._toEventRepositoryItem(item);
         });
     }
@@ -79,7 +79,7 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     public async findEventById (id: string) : Promise<EventRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         if (!this._repository) throw new TypeError('No this._repository');
-        const foundItem : RepositoryEntry<StoredEventRepositoryItem> | undefined = await this._repository.findById(id);
+        const foundItem : SimpleRepositoryEntry<StoredEventRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
         return this._toEventRepositoryItem(foundItem);
     }
@@ -87,7 +87,7 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     public async deleteAllEvents () : Promise<void> {
         await this._sharedClientService.waitForInitialization();
         if (!this._repository) throw new TypeError('No this._repository');
-        const list : readonly RepositoryEntry<StoredEventRepositoryItem>[] = await this._getAllEvents();
+        const list : readonly SimpleRepositoryEntry<StoredEventRepositoryItem>[] = await this._getAllEvents();
         await this._repository.deleteByList(list);
     }
 
@@ -96,7 +96,7 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
     ) : Promise<void> {
         await this._sharedClientService.waitForInitialization();
         if (!this._repository) throw new TypeError('No this._repository');
-        const list : readonly RepositoryEntry<StoredEventRepositoryItem>[] = await this._getSomeEvents(idList);
+        const list : readonly SimpleRepositoryEntry<StoredEventRepositoryItem>[] = await this._getSomeEvents(idList);
         await this._repository.deleteByList(list);
     }
 
@@ -107,7 +107,7 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
         const storedItemTemplate = toStoredEventRepositoryItem(item);
         LOG.debug(`createEvent: Going to create: `, item);
         if (!this._repository) throw new TypeError('No this._repository');
-        const createdItem : RepositoryEntry<StoredEventRepositoryItem> = await this._repository.createItem(storedItemTemplate);
+        const createdItem : SimpleRepositoryEntry<StoredEventRepositoryItem> = await this._repository.createItem(storedItemTemplate);
         LOG.debug(`createEvent: Created: `, createdItem);
         return this._toEventRepositoryItem(createdItem);
     }
@@ -123,19 +123,19 @@ export class EventRepositoryService implements RepositoryService<StoredEventRepo
 
     // PRIVATE METHODS
 
-    private async _getAllEvents () : Promise<readonly RepositoryEntry<StoredEventRepositoryItem>[]> {
+    private async _getAllEvents () : Promise<readonly SimpleRepositoryEntry<StoredEventRepositoryItem>[]> {
         if (!this._repository) throw new TypeError('No this._repository');
         return await this._repository.getAll();
     }
 
     private async _getSomeEvents (
         idList : readonly string[]
-    ) : Promise<readonly RepositoryEntry<StoredEventRepositoryItem>[]> {
+    ) : Promise<readonly SimpleRepositoryEntry<StoredEventRepositoryItem>[]> {
         if (!this._repository) throw new TypeError('No this._repository');
         return await this._repository.getSome(idList);
     }
 
-    private _toEventRepositoryItem (storedItem: RepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem {
+    private _toEventRepositoryItem (storedItem: SimpleRepositoryEntry<StoredEventRepositoryItem>) : EventRepositoryItem {
         const id : string = storedItem.id;
         const target : string = storedItem.data.target;
         const data = parseJson(target);

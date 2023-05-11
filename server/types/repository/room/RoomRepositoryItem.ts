@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
+import { SimpleRepositoryItem } from "../../../../../core/simpleRepository/types/SimpleRepositoryItem";
 import { Room, isRoom } from "./Room";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredRoomRepositoryItem, StoredRoomRepositoryItem } from "./StoredRoomRepositoryItem";
@@ -9,7 +9,7 @@ import { isString } from "../../../../../core/types/String";
 import { isRegularObject } from "../../../../../core/types/RegularObject";
 import { hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
-export interface RoomRepositoryItem extends RepositoryItem<Room> {
+export interface RoomRepositoryItem extends SimpleRepositoryItem<Room> {
     readonly id: string;
     readonly visibility: MatrixVisibility;
     readonly target: Room;

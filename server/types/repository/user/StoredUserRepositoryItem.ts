@@ -1,11 +1,11 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { StoredRepositoryItem } from "../../../../../core/simpleRepository/types/StoredRepositoryItem";
+import { SimpleStoredRepositoryItem } from "../../../../../core/simpleRepository/types/SimpleStoredRepositoryItem";
 import { isString, isStringOrUndefined } from "../../../../../core/types/String";
 import { isRegularObject } from "../../../../../core/types/RegularObject";
 import { hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
-export interface StoredUserRepositoryItem extends StoredRepositoryItem {
+export interface StoredUserRepositoryItem extends SimpleStoredRepositoryItem {
 
     /**
      * Unique ID in the database

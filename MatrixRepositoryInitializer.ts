@@ -1,14 +1,14 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { StoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
-import { Repository } from "../core/simpleRepository/types/Repository";
-import { RepositoryInitializer } from "../core/simpleRepository/types/RepositoryInitializer";
-import { RepositoryClient } from "../core/simpleRepository/types/RepositoryClient";
+import { SimpleStoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/SimpleStoredRepositoryItem";
+import { SimpleRepository } from "../core/simpleRepository/types/SimpleRepository";
+import { SimpleRepositoryInitializer } from "../core/simpleRepository/types/SimpleRepositoryInitializer";
+import { SimpleRepositoryClient } from "../core/simpleRepository/types/SimpleRepositoryClient";
 import { MatrixCrudRepository } from "./MatrixCrudRepository";
 import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { explainNot, explainOk } from "../core/types/explain";
 
-export class MatrixRepositoryInitializer<T extends StoredRepositoryItem> implements RepositoryInitializer<T> {
+export class MatrixRepositoryInitializer<T extends SimpleStoredRepositoryItem> implements SimpleRepositoryInitializer<T> {
 
     private readonly _roomType : string;
     private readonly _isT      : StoredRepositoryItemTestCallback;
@@ -27,7 +27,7 @@ export class MatrixRepositoryInitializer<T extends StoredRepositoryItem> impleme
         this._explainT = explainT ?? ( (value: any) : string => isT(value) ? explainOk() : explainNot(this._tName) );
     }
 
-    public async initializeRepository ( client : RepositoryClient ) : Promise<Repository<T>> {
+    public async initializeRepository ( client : SimpleRepositoryClient ) : Promise<SimpleRepository<T>> {
         if (!(client instanceof SimpleMatrixClient)) throw new TypeError(`MatrixRepositoryInitializer.initializeRepository: Shared client not defined or not SimpleMatrixClient`);
         return new MatrixCrudRepository<T>(
             client,

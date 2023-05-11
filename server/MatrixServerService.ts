@@ -11,7 +11,7 @@ import { createDevice } from "./types/repository/device/Device";
 import { JwtUtils } from "../../backend/JwtUtils";
 import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
-import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/Repository";
+import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/SimpleRepository";
 import { JwtService } from "../../backend/JwtService";
 import { createRoomRepositoryItem, RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
 import { createRoom } from "./types/repository/room/Room";

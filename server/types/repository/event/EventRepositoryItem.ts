@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
+import { SimpleRepositoryItem } from "../../../../../core/simpleRepository/types/SimpleRepositoryItem";
 import { EventEntity, explainEventEntity, isEventEntity } from "./entities/EventEntity";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredEventRepositoryItem, StoredEventRepositoryItem } from "./StoredEventRepositoryItem";
@@ -12,7 +12,7 @@ import { explainNoOtherKeys, hasNoOtherKeys } from "../../../../../core/types/Ot
 
 const LOG = LogService.createLogger('EventRepositoryItem');
 
-export interface EventRepositoryItem extends RepositoryItem<EventEntity> {
+export interface EventRepositoryItem extends SimpleRepositoryItem<EventEntity> {
     readonly id: string;
     readonly target: EventEntity;
 }

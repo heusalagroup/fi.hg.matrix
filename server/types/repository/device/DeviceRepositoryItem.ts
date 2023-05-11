@@ -1,6 +1,6 @@
 // Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { RepositoryItem } from "../../../../../core/simpleRepository/types/RepositoryItem";
+import { SimpleRepositoryItem } from "../../../../../core/simpleRepository/types/SimpleRepositoryItem";
 import { createDevice, Device, isDevice } from "./Device";
 import { parseJson } from "../../../../../core/Json";
 import { createStoredDeviceRepositoryItem, StoredDeviceRepositoryItem } from "./StoredDeviceRepositoryItem";
@@ -8,7 +8,7 @@ import { isString, isStringOrUndefined } from "../../../../../core/types/String"
 import { isRegularObject } from "../../../../../core/types/RegularObject";
 import { hasNoOtherKeys } from "../../../../../core/types/OtherKeys";
 
-export interface DeviceRepositoryItem extends RepositoryItem<Device> {
+export interface DeviceRepositoryItem extends SimpleRepositoryItem<Device> {
     readonly id: string;
     readonly userId: string;
     readonly deviceId ?: string;

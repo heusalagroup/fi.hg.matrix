@@ -2,42 +2,42 @@
 
 import { LogService } from "../../../../../core/LogService";
 import { Observer, ObserverCallback, ObserverDestructor } from "../../../../../core/Observer";
-import { RepositoryService } from "../../../../../core/simpleRepository/types/RepositoryService";
+import { SimpleRepositoryService } from "../../../../../core/simpleRepository/types/SimpleRepositoryService";
 import { StoredRoomRepositoryItem } from "./StoredRoomRepositoryItem";
-import { RepositoryServiceEvent } from "../../../../../core/simpleRepository/types/RepositoryServiceEvent";
-import { SharedClientService } from "../../../../../core/simpleRepository/types/SharedClientService";
-import { Repository } from "../../../../../core/simpleRepository/types/Repository";
-import { RepositoryInitializer } from "../../../../../core/simpleRepository/types/RepositoryInitializer";
+import { SimpleRepositoryServiceEvent } from "../../../../../core/simpleRepository/types/SimpleRepositoryServiceEvent";
+import { SimpleSharedClientService } from "../../../../../core/simpleRepository/types/SimpleSharedClientService";
+import { SimpleRepository } from "../../../../../core/simpleRepository/types/SimpleRepository";
+import { SimpleRepositoryInitializer } from "../../../../../core/simpleRepository/types/SimpleRepositoryInitializer";
 import { RoomRepositoryItem, parseRoomRepositoryItem, toStoredRoomRepositoryItem } from "./RoomRepositoryItem";
-import { RepositoryEntry } from "../../../../../core/simpleRepository/types/RepositoryEntry";
+import { SimpleRepositoryEntry } from "../../../../../core/simpleRepository/types/SimpleRepositoryEntry";
 import { map } from "../../../../../core/functions/map";
 
 const LOG = LogService.createLogger('RoomRepositoryService');
 
 export type RoomRepositoryServiceDestructor = ObserverDestructor;
 
-export class RoomRepositoryService implements RepositoryService<StoredRoomRepositoryItem> {
+export class RoomRepositoryService implements SimpleRepositoryService<StoredRoomRepositoryItem> {
 
-    public Event = RepositoryServiceEvent;
+    public Event = SimpleRepositoryServiceEvent;
 
-    protected readonly _sharedClientService : SharedClientService;
-    protected readonly _observer            : Observer<RepositoryServiceEvent>;
-    protected _repository                   : Repository<StoredRoomRepositoryItem>  | undefined;
-    protected _repositoryInitializer        : RepositoryInitializer<StoredRoomRepositoryItem>  | undefined;
+    protected readonly _sharedClientService : SimpleSharedClientService;
+    protected readonly _observer            : Observer<SimpleRepositoryServiceEvent>;
+    protected _repository                   : SimpleRepository<StoredRoomRepositoryItem>  | undefined;
+    protected _repositoryInitializer        : SimpleRepositoryInitializer<StoredRoomRepositoryItem>  | undefined;
 
     public constructor (
-        sharedClientService   : SharedClientService,
-        repositoryInitializer : RepositoryInitializer<StoredRoomRepositoryItem>
+        sharedClientService   : SimpleSharedClientService,
+        repositoryInitializer : SimpleRepositoryInitializer<StoredRoomRepositoryItem>
     ) {
-        this._observer = new Observer<RepositoryServiceEvent>("RoomRepositoryService");
+        this._observer = new Observer<SimpleRepositoryServiceEvent>("RoomRepositoryService");
         this._sharedClientService = sharedClientService;
         this._repositoryInitializer = repositoryInitializer;
         this._repository = undefined;
     }
 
     public on (
-        name: RepositoryServiceEvent,
-        callback: ObserverCallback<RepositoryServiceEvent>
+        name: SimpleRepositoryServiceEvent,
+        callback: ObserverCallback<SimpleRepositoryServiceEvent>
     ): RoomRepositoryServiceDestructor {
         return this._observer.listenEvent(name, callback);
     }
@@ -54,14 +54,14 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
         if (!client) throw new TypeError(`Client uninitialized`);
         this._repository = await this._repositoryInitializer.initializeRepository( client );
         LOG.debug(`Initialization finished`);
-        if (this._observer.hasCallbacks(RepositoryServiceEvent.INITIALIZED)) {
-            this._observer.triggerEvent(RepositoryServiceEvent.INITIALIZED);
+        if (this._observer.hasCallbacks(SimpleRepositoryServiceEvent.INITIALIZED)) {
+            this._observer.triggerEvent(SimpleRepositoryServiceEvent.INITIALIZED);
         }
     }
 
     public async getAllRooms () : Promise<readonly RoomRepositoryItem[]> {
-        const list : readonly RepositoryEntry<StoredRoomRepositoryItem>[] = await this._getAllRooms();
-        return map(list, (item: RepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem => {
+        const list : readonly SimpleRepositoryEntry<StoredRoomRepositoryItem>[] = await this._getAllRooms();
+        return map(list, (item: SimpleRepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem => {
             return this._toRoomRepositoryItem(item);
         });
     }
@@ -69,8 +69,8 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
     public async getSomeRooms (
         idList : readonly string[]
     ) : Promise<readonly RoomRepositoryItem[]> {
-        const list : readonly RepositoryEntry<StoredRoomRepositoryItem>[] = await this._getSomeRooms(idList);
-        return map(list, (item: RepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem => {
+        const list : readonly SimpleRepositoryEntry<StoredRoomRepositoryItem>[] = await this._getSomeRooms(idList);
+        return map(list, (item: SimpleRepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem => {
             return this._toRoomRepositoryItem(item);
         });
     }
@@ -78,14 +78,14 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
     public async findRoomById (id: string) : Promise<RoomRepositoryItem | undefined> {
         await this._sharedClientService.waitForInitialization();
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
-        const foundItem : RepositoryEntry<StoredRoomRepositoryItem> | undefined = await this._repository.findById(id);
+        const foundItem : SimpleRepositoryEntry<StoredRoomRepositoryItem> | undefined = await this._repository.findById(id);
         if (!foundItem) return undefined;
         return this._toRoomRepositoryItem(foundItem);
     }
 
     public async deleteAllRooms () : Promise<void> {
         await this._sharedClientService.waitForInitialization();
-        const list : readonly RepositoryEntry<StoredRoomRepositoryItem>[] = await this._getAllRooms();
+        const list : readonly SimpleRepositoryEntry<StoredRoomRepositoryItem>[] = await this._getAllRooms();
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
@@ -94,7 +94,7 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
         idList : readonly string[]
     ) : Promise<void> {
         await this._sharedClientService.waitForInitialization();
-        const list : readonly RepositoryEntry<StoredRoomRepositoryItem>[] = await this._getSomeRooms(idList);
+        const list : readonly SimpleRepositoryEntry<StoredRoomRepositoryItem>[] = await this._getSomeRooms(idList);
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         await this._repository.deleteByList(list);
     }
@@ -119,19 +119,19 @@ export class RoomRepositoryService implements RepositoryService<StoredRoomReposi
 
     // PRIVATE METHODS
 
-    private async _getAllRooms () : Promise<readonly RepositoryEntry<StoredRoomRepositoryItem>[]> {
+    private async _getAllRooms () : Promise<readonly SimpleRepositoryEntry<StoredRoomRepositoryItem>[]> {
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getAll();
     }
 
     private async _getSomeRooms (
         idList : readonly string[]
-    ) : Promise<readonly RepositoryEntry<StoredRoomRepositoryItem>[]> {
+    ) : Promise<readonly SimpleRepositoryEntry<StoredRoomRepositoryItem>[]> {
         if (!this._repository) throw new TypeError(`Repository uninitialized`);
         return await this._repository.getSome(idList);
     }
 
-    private _toRoomRepositoryItem (storedItem: RepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem {
+    private _toRoomRepositoryItem (storedItem: SimpleRepositoryEntry<StoredRoomRepositoryItem>) : RoomRepositoryItem {
         const id = storedItem.id;
         const target = storedItem.data?.target;
         LOG.debug(`Room with id "${id}": `, storedItem, target);

@@ -1,7 +1,7 @@
 // Copyright (c) 2021-2022. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { RepositoryEntry } from "../core/simpleRepository/types/RepositoryEntry";
-import { Repository, REPOSITORY_NEW_IDENTIFIER } from "../core/simpleRepository/types/Repository";
+import { SimpleRepositoryEntry } from "../core/simpleRepository/types/SimpleRepositoryEntry";
+import { SimpleRepository, REPOSITORY_NEW_IDENTIFIER } from "../core/simpleRepository/types/SimpleRepository";
 import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { MatrixCreateRoomResponseDTO } from "./types/response/createRoom/MatrixCreateRoomResponseDTO";
 import { MatrixCreateRoomPreset } from "./types/request/createRoom/types/MatrixCreateRoomPreset";
@@ -29,7 +29,7 @@ import { MatrixHistoryVisibility } from "./types/event/roomHistoryVisibility/Mat
 import { MatrixJoinRule } from "./types/event/roomJoinRules/MatrixJoinRule";
 import { MatrixGuestAccess } from "./types/event/roomGuestAccess/MatrixGuestAccess";
 import { MatrixRoomJoinedMembersDTO } from "./types/response/roomJoinedMembers/MatrixRoomJoinedMembersDTO";
-import { RepositoryMember } from "../core/simpleRepository/types/RepositoryMember";
+import { SimpleRepositoryMember } from "../core/simpleRepository/types/SimpleRepositoryMember";
 import { LogLevel } from "../core/types/LogLevel";
 import { createRoomGuestAccessStateEventDTO } from "./types/event/roomGuestAccess/RoomGuestAccessStateEventDTO";
 import { createRoomGuestAccessContentDTO } from "./types/event/roomGuestAccess/RoomGuestAccessContentDTO";
@@ -42,8 +42,8 @@ import { createRoomJoinRulesStateContentDTO } from "./types/event/roomJoinRules/
 import { createRoomJoinRulesStateEventDTO } from "./types/event/roomJoinRules/RoomJoinRulesStateEventDTO";
 import { SetRoomStateByTypeRequestDTO } from "./types/request/setRoomStateByType/SetRoomStateByTypeRequestDTO";
 import { GetRoomStateByTypeResponseDTO } from "./types/response/getRoomStateByType/GetRoomStateByTypeResponseDTO";
-import { isStoredRepositoryItem, StoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/StoredRepositoryItem";
-import { RepositoryUtils } from "../core/simpleRepository/RepositoryUtils";
+import { isStoredRepositoryItem, SimpleStoredRepositoryItem, StoredRepositoryItemExplainCallback, StoredRepositoryItemTestCallback } from "../core/simpleRepository/types/SimpleStoredRepositoryItem";
+import { SimpleRepositoryUtils } from "../core/simpleRepository/SimpleRepositoryUtils";
 import { MatrixRoomVersion } from "./types/MatrixRoomVersion";
 import { explainNot, explainOk } from "../core/types/explain";
 import { parseNonEmptyString } from "../core/types/String";
@@ -58,7 +58,7 @@ const LOG = LogService.createLogger('MatrixCrudRepository');
  *
  * See also [MemoryRepository](https://github.com/sendanor/typescript/tree/main/simpleRepository)
  */
-export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Repository<T> {
+export class MatrixCrudRepository<T extends SimpleStoredRepositoryItem> implements SimpleRepository<T> {
 
     public static setLogLevel (level: LogLevel) {
         LOG.setLogLevel(level);
@@ -149,7 +149,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @returns Array of resources
      */
-    public async getAll () : Promise<readonly RepositoryEntry<T>[]> {
+    public async getAll () : Promise<readonly SimpleRepositoryEntry<T>[]> {
         const list = this._getAll();
         if (!this.isRepositoryEntryList(list)) {
             throw new TypeError(`MatrixCrudRepository.getAll: Illegal data from database: ${this.explainRepositoryEntryList(list)}`);
@@ -162,11 +162,11 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @returns Array of resources
      */
-    public async getSome (idList : readonly string[]) : Promise<readonly RepositoryEntry<T>[]> {
-        const allList : readonly RepositoryEntry<T>[] = await this._getAll();
+    public async getSome (idList : readonly string[]) : Promise<readonly SimpleRepositoryEntry<T>[]> {
+        const allList : readonly SimpleRepositoryEntry<T>[] = await this._getAll();
         const list = filter(
             allList,
-            (item : RepositoryEntry<T>) : boolean => !!item?.id && idList.includes(item?.id)
+            (item : SimpleRepositoryEntry<T>) : boolean => !!item?.id && idList.includes(item?.id)
         );
         if (!this.isRepositoryEntryList(list)) {
             throw new TypeError(`MatrixCrudRepository.getSome: Illegal data from database: ${this.explainRepositoryEntryList(list)}`);
@@ -187,14 +187,14 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public async getAllByProperty (
         propertyName  : string,
         propertyValue : any
-    ): Promise<readonly RepositoryEntry<T>[]> {
+    ): Promise<readonly SimpleRepositoryEntry<T>[]> {
         const items = await this._getAll();
         const list = map(
             filter(
                 items,
-                (item: RepositoryEntry<T>) : boolean => get(item?.data, propertyName) === propertyValue
+                (item: SimpleRepositoryEntry<T>) : boolean => get(item?.data, propertyName) === propertyValue
             ),
-            (item: RepositoryEntry<T>) : RepositoryEntry<T> => ({
+            (item: SimpleRepositoryEntry<T>) : SimpleRepositoryEntry<T> => ({
                 id       : item.id,
                 version  : item.version,
                 data     : item.data
@@ -217,7 +217,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public async createItem (
         data    : T,
         members ?: readonly string[]
-    ) : Promise<RepositoryEntry<T>> {
+    ) : Promise<SimpleRepositoryEntry<T>> {
 
         const clientUserId : string | undefined = this._client.getUserId();
         LOG.debug(`createItem: clientUserId = `, clientUserId);
@@ -360,7 +360,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public async findById (
         id              : string,
         includeMembers ?: boolean
-    ) : Promise<RepositoryEntry<T> | undefined> {
+    ) : Promise<SimpleRepositoryEntry<T> | undefined> {
 
         const response : GetRoomStateByTypeResponseDTO | undefined = await this._client.getRoomStateByType(
             id,
@@ -385,10 +385,10 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
             throw new TypeError(`MatrixCrudRepository.findById: version was not integer: ${version}`);
         }
 
-        let members : readonly RepositoryMember[] | undefined = undefined;
+        let members : readonly SimpleRepositoryMember[] | undefined = undefined;
         if (includeMembers) {
             const dto : MatrixRoomJoinedMembersDTO = await this._client.getJoinedMembers(id);
-            members = map(keys(dto.joined), (memberId: string) : RepositoryMember => {
+            members = map(keys(dto.joined), (memberId: string) : SimpleRepositoryMember => {
                 const member = dto.joined[memberId];
                 return {
                     id          : memberId,
@@ -424,7 +424,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public async findByProperty (
         propertyName  : string,
         propertyValue : any
-    ) : Promise<RepositoryEntry<T> | undefined> {
+    ) : Promise<SimpleRepositoryEntry<T> | undefined> {
         const result = await this.getAllByProperty(propertyName, propertyValue);
         const resultCount : number = result?.length ?? 0;
         if (resultCount === 0) return undefined;
@@ -442,8 +442,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
     public async findByIdAndUpdate (
         id: string,
         item: T
-    ) : Promise<RepositoryEntry<T>> {
-        const rItem : RepositoryEntry<T> | undefined = await this.findById(id);
+    ) : Promise<SimpleRepositoryEntry<T>> {
+        const rItem : SimpleRepositoryEntry<T> | undefined = await this.findById(id);
         if (rItem === undefined) throw new TypeError(`findByIdAndUpdate: Could not find item for "${id}"`);
         return await this.update(rItem.id, item);
     }
@@ -457,7 +457,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @param jsonData New data
      */
-    public async update (id: string, jsonData: T) : Promise<RepositoryEntry<T>> {
+    public async update (id: string, jsonData: T) : Promise<SimpleRepositoryEntry<T>> {
 
         if (!isJsonObject(jsonData)) {
             throw new TypeError(`MatrixCrudRepository.update: jsonData was not JsonObject: ${jsonData}`);
@@ -505,12 +505,12 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @param item New data
      */
-    public async updateOrCreateItem (item: T) : Promise<RepositoryEntry<T>> {
+    public async updateOrCreateItem (item: T) : Promise<SimpleRepositoryEntry<T>> {
         if (!isJsonObject(item)) {
             throw new TypeError(`MatrixCrudRepository.updateOrCreateItem: jsonData was not JsonObject: ${item}`);
         }
         const id = item.id;
-        const foundItem : RepositoryEntry<T> | undefined = id !== REPOSITORY_NEW_IDENTIFIER ? await this.findById(id) : undefined;
+        const foundItem : SimpleRepositoryEntry<T> | undefined = id !== REPOSITORY_NEW_IDENTIFIER ? await this.findById(id) : undefined;
         if (foundItem) {
             return await this.update(foundItem.id, item);
         } else {
@@ -533,9 +533,9 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      * @returns The resource with `deleted` property as `false`
      *
      */
-    public async deleteById (id: string) : Promise<RepositoryEntry<T>> {
+    public async deleteById (id: string) : Promise<SimpleRepositoryEntry<T>> {
 
-        let record : RepositoryEntry<T> | undefined;
+        let record : SimpleRepositoryEntry<T> | undefined;
 
         try {
 
@@ -627,8 +627,8 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @param list
      */
-    public async deleteByIdList (list: readonly string[]) : Promise<readonly RepositoryEntry<T>[]> {
-        const results : RepositoryEntry<T>[] = [];
+    public async deleteByIdList (list: readonly string[]) : Promise<readonly SimpleRepositoryEntry<T>[]> {
+        const results : SimpleRepositoryEntry<T>[] = [];
         let i = 0;
         for (; i < list.length; i += 1) {
             results.push( await this.deleteById(list[i]) );
@@ -644,15 +644,15 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @param list
      */
-    public async deleteByList (list: readonly RepositoryEntry<T>[]) : Promise<readonly RepositoryEntry<T>[]> {
+    public async deleteByList (list: readonly SimpleRepositoryEntry<T>[]) : Promise<readonly SimpleRepositoryEntry<T>[]> {
         return this.deleteByIdList( map(list, item => item.id) );
     }
 
     /**
      * Delete all
      */
-    public async deleteAll () : Promise<readonly RepositoryEntry<T>[]> {
-        const list : readonly RepositoryEntry<T>[] = await this._getAll();
+    public async deleteAll () : Promise<readonly SimpleRepositoryEntry<T>[]> {
+        const list : readonly SimpleRepositoryEntry<T>[] = await this._getAll();
         return this.deleteByIdList( map(list, item => item.id) );
     }
 
@@ -723,7 +723,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
         id              : string,
         includeMembers ?: boolean,
         timeout        ?: number
-    ) : Promise< RepositoryEntry<T> | undefined > {
+    ) : Promise< SimpleRepositoryEntry<T> | undefined > {
 
         if (!id) throw new TypeError(`MatrixCrudRepository.waitById: id is required: ${id}`);
 
@@ -750,12 +750,12 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      * @param list
      * @private
      */
-    public isRepositoryEntryList (list: any) : list is RepositoryEntry<T>[] {
-        return RepositoryUtils.isRepositoryEntryList(list, this._isT);
+    public isRepositoryEntryList (list: any) : list is SimpleRepositoryEntry<T>[] {
+        return SimpleRepositoryUtils.isRepositoryEntryList(list, this._isT);
     }
 
     public explainRepositoryEntryList (list: any): string {
-        return RepositoryUtils.explainRepositoryEntryList(list, this._isT, this._explainT, this._tName);
+        return SimpleRepositoryUtils.explainRepositoryEntryList(list, this._isT, this._explainT, this._tName);
     }
 
     /**
@@ -763,7 +763,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
      *
      * @returns Array of resources
      */
-    private async _getAll () : Promise<readonly RepositoryEntry<T>[]> {
+    private async _getAll () : Promise<readonly SimpleRepositoryEntry<T>[]> {
 
         const response: MatrixSyncResponseDTO = await this._client.sync(
             {
@@ -848,7 +848,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
 
         return reduce(
             joinedRooms,
-            (result : readonly RepositoryEntry<T>[], roomId: MatrixRoomId) : readonly RepositoryEntry<T>[] => {
+            (result : readonly SimpleRepositoryEntry<T>[], roomId: MatrixRoomId) : readonly SimpleRepositoryEntry<T>[] => {
                 const value : MatrixSyncResponseJoinedRoomDTO = joinObject[roomId];
                 const events : readonly MatrixSyncResponseRoomEventDTO[] = filter(
                     value?.state?.events ?? [],
@@ -864,7 +864,7 @@ export class MatrixCrudRepository<T extends StoredRepositoryItem> implements Rep
                     result,
                     map(
                         events,
-                        (item : MatrixSyncResponseRoomEventDTO) : RepositoryEntry<T> => {
+                        (item : MatrixSyncResponseRoomEventDTO) : SimpleRepositoryEntry<T> => {
 
                             // @ts-ignore
                             const data    : T       = item?.content?.data ?? {};

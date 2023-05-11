@@ -4,8 +4,8 @@ import { SimpleMatrixClient } from "./SimpleMatrixClient";
 import { LogService } from "../core/LogService";
 import { Observer, ObserverCallback } from "../core/Observer";
 import { DEFAULT_IO_SERVER_HOSTNAME } from "./constants/matrix-backend";
-import { SharedClientService, SharedClientServiceDestructor} from "../core/simpleRepository/types/SharedClientService";
-import { SharedClientServiceEvent } from "../core/simpleRepository/types/SharedClientServiceEvent";
+import { SimpleSharedClientService, SharedClientServiceDestructor} from "../core/simpleRepository/types/SimpleSharedClientService";
+import { SimpleSharedClientServiceEvent } from "../core/simpleRepository/types/SimpleSharedClientServiceEvent";
 
 const LOG = LogService.createLogger('MatrixSharedClientService');
 
@@ -13,18 +13,18 @@ const LOG = LogService.createLogger('MatrixSharedClientService');
  * This service can be used to offer shared access to SimpleMatrixClient
  * instance. We use it for our services using MatrixCrudRepository.
  */
-export class MatrixSharedClientService implements SharedClientService {
+export class MatrixSharedClientService implements SimpleSharedClientService {
 
-    public Event = SharedClientServiceEvent;
+    public Event = SimpleSharedClientServiceEvent;
 
-    private _observer           : Observer<SharedClientServiceEvent>;
+    private _observer           : Observer<SimpleSharedClientServiceEvent>;
     private _client             : SimpleMatrixClient | undefined;
     private _initInProgress     : boolean;
     private _loginInProgress    : boolean;
     private _defaultServer      : string;
 
     public constructor () {
-        this._observer = new Observer<SharedClientServiceEvent>("MatrixSharedClientService");
+        this._observer = new Observer<SimpleSharedClientServiceEvent>("MatrixSharedClientService");
         this._client = undefined;
         this._initInProgress = true;
         this._loginInProgress = false;
@@ -53,8 +53,8 @@ export class MatrixSharedClientService implements SharedClientService {
      * @param callback
      */
     public on (
-        name: SharedClientServiceEvent,
-        callback: ObserverCallback<SharedClientServiceEvent>
+        name: SimpleSharedClientServiceEvent,
+        callback: ObserverCallback<SimpleSharedClientServiceEvent>
     ): SharedClientServiceDestructor {
         return this._observer.listenEvent(name, callback);
     }
@@ -85,8 +85,8 @@ export class MatrixSharedClientService implements SharedClientService {
         LOG.info(`Logged in to "${hostname}" as "${username}"`);
         this._loginInProgress = false;
         this._client = client;
-        if (this._observer.hasCallbacks(SharedClientServiceEvent.LOGGED_IN)) {
-            this._observer.triggerEvent(SharedClientServiceEvent.LOGGED_IN);
+        if (this._observer.hasCallbacks(SimpleSharedClientServiceEvent.LOGGED_IN)) {
+            this._observer.triggerEvent(SimpleSharedClientServiceEvent.LOGGED_IN);
         }
     }
 
@@ -102,8 +102,8 @@ export class MatrixSharedClientService implements SharedClientService {
         await this.login(url);
         LOG.debug(`Initialization finished: `, url);
         this._initInProgress = false;
-        if(this._observer.hasCallbacks(SharedClientServiceEvent.INITIALIZED)) {
-            this._observer.triggerEvent(SharedClientServiceEvent.INITIALIZED);
+        if(this._observer.hasCallbacks(SimpleSharedClientServiceEvent.INITIALIZED)) {
+            this._observer.triggerEvent(SimpleSharedClientServiceEvent.INITIALIZED);
         }
     }
 
@@ -117,7 +117,7 @@ export class MatrixSharedClientService implements SharedClientService {
                 await new Promise<void>((resolve, reject) => {
                     try {
                         listener = this._observer.listenEvent(
-                            SharedClientServiceEvent.INITIALIZED,
+                            SimpleSharedClientServiceEvent.INITIALIZED,
                             () => {
                                 try {
                                     if (listener) {
