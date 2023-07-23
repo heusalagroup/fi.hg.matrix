@@ -3,7 +3,7 @@
 import { concat } from "../core/functions/concat";
 import { forEach } from "../core/functions/forEach";
 import { Observer,  ObserverCallback, ObserverDestructor } from "../core/Observer";
-import { RequestClient } from "../core/RequestClient";
+import { RequestClientImpl } from "../core/RequestClientImpl";
 import { LogService } from "../core/LogService";
 import { JsonAny } from "../core/Json";
 import { JsonAny as Json, isJsonObject, JsonObject } from "../core/Json";
@@ -1189,7 +1189,7 @@ export class SimpleMatrixClient implements SimpleRepositoryClient {
     ) : Promise< Json| undefined > {
         try {
             LOG.debug(`_postJson: Executing POST request ${url} with `, body, headers);
-            const result = await RequestClient.postJson(url, body, headers);
+            const result = await RequestClientImpl.postJson(url, body, headers);
             LOG.debug(`_postJson: Response received for POST request ${url} as `, result);
             return result;
         } catch (err : any) {
@@ -1221,7 +1221,7 @@ export class SimpleMatrixClient implements SimpleRepositoryClient {
     ) : Promise<Json| undefined> {
         try {
             LOG.debug(`_putJson: Executing PUT request ${url} with `, body, headers);
-            const result = await RequestClient.putJson(url, body, headers);
+            const result = await RequestClientImpl.putJson(url, body, headers);
             LOG.debug(`_putJson: Response received for PUT request ${url} as `, result);
             return result;
         } catch (err : any) {
@@ -1252,7 +1252,7 @@ export class SimpleMatrixClient implements SimpleRepositoryClient {
     ) : Promise<Json| undefined> {
         try {
             LOG.debug(`_getJson: Executing GET request ${url} with `, headers);
-            const result = await RequestClient.getJson(url, headers);
+            const result = await RequestClientImpl.getJson(url, headers);
             LOG.debug(`_getJson: Response received for PUT request ${url} as `, result);
             return result;
         } catch (err : any) {
