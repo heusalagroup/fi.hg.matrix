@@ -12,7 +12,7 @@ import { JwtUtils } from "../../core/jwt/JwtUtils";
 import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
 import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/SimpleRepository";
-import { JwtServiceImpl } from "../../backend/JwtServiceImpl";
+import { JwtEncodeServiceImpl } from "../../backend/JwtEncodeServiceImpl";
 import { createRoomRepositoryItem, RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
 import { createRoom } from "./types/repository/room/Room";
 import { MatrixRoomVersion } from "../types/MatrixRoomVersion";
@@ -238,7 +238,7 @@ export class MatrixServerService {
      * @returns string The device id if access token is valid
      */
     public async verifyAccessToken (accessToken : string) : Promise<string|undefined> {
-        const deviceId: string = JwtServiceImpl.decodePayloadSubject(accessToken);
+        const deviceId: string = JwtEncodeServiceImpl.decodePayloadSubject(accessToken);
         LOG.debug(`verifyAccessToken: deviceId = `, deviceId);
         if ( !this._jwtEngine.verify(accessToken) ) {
             LOG.warn(`verifyAccessToken: Token verification failed: `, deviceId, accessToken);
