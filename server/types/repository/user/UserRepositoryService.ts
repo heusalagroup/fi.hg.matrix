@@ -17,7 +17,7 @@ const LOG = LogService.createLogger('UserRepositoryService');
 
 export type UserRepositoryServiceDestructor = ObserverDestructor;
 
-export class UserRepositoryService implements SimpleRepositoryService<StoredUserRepositoryItem> {
+export class UserRepositoryService implements SimpleRepositoryService {
 
     public Event = SimpleRepositoryServiceEvent;
 

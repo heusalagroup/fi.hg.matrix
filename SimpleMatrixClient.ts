@@ -1112,6 +1112,7 @@ export class SimpleMatrixClient implements SimpleRepositoryClient {
                 };
 
                 const onEvent = (
+                    // @ts-ignore
                     event : SimpleMatrixClientEvent,
                     data  : MatrixSyncResponseAnyEventDTO & {room_id?: string}
                 ) => {

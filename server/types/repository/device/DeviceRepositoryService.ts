@@ -16,7 +16,10 @@ const LOG = LogService.createLogger('DeviceRepositoryService');
 
 export type DeviceRepositoryServiceDestructor = ObserverDestructor;
 
-export class DeviceRepositoryService implements SimpleRepositoryService<StoredDeviceRepositoryItem> {
+/**
+ * @deprecated SimpleRepository framework should not be used anymore. Will be removed later.
+ */
+export class DeviceRepositoryService implements SimpleRepositoryService {
 
     public Event = SimpleRepositoryServiceEvent;
 

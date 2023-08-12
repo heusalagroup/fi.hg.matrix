@@ -3,7 +3,7 @@
 import { MatrixSyncResponseEventDTO,  isMatrixSyncResponseEventDTO } from "./MatrixSyncResponseEventDTO";
 import { isRegularObject } from "../../../../../core/types/RegularObject";
 import { hasNoOtherKeysInDevelopment } from "../../../../../core/types/OtherKeys";
-import { isArrayOf, isArrayOfOrUndefined } from "../../../../../core/types/Array";
+import { isArrayOfOrUndefined } from "../../../../../core/types/Array";
 
 export interface MatrixSyncResponsePresenceDTO {
     readonly events ?: readonly MatrixSyncResponseEventDTO[];

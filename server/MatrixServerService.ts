@@ -1,12 +1,14 @@
 // Copyright (c) 2022-2023. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 import { JwtDecodeServiceImpl } from "../../backend/JwtDecodeServiceImpl";
+import { createEventEntity } from "./types/repository/event/entities/EventEntity";
+import { createRoom } from "./types/repository/room/Room";
 import { UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
 import { JwtEngine } from "../../core/jwt/JwtEngine";
 import { DeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
 import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
-import { RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
+import { createRoomRepositoryItem, RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
 import { MatrixRoomVersion } from "../types/MatrixRoomVersion";
 import { MatrixVisibility } from "../types/request/createRoom/types/MatrixVisibility";
 import { LogLevel } from "../../core/types/LogLevel";
@@ -132,10 +134,10 @@ export class MatrixServerService {
         // );
         // if (!createdUser) throw new TypeError(`MatrixServerService.createUser: Could not create user: ${username}`);
         return createUser(
-            undefined,
-            undefined,
-            undefined,
-            undefined,
+            '',
+            username,
+            password,
+            email,
         );
     }
 
@@ -171,6 +173,9 @@ export class MatrixServerService {
             LOG.debug(`loginWithPassword: Password is required for user "${username}"`);
             return undefined;
         }
+
+        LOG.debug(`_accessTokenExpirationTime : `, this._accessTokenExpirationTime);
+        LOG.debug(`deviceId : `, deviceId);
 
         // const user : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
         // if ( !user || password !== user?.target?.password ) {
@@ -245,6 +250,7 @@ export class MatrixServerService {
         // const device = await this._deviceService.findDeviceById(deviceId);
         // LOG.debug(`getDeviceById: device [${deviceId}] = `, device);
         // return device;
+        LOG.debug(`deviceId = `, deviceId);
         return undefined;
     }
 
@@ -254,6 +260,7 @@ export class MatrixServerService {
      * @param userId
      */
     public async findUserById (userId: string) : Promise<UserRepositoryItem | undefined> {
+        LOG.debug(`userId = `, userId);
         // return await this._userService.findUserById(userId);
         return undefined;
     }
@@ -295,8 +302,15 @@ export class MatrixServerService {
         // };
 
         return createCreateRoomResponse(
-            undefined,
-            undefined,
+            'undefined',
+            createRoomRepositoryItem(
+                'undefined',
+                createRoom(
+                    'undefined',
+                    roomVersion,
+                    visibility,
+                ),
+            ),
         );
 
     }
@@ -312,9 +326,17 @@ export class MatrixServerService {
         stateKey: string,
         originServerTs: number = this.getCurrentTimestamp()
     ) : Promise<EventRepositoryItem> {
+        LOG.debug(`stateKey = `, stateKey);
         return createEventRepositoryItem(
-            undefined,
-            undefined,
+            'undefined',
+            createEventEntity(
+                'undefined',
+                type,
+                content,
+                originServerTs,
+                senderId,
+                roomId,
+            ),
         );
         // return await this._eventService.createEvent(
         //     createEventRepositoryItem(

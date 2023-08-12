@@ -18,7 +18,7 @@ const LOG = LogService.createLogger('HgHsDeviceRepositoryService');
 
 export type HgHsDeviceRepositoryServiceDestructor = ObserverDestructor;
 
-export class HgHsDeviceRepositoryService implements SimpleRepositoryService<StoredDeviceRepositoryItem> {
+export class HgHsDeviceRepositoryService implements SimpleRepositoryService {
 
     public Event = SimpleRepositoryServiceEvent;
 

@@ -1,7 +1,5 @@
 // Copyright (c) 2021. Sendanor <info@sendanor.fi>. All rights reserved.
 
-import { isMatrixEventPowerLevelsDTO, MatrixEventPowerLevelsDTO } from "./MatrixEventPowerLevelsDTO";
-import { isMatrixUserPowerLevelsDTOOrUndefined } from "./MatrixUserPowerLevelsDTO";
 import { isUndefined } from "../../../../../core/types/undefined";
 import { explain, explainNot, explainOk, explainOr, explainProperty } from "../../../../../core/types/explain";
 import { explainNumberOrUndefined, isNumberOrUndefined } from "../../../../../core/types/Number";

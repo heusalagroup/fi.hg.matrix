@@ -16,7 +16,10 @@ const LOG = LogService.createLogger('RoomRepositoryService');
 
 export type RoomRepositoryServiceDestructor = ObserverDestructor;
 
-export class RoomRepositoryService implements SimpleRepositoryService<StoredRoomRepositoryItem> {
+/**
+ * @deprecated SimpleRepository framework should not be used anymore. Will be removed later.
+ */
+export class RoomRepositoryService implements SimpleRepositoryService {
 
     public Event = SimpleRepositoryServiceEvent;
 
