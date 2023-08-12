@@ -53,10 +53,6 @@ export function explainEventRepositoryItem (value: any) : string {
     );
 }
 
-export function stringifyEventRepositoryItem (value: EventRepositoryItem): string {
-    return `HgHsEventRepositoryItem(${value})`;
-}
-
 export function parseEventRepositoryItem (id: string, unparsedData: any) : EventRepositoryItem | undefined {
     const data = parseJson(unparsedData);
     if ( !isEventEntity(data) ) {

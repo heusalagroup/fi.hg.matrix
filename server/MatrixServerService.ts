@@ -1,24 +1,15 @@
-// Copyright (c) 2022. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
+// Copyright (c) 2022-2023. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-import { DeviceRepositoryService } from "./types/repository/device/DeviceRepositoryService";
-import { RoomRepositoryService } from "./types/repository/room/RoomRepositoryService";
-import { UserRepositoryService } from "./types/repository/user/UserRepositoryService";
-import { EventRepositoryService } from "./types/repository/event/EventRepositoryService";
-import { createUserRepositoryItem, UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
+import { JwtDecodeServiceImpl } from "../../backend/JwtDecodeServiceImpl";
+import { UserRepositoryItem } from "./types/repository/user/UserRepositoryItem";
 import { JwtEngine } from "../../core/jwt/JwtEngine";
-import { createDeviceRepositoryItem, DeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
-import { createDevice } from "./types/repository/device/Device";
-import { JwtUtils } from "../../core/jwt/JwtUtils";
+import { DeviceRepositoryItem } from "./types/repository/device/DeviceRepositoryItem";
 import { LogService } from "../../core/LogService";
 import { createUser, User } from "./types/repository/user/User";
-import { REPOSITORY_NEW_IDENTIFIER } from "../../core/simpleRepository/types/SimpleRepository";
-import { JwtEncodeServiceImpl } from "../../backend/JwtEncodeServiceImpl";
-import { createRoomRepositoryItem, RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
-import { createRoom } from "./types/repository/room/Room";
+import { RoomRepositoryItem } from "./types/repository/room/RoomRepositoryItem";
 import { MatrixRoomVersion } from "../types/MatrixRoomVersion";
 import { MatrixVisibility } from "../types/request/createRoom/types/MatrixVisibility";
 import { LogLevel } from "../../core/types/LogLevel";
-import { createRoomStateEventEntity } from "./types/repository/event/entities/RoomStateEventEntity";
 import { createEventRepositoryItem, EventRepositoryItem } from "./types/repository/event/EventRepositoryItem";
 import { MatrixType } from "../types/core/MatrixType";
 import { ReadonlyJsonObject } from "../../core/Json";
@@ -39,6 +30,16 @@ export interface CreateRoomResponse {
     readonly room: RoomRepositoryItem;
 }
 
+export function createCreateRoomResponse (
+    roomId: string,
+    room: RoomRepositoryItem
+) : CreateRoomResponse {
+    return {
+        roomId,
+        room,
+    };
+}
+
 /**
  * Provides services to implement Matrix HomeServer features.
  *
@@ -57,10 +58,6 @@ export class MatrixServerService {
     private readonly _url           : string;
     private readonly _hostname      : string;
     private readonly _defaultRoomVersion : MatrixRoomVersion;
-    private readonly _deviceService : DeviceRepositoryService;
-    private readonly _userService   : UserRepositoryService;
-    private readonly _roomService   : RoomRepositoryService;
-    private readonly _eventService  : EventRepositoryService;
     private readonly _jwtEngine     : JwtEngine;
     private readonly _accessTokenExpirationTime : number;
 
@@ -79,20 +76,12 @@ export class MatrixServerService {
     public constructor (
         url: string,
         hostname: string,
-        deviceService: DeviceRepositoryService,
-        userService: UserRepositoryService,
-        roomService: RoomRepositoryService,
-        eventService: EventRepositoryService,
         jwtEngine: JwtEngine,
         accessTokenExpirationTime : number = DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME,
         defaultRoomVersion : MatrixRoomVersion = MatrixRoomVersion.V8
     ) {
         this._url = url;
         this._hostname = hostname;
-        this._deviceService = deviceService;
-        this._userService = userService;
-        this._roomService = roomService;
-        this._eventService = eventService;
         this._jwtEngine = jwtEngine;
         this._accessTokenExpirationTime = accessTokenExpirationTime;
         this._defaultRoomVersion = defaultRoomVersion;
@@ -128,25 +117,25 @@ export class MatrixServerService {
         password  : string,
         email    ?: string
     ) : Promise<User> {
-        const createdUser = await this._userService.createUser(
-            createUserRepositoryItem(
-                REPOSITORY_NEW_IDENTIFIER,
-                createUser(
-                    REPOSITORY_NEW_IDENTIFIER,
-                    username,
-                    password,
-                    email
-                ),
-                username,
-                email
-            )
-        );
-        if (!createdUser) throw new TypeError(`MatrixServerService.createUser: Could not create user: ${username}`);
+        // const createdUser = await this._userService.createUser(
+        //     createUserRepositoryItem(
+        //         REPOSITORY_NEW_IDENTIFIER,
+        //         createUser(
+        //             REPOSITORY_NEW_IDENTIFIER,
+        //             username,
+        //             password,
+        //             email
+        //         ),
+        //         username,
+        //         email
+        //     )
+        // );
+        // if (!createdUser) throw new TypeError(`MatrixServerService.createUser: Could not create user: ${username}`);
         return createUser(
-            createdUser?.id,
-            createdUser?.target?.username,
-            createdUser?.target?.password,
-            createdUser?.target?.email
+            undefined,
+            undefined,
+            undefined,
+            undefined,
         );
     }
 
@@ -183,51 +172,51 @@ export class MatrixServerService {
             return undefined;
         }
 
-        const user : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
-        if ( !user || password !== user?.target?.password ) {
-            if ( !user ) {
-                LOG.debug(`loginWithPassword: User not found: "${username}"`);
-            } else {
-                LOG.debug(`loginWithPassword: Password mismatch for: "${username}"`);
-            }
-            return undefined;
-        }
-
-        let foundDevice = undefined;
-        if ( deviceId ) {
-            foundDevice = await this._deviceService.findDeviceByDeviceId(deviceId);
-            if ( !foundDevice ) {
-                foundDevice = await this._deviceService.findDeviceById(deviceId);
-            }
-        }
-
-        if ( !foundDevice ) {
-            foundDevice = await this._deviceService.saveDevice(
-                createDeviceRepositoryItem(
-                    'new',
-                    createDevice(
-                        'new',
-                        user.id,
-                        deviceId
-                    )
-                )
-            );
-        }
-
-        if ( foundDevice.userId !== user.id ) {
-            LOG.warn(`loginWithPassword: Device was found/created but belong to different user than: "${username}"`);
-            return undefined;
-        }
-
-        if ( !foundDevice?.id ) {
-            LOG.warn(`Could not create or find device ID "${deviceId}" for user "${username}"`);
-            return undefined;
-        }
-
-        LOG.debug(`Login successful for device "${deviceId}" and user "${username}", generating access key`);
-        return this._jwtEngine.sign(
-            JwtUtils.createSubPayloadExpiringInMinutes(foundDevice.id, this._accessTokenExpirationTime)
-        );
+        // const user : UserRepositoryItem | undefined = await this._userService.findByUsername(username);
+        // if ( !user || password !== user?.target?.password ) {
+        //     if ( !user ) {
+        //         LOG.debug(`loginWithPassword: User not found: "${username}"`);
+        //     } else {
+        //         LOG.debug(`loginWithPassword: Password mismatch for: "${username}"`);
+        //     }
+        //     return undefined;
+        // }
+        //
+        // let foundDevice = undefined;
+        // if ( deviceId ) {
+        //     foundDevice = await this._deviceService.findDeviceByDeviceId(deviceId);
+        //     if ( !foundDevice ) {
+        //         foundDevice = await this._deviceService.findDeviceById(deviceId);
+        //     }
+        // }
+        //
+        // if ( !foundDevice ) {
+        //     foundDevice = await this._deviceService.saveDevice(
+        //         createDeviceRepositoryItem(
+        //             'new',
+        //             createDevice(
+        //                 'new',
+        //                 user.id,
+        //                 deviceId
+        //             )
+        //         )
+        //     );
+        // }
+        //
+        // if ( foundDevice.userId !== user.id ) {
+        //     LOG.warn(`loginWithPassword: Device was found/created but belong to different user than: "${username}"`);
+        //     return undefined;
+        // }
+        //
+        // if ( !foundDevice?.id ) {
+        //     LOG.warn(`Could not create or find device ID "${deviceId}" for user "${username}"`);
+        //     return undefined;
+        // }
+        //
+        // LOG.debug(`Login successful for device "${deviceId}" and user "${username}", generating access key`);
+        // return this._jwtEngine.sign(
+        //     JwtUtils.createSubPayloadExpiringInMinutes(foundDevice.id, this._accessTokenExpirationTime)
+        // );
 
     }
 
@@ -238,7 +227,7 @@ export class MatrixServerService {
      * @returns string The device id if access token is valid
      */
     public async verifyAccessToken (accessToken : string) : Promise<string|undefined> {
-        const deviceId: string = JwtEncodeServiceImpl.decodePayloadSubject(accessToken);
+        const deviceId: string = JwtDecodeServiceImpl.decodePayloadSubject(accessToken);
         LOG.debug(`verifyAccessToken: deviceId = `, deviceId);
         if ( !this._jwtEngine.verify(accessToken) ) {
             LOG.warn(`verifyAccessToken: Token verification failed: `, deviceId, accessToken);
@@ -253,9 +242,10 @@ export class MatrixServerService {
      * @param deviceId
      */
     public async findDeviceById (deviceId : string) : Promise<DeviceRepositoryItem | undefined> {
-        const device = await this._deviceService.findDeviceById(deviceId);
-        LOG.debug(`getDeviceById: device [${deviceId}] = `, device);
-        return device;
+        // const device = await this._deviceService.findDeviceById(deviceId);
+        // LOG.debug(`getDeviceById: device [${deviceId}] = `, device);
+        // return device;
+        return undefined;
     }
 
     /**
@@ -264,7 +254,8 @@ export class MatrixServerService {
      * @param userId
      */
     public async findUserById (userId: string) : Promise<UserRepositoryItem | undefined> {
-        return await this._userService.findUserById(userId);
+        // return await this._userService.findUserById(userId);
+        return undefined;
     }
 
     /**
@@ -284,24 +275,29 @@ export class MatrixServerService {
 
         LOG.debug(`User ${userId} from device ${deviceId} is creating a room with visibility ${visibility} and version ${roomVersion}`);
 
-        const createdRoomItem : RoomRepositoryItem = await this._roomService.createRoom(
-            createRoomRepositoryItem(
-                REPOSITORY_NEW_IDENTIFIER,
-                createRoom(
-                    REPOSITORY_NEW_IDENTIFIER,
-                    roomVersion,
-                    visibility
-                )
-            )
+        // const createdRoomItem : RoomRepositoryItem = await this._roomService.createRoom(
+        //     createRoomRepositoryItem(
+        //         REPOSITORY_NEW_IDENTIFIER,
+        //         createRoom(
+        //             REPOSITORY_NEW_IDENTIFIER,
+        //             roomVersion,
+        //             visibility
+        //         )
+        //     )
+        // );
+        //
+        // const roomId : string = createdRoomItem.id;
+        // LOG.info(`User ${userId} created room by id: ${roomId} with visibility ${visibility} and version ${roomVersion}`);
+        //
+        // return {
+        //     roomId,
+        //     room: createdRoomItem
+        // };
+
+        return createCreateRoomResponse(
+            undefined,
+            undefined,
         );
-
-        const roomId : string = createdRoomItem.id;
-        LOG.info(`User ${userId} created room by id: ${roomId} with visibility ${visibility} and version ${roomVersion}`);
-
-        return {
-            roomId,
-            room: createdRoomItem
-        };
 
     }
 
@@ -316,20 +312,24 @@ export class MatrixServerService {
         stateKey: string,
         originServerTs: number = this.getCurrentTimestamp()
     ) : Promise<EventRepositoryItem> {
-        return await this._eventService.createEvent(
-            createEventRepositoryItem(
-                REPOSITORY_NEW_IDENTIFIER,
-                createRoomStateEventEntity(
-                    REPOSITORY_NEW_IDENTIFIER,
-                    type,
-                    content,
-                    originServerTs,
-                    senderId,
-                    roomId,
-                    stateKey
-                )
-            )
+        return createEventRepositoryItem(
+            undefined,
+            undefined,
         );
+        // return await this._eventService.createEvent(
+        //     createEventRepositoryItem(
+        //         REPOSITORY_NEW_IDENTIFIER,
+        //         createRoomStateEventEntity(
+        //             REPOSITORY_NEW_IDENTIFIER,
+        //             type,
+        //             content,
+        //             originServerTs,
+        //             senderId,
+        //             roomId,
+        //             stateKey
+        //         )
+        //     )
+        // );
     }
 
     /**
